@@ -73,7 +73,7 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
 
         }
     }
-    const connectedRecords = await myFetchAutoRetry(url, options, {});
+    const connectedRecords = await myFetchAutoRetry(fetchUrl, options, {});
     console.log(connectedRecords);
 
 
