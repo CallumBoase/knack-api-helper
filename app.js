@@ -10,9 +10,11 @@ async function myFetch(url, options = {}, helperData = {}) {
         }
         let err = new Error(`Successful http request but got status of ${response.status}`)
         err.details = {url, options, response, helperData};
+        console.log('myFetchTry', err);
         throw err;
     } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
         err.details = {url, options, helperData};
+        console.log('myFetchCatch', err);
         throw err;
     }
 }
@@ -23,7 +25,7 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
         try {
             return await myFetch(url, options, helperData);
         } catch (err){
-            console.log(err);
+            console.log('myFetchAutoRetry', err);
             const isLastRetry = i === retries;
             if(isLastRetry) throw err;
             console.log(`failed myFetch ${options.method ? options.method : ""} to ${url}, attempt ${i}. retrying`);
@@ -78,7 +80,7 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
         const connectedRecords = await myFetchAutoRetry(fetchUrl, options, {});
         console.log(connectedRecords);
     } catch(err){
-        console.log(err);
+        console.log('knack', err);
     }
     
     
