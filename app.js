@@ -62,7 +62,7 @@ async function myFetchMany (records) {
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
     const fetchUrl = `
-    https://jsonplaceholder.typicode.com/todoss/${record.id}?
+    https://api.knack.com/v1/pages/scene_9/views/view_13/records?
     filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
     `;
 
