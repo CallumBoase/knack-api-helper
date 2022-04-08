@@ -11,7 +11,7 @@ async function myFetch(url, options = {}, helperData = {}) {
         let err = new Error(`Successful http request but got status of ${response.status}`)
         err.details = {url, options, response, helperData};
         console.log('myFetchTry', err);
-        console.log(err);
+        console.log(err.details);
         throw err;
     } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
         err.details = {url, options, helperData};
