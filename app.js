@@ -23,6 +23,7 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
         try {
             return await myFetch(url, options, helperData);
         } catch (err){
+            console.log(err);
             const isLastRetry = i === retries;
             if(isLastRetry) throw err;
             console.log(`failed myFetch ${options.method ? options.method : ""} to ${url}, attempt ${i}. retrying`);
