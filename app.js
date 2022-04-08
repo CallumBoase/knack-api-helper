@@ -12,7 +12,7 @@ async function myFetch(url, options = {}, helperData = {}) {
         err.details = {url, options, response, helperData};
         throw err;
     } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
-        err.details = {url, options, helperData};
+        !err.details ? err.details = {url, options, helperData} : err.datails;
         console.log('myFetchCatch', err.details);
         throw err;
     }
