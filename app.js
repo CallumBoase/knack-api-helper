@@ -60,8 +60,12 @@ async function myFetchMany (records) {
 
 }
 
+function knackAPI(){
+
+}
+
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    const fetchUrl = `
+    const getConnectedChildren = `
     https://api.knack.com/v1/pages/scene_9/views/view_13/records?
     filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
     `;
@@ -72,14 +76,13 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
             "X-Knack-Application-ID": Knack.application_id,
             "X-Knack-REST-API-Key": "knack",
             "Authorization": Knack.getUserToken()
-
         }
     }
     try {
-        const connectedRecords = await myFetchAutoRetry(fetchUrl, options, {});
+        const connectedRecords = await myFetchAutoRetry(getConnectedChildren, options, {});
         console.log(connectedRecords);
     } catch(err){
-        console.log('knack', err);
+        console.log(err);
     }
     
     
