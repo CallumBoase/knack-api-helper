@@ -80,20 +80,20 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
 });
 
 //Running myFetchMany
-const records = [//Eg we got these from Knack API
-    {id: 1, field_1: 'asdf'},
-    {id: 2, field_1: 'asdf2'},
-    {id: 3, field_1: 'asdf3'},
-    {id: 4, field_1: 'asdf4'},
-]
+// const records = [//Eg we got these from Knack API
+//     {id: 1, field_1: 'asdf'},
+//     {id: 2, field_1: 'asdf2'},
+//     {id: 3, field_1: 'asdf3'},
+//     {id: 4, field_1: 'asdf4'},
+// ]
 
-records.forEach(record => {
-    record.fetch = {
-        url: `https://jsonplaceholder.typicode.com/todoss/${record.id}`,
-        options: {},
-        retries: 5
-    }
-});
+// records.forEach(record => {
+//     record.fetch = {
+//         url: `https://jsonplaceholder.typicode.com/todoss/${record.id}`,
+//         options: {},
+//         retries: 5
+//     }
+// });
 
 //Calling via promise
 // myFetchMany(records)
@@ -101,31 +101,31 @@ records.forEach(record => {
 //     .catch(err => console.log(err))
 
 //calling via async function
-const runCode = async () => {
-    try {
-        const results = await myFetchMany(records);
-        console.log(results);
-    } catch(err) {
-        console.log(err);
-    }
-}
-runCode();
+// const runCode = async () => {
+//     try {
+//         const results = await myFetchMany(records);
+//         console.log(results);
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
+// runCode();
 
 
 //More complex options setup example
-records.forEach(record => {
-    record.fetch = {
-        url: `
-            https://jsonplaceholder.typicode.com/todoss/${record.id}?
-            filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
-        `,
-        retries: 5,
-        options: {
-            method: 'GET',
-            headers: {},
-            body: {
-                field_1: record.field_1
-            }
-        }
-    }
-});
+// records.forEach(record => {
+//     record.fetch = {
+//         url: `
+//             https://jsonplaceholder.typicode.com/todoss/${record.id}?
+//             filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
+//         `,
+//         retries: 5,
+//         options: {
+//             method: 'GET',
+//             headers: {},
+//             body: {
+//                 field_1: record.field_1
+//             }
+//         }
+//     }
+// });
