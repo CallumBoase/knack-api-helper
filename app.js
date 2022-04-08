@@ -13,7 +13,6 @@ async function myFetch(url, options = {}, helperData = {}) {
         throw err;
     } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
         !err.details ? err.details = {url, options, helperData} : err.datails;
-        console.log('myFetchCatch', err.details);
         throw err;
     }
 }
@@ -24,7 +23,6 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
         try {
             return await myFetch(url, options, helperData);
         } catch (err){
-            console.log('myFetchAutoRetry', err);
             const isLastRetry = i === retries;
             if(isLastRetry) throw err;
             console.log(`failed myFetch ${options.method ? options.method : ""} to ${url}, attempt ${i}. retrying`);
@@ -61,7 +59,13 @@ async function myFetchMany (records) {
 }
 
 function knackAPI(){
-
+    //Put some stuff here to help us build Knack API requests
+        //Get single record
+        //Get multi records
+        //Get multi records with multi pages
+        //Post 
+        //Put
+        //Delete
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
