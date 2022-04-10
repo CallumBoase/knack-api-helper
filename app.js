@@ -87,10 +87,9 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
 
     console.log(filters);
 
-    const getConnectedChildren = `
-    https://api.knack.com/v1/pages/scene_9/views/view_13/records?
-    filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
-    `;
+    const getConnectedChildren = `https://api.knack.com/v1/pages/scene_9/views/view_13/records?${filters}`;
+
+    console.log(getConnectedChildren);
 
     const options = {
         method: 'GET',
