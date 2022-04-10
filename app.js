@@ -62,7 +62,7 @@ const knackAPI = {
     buildFilters(filters) {
         return `filters=${JSON.stringify(filters)}`
     },
-    async getMany(settings, page = 1, allPages = []){
+    async getMany(settings, page = 1, final = {records: [], pages: []}){
         let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         url += `?page=${page}&rows_per_page=1`
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
@@ -75,12 +75,13 @@ const knackAPI = {
             }
         }
         const result = await myFetchAutoRetry(url, options, settings.helperData);
-        allPages.push(result);
-        console.log(allPages);
+        final.pages.push(result);
+        result.json.records.map(record => final.records.push(record));
+        console.log(final);
         if(result.json.total_pages > result.json.current_page){
-            return await this.getMany(settings, parseInt(result.json.current_page) + 1, allPages);
+            return await this.getMany(settings, result.json.current_page + 1, final);
         } else {
-            return allPages;
+            return final;
         }
     }
 }
