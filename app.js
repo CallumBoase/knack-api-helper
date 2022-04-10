@@ -100,7 +100,7 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
             helperData: {a: 1, b: 2}
         });
         console.log(connectedChildren);
-    } catch {
+    } catch(err) {
         console.log(err);
     }
     // try {
