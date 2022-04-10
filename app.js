@@ -111,7 +111,7 @@ function view17Handler(){
                 record,
                 view: 'view_XXX',
                 scene: 'scene_XXX',
-                updateData: {field_18: record.field_19}
+                body: {field_18: record.field_19}
             });
         });
     }
