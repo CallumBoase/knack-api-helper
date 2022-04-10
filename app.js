@@ -63,7 +63,7 @@ const knackAPI = {
         return `filters=${JSON.stringify(filters)}`
     },
     async getMany(settings, page = 1, final = {records: [], pages: []}){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/recordss`;
         url += `?page=${page}&rows_per_page=1`;
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
         
@@ -110,7 +110,7 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
         });
         console.log(connectedChildren);
     } catch(err) {
-        console.log(err);
+        console.log(err.details);
     } 
 });
 
