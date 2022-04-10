@@ -62,23 +62,21 @@ const knackAPI = {
     buildFilters(filters) {
         return `filters=${JSON.stringify(filters)}`
     },
-    viewBased: {
-        async get(settings){
-            console.log(this);
-            const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
-            if(settings.filters) url += `?${this.buildFilters(settings.filters)}`;
-            const options = {
-                method: 'GET',
-                headers: {
-                    "X-Knack-Application-ID": Knack.application_id,
-                    "X-Knack-REST-API-Key": "knack",
-                    "Authorization": Knack.getUserToken()
-                }
+    async getMany(settings){
+        console.log(this);
+        const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        if(settings.filters) url += `?${this.buildFilters(settings.filters)}`;
+        const options = {
+            method: 'GET',
+            headers: {
+                "X-Knack-Application-ID": Knack.application_id,
+                "X-Knack-REST-API-Key": "knack",
+                "Authorization": Knack.getUserToken()
             }
-            return await myFetchAutoRetry(url, options, settings.helperData);
-            
-
         }
+        return await myFetchAutoRetry(url, options, settings.helperData);
+        
+
     }
 }
 
@@ -94,7 +92,7 @@ const knackAPI = {
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
     try {
-        const connectedChildren = await knackAPI.viewBased.get({
+        const connectedChildren = await knackAPI.getMany({
             view: 'view_13', 
             scene: 'scene_9',
             filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
