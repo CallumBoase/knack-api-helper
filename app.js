@@ -67,15 +67,15 @@ const knackAPI = {
     },
 }
 
-function knackAPI(){
-    //Put some stuff here to help us build Knack API requests
-        //Get single record
-        //Get multi records
-        //Get multi records with multi pages
-        //Post 
-        //Put
-        //Delete
-}
+// function knackAPI(){
+//     //Put some stuff here to help us build Knack API requests
+//         //Get single record
+//         //Get multi records
+//         //Get multi records with multi pages
+//         //Post 
+//         //Put
+//         //Delete
+// }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
     const filters = knackAPI.filters({
