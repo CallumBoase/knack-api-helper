@@ -74,7 +74,8 @@ const knackAPI = {
                 "Authorization": Knack.getUserToken()
             }
         }
-        allPages.push(await myFetchAutoRetry(url, options, settings.helperData));
+        const result = await myFetchAutoRetry(url, options, settings.helperData);
+        allPages.push(result);
         console.log(allPages);
         if(result.json.total_pages > result.json.current_page){
             return await this.getMany(settings, parseInt(result.json.current_page) + 1, allPages);
