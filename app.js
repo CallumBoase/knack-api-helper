@@ -63,8 +63,8 @@ const knackAPI = {
         return `filters=${JSON.stringify(filters)}`
     },
     async getMany(settings, page = 1, final = {records: [], pages: []}){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/recordss`;
-        url += `?page=${page}&rows_per_page=1`;
+        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
         
         const options = {
