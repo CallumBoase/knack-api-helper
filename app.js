@@ -87,6 +87,9 @@ const knackAPI = {
         } else {
             return final;
         }
+    },
+    putSetup(settings){
+        //Insert logic to generate put
     }
 }
 
@@ -100,7 +103,19 @@ const knackAPI = {
 //         //Delete
 // }
 
-$(document).on('knack-form-submit.view_17', async (event, view, record) => {
+function view17Handler(){
+
+    function connectedChildrenUpdatePrep(connectedChildren){
+        return connectedChildren.records.forEach(record => {
+            record.fetch = knackAPI.putSetup({//Need to write putSetup to emulate output line 149-154
+                record,
+                view: 'view_XXX',
+                scene: 'scene_XXX',
+                updateData: {field_18: record.field_19}
+            });
+        });
+    }
+
     try {
         const connectedChildren = await knackAPI.getMany({
             view: 'view_13', 
@@ -109,9 +124,18 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
             helperData: {a: 1, b: 2}
         });
         console.log(connectedChildren);
+        //CODE IN PROGRESS NEXT 3 LINES - FUNCTIONS NOT FINISHED
+        const updateConnectedChildren = connectedChildrenUpdatePrep(connectedChildren);//Write the proper details
+        const result = await myFetchMany(updateConnectedChildren);
+        console.log(result);
+
     } catch(err) {
         console.log(err.details);
     } 
+}
+
+$(document).on('knack-form-submit.view_17', async (event, view, record) => {
+    view17Handler();
 });
 
 //Running myFetchMany
