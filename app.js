@@ -81,7 +81,7 @@ const knackAPI = {
         final.pages.push(result);
         result.json.records.map(record => final.records.push(record));
         final.helperData = settings.helperData;
-        
+
         if(result.json.total_pages > result.json.current_page){
             return await this.getMany(settings, result.json.current_page + 1, final);
         } else {
@@ -111,45 +111,7 @@ $(document).on('knack-form-submit.view_17', async (event, view, record) => {
         console.log(connectedChildren);
     } catch(err) {
         console.log(err);
-    }
-    // try {
-    //     const connectedChildren = await myFetchAutoRetry(getConnectedChildren.url, getConnectedChildren.options, {});
-    //     console.log(connectedChildren);
-    // } catch {
-    //     console.log(err.details);
-    // }
-    
-    // const filters = knackAPI.filters({
-    //     match: 'and',
-    //     rules: [
-    //         {field: 'field_20', operator: 'is', value: record.id}
-    //     ]
-    // })
-
-    // console.log(filters);
-
-    // const getConnectedChildren = `https://api.knack.com/v1/pages/scene_9/views/view_13/records?${filters}`;
-
-    // console.log(getConnectedChildren);
-
-    // const options = {
-    //     method: 'GET',
-    //     headers: {
-    //         "X-Knack-Application-ID": Knack.application_id,
-    //         "X-Knack-REST-API-Key": "knack",
-    //         "Authorization": Knack.getUserToken()
-    //     }
-    // }
-    // try {
-    //     const connectedRecords = await myFetchAutoRetry(getConnectedChildren, options, {});
-    //     console.log(connectedRecords);
-    // } catch(err){
-    //     console.log(err);
-    // }
-    
-    
-
-
+    } 
 });
 
 //Running myFetchMany
