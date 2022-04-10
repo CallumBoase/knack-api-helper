@@ -59,9 +59,26 @@ async function myFetchMany (records) {
 }
 
 const knackAPI = {
-    filters: filters => {
+    buildFilters(filters) {
         return `filters=${JSON.stringify(filters)}`
     },
+    viewBased: {
+        async get(settings){
+            const url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records`;
+            if(filters) url += `?${this.buildFilters(settings.filters)}`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    "X-Knack-Application-ID": Knack.application_id,
+                    "X-Knack-REST-API-Key": "knack",
+                    "Authorization": Knack.getUserToken()
+                }
+            }
+            return await myFetchAutoRetry(url, options, settings.helperData);
+            
+
+        }
+    }
 }
 
 // function knackAPI(){
@@ -75,33 +92,51 @@ const knackAPI = {
 // }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    const filters = knackAPI.filters({
-        match: 'and',
-        rules: [
-            {field: 'field_20', operator: 'is', value: record.id}
-        ]
-    })
-
-    console.log(filters);
-
-    const getConnectedChildren = `https://api.knack.com/v1/pages/scene_9/views/view_13/records?${filters}`;
-
-    console.log(getConnectedChildren);
-
-    const options = {
-        method: 'GET',
-        headers: {
-            "X-Knack-Application-ID": Knack.application_id,
-            "X-Knack-REST-API-Key": "knack",
-            "Authorization": Knack.getUserToken()
-        }
-    }
     try {
-        const connectedRecords = await myFetchAutoRetry(getConnectedChildren, options, {});
-        console.log(connectedRecords);
-    } catch(err){
+        const connectedChildren = await knackAPI.viewBased.get({
+            view: 'view_13', 
+            scene: 'scene_9',
+            filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
+            helperData: {a: 1, b: 2}
+        });
+        console.log(connectedChildren);
+    } catch {
         console.log(err);
     }
+    // try {
+    //     const connectedChildren = await myFetchAutoRetry(getConnectedChildren.url, getConnectedChildren.options, {});
+    //     console.log(connectedChildren);
+    // } catch {
+    //     console.log(err.details);
+    // }
+    
+    // const filters = knackAPI.filters({
+    //     match: 'and',
+    //     rules: [
+    //         {field: 'field_20', operator: 'is', value: record.id}
+    //     ]
+    // })
+
+    // console.log(filters);
+
+    // const getConnectedChildren = `https://api.knack.com/v1/pages/scene_9/views/view_13/records?${filters}`;
+
+    // console.log(getConnectedChildren);
+
+    // const options = {
+    //     method: 'GET',
+    //     headers: {
+    //         "X-Knack-Application-ID": Knack.application_id,
+    //         "X-Knack-REST-API-Key": "knack",
+    //         "Authorization": Knack.getUserToken()
+    //     }
+    // }
+    // try {
+    //     const connectedRecords = await myFetchAutoRetry(getConnectedChildren, options, {});
+    //     console.log(connectedRecords);
+    // } catch(err){
+    //     console.log(err);
+    // }
     
     
 
