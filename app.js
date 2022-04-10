@@ -62,8 +62,8 @@ const knackAPI = {
     buildFilters(filters) {
         return `filters=${JSON.stringify(filters)}`
     },
-    async getMany(settings, page = 1){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/recordss`;
+    async getMany(settings, page = 1, allPages = []){
+        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         url += `?page=${page}&rows_per_page=1`
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
         const options = {
@@ -74,12 +74,12 @@ const knackAPI = {
                 "Authorization": Knack.getUserToken()
             }
         }
-        let result = await myFetchAutoRetry(url, options, settings.helperData);
-        console.log(result);
+        allPages.push(await myFetchAutoRetry(url, options, settings.helperData);
+        console.log(allPages);
         if(result.json.total_pages > result.json.current_page){
             return await this.getMany(settings, parseInt(result.json.current_page) + 1);
         } else {
-            return result;
+            return allPages;
         }
     }
 }
