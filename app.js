@@ -58,6 +58,15 @@ async function myFetchMany (records) {
 
 }
 
+const knackAPI = {
+    filters: filters => {
+        return `
+            filters=
+            ${JSON.stringify(filters)}
+        `
+    },
+}
+
 function knackAPI(){
     //Put some stuff here to help us build Knack API requests
         //Get single record
@@ -69,6 +78,15 @@ function knackAPI(){
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
+    const filters = knackAPI.buildFilters({
+        match: 'and',
+        rules: [
+            {field: 'field_20', operator: 'is', value: record.id}
+        ]
+    })
+
+    console.log(filters);
+
     const getConnectedChildren = `
     https://api.knack.com/v1/pages/scene_9/views/view_13/records?
     filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
