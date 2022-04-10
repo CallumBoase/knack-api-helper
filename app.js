@@ -60,10 +60,7 @@ async function myFetchMany (records) {
 
 const knackAPI = {
     filters: filters => {
-        return `
-            filters=
-            ${JSON.stringify(filters)}
-        `
+        return `filters=${JSON.stringify(filters)}`
     },
 }
 
