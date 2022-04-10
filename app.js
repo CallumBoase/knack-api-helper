@@ -78,7 +78,7 @@ function knackAPI(){
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    const filters = knackAPI.buildFilters({
+    const filters = knackAPI.filters({
         match: 'and',
         rules: [
             {field: 'field_20', operator: 'is', value: record.id}
