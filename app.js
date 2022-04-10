@@ -64,6 +64,7 @@ const knackAPI = {
     },
     viewBased: {
         async get(settings){
+            console.log(this);
             const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
             if(settings.filters) url += `?${this.buildFilters(settings.filters)}`;
             const options = {
