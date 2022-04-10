@@ -64,7 +64,7 @@ const knackAPI = {
     },
     async getMany(settings){
         console.log(this);
-        const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         if(settings.filters) url += `?${this.buildFilters(settings.filters)}`;
         const options = {
             method: 'GET',
