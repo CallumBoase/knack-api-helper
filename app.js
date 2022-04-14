@@ -112,6 +112,7 @@ async function view17Handler(){
             filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
             helperData: {a: 1, b: 2}
         });
+        console.log(connectedChildren);
         return connectedChildren;
     }
 
