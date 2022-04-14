@@ -106,12 +106,13 @@ const knackAPI = {
 async function view17Handler(){
 
     async function getConnectedChildren(record){
-        return await knackAPI.getMany({
+        const connectedChildren = await knackAPI.getMany({
             view: 'view_13', 
             scene: 'scene_9',
             filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
             helperData: {a: 1, b: 2}
         });
+        return connectedChildren;
     }
 
     function connectedChildrenUpdatePrep(connectedChildren){
