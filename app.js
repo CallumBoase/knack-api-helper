@@ -97,7 +97,8 @@ const knackAPI = {
             headers: {
                 "X-Knack-Application-ID": Knack.application_id,
                 "X-Knack-REST-API-Key": "knack",
-                "Authorization": Knack.getUserToken()
+                "Authorization": Knack.getUserToken(),
+                "Content-Type": "application/json"
             },
             body: settings.body
         }
