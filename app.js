@@ -99,37 +99,12 @@ const knackAPI = {
                 "X-Knack-REST-API-Key": "knack",
                 "Authorization": Knack.getUserToken()
             },
-            body: JSON.stringify(settings.body)
+            body: settings.body
         }
         const retries = settings.retries ? settings.retries : 5;
         return {url, options, retries};
     }
 }
-
-// records.forEach(record => {
-//     record.fetch = {
-//         url: `
-//             https://jsonplaceholder.typicode.com/todoss/${record.id}?
-//             filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
-//         `,
-//         retries: 5,
-//         options: {
-//             method: 'GET',
-//             headers: {},
-//             body: {
-//                 field_1: record.field_1
-//             }
-//         }
-//     }
-// });
-
-// records.forEach(record => {
-//     record.fetch = {
-//         url: `https://jsonplaceholder.typicode.com/todoss/${record.id}`,
-//         options: {},
-//         retries: 5
-//     }
-// });
 
 // function knackAPI(){
 //     //Put some stuff here to help us build Knack API requests
