@@ -106,6 +106,8 @@ const knackAPI = {
         return {url, options, retries};
     },
     async put(settings){
+        const putSettings = knackAPI.putSetup(settings);
+        console.log(putSettings);
         return await myFetchAutoRetry(knackAPI.putSetup(settings))
     }
 }
