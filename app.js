@@ -120,9 +120,12 @@ const knackAPI = {
 //     //Put some stuff here to help us build Knack API requests
 //         //Get single record DONE
 //         //Get multi records DONE
-//         //Get multi records with multi pages DONE
+//         //Get multi records with multi pages DONE    
+//         //Post setup TO DO
 //         //Post TO DO
+//         //Put setup DONE
 //         //Put DONE
+//         //Delete setup TO DO
 //         //Delete TO DO
 // }
 
