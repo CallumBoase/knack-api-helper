@@ -63,12 +63,10 @@ const knackAPI = {
         return `filters=${JSON.stringify(filters)}`
     },
     headers: {
-        return {
-            "X-Knack-Application-ID": Knack.application_id,
-            "X-Knack-REST-API-Key": "knack",
-            "Authorization": Knack.getUserToken(),
-            "Content-Type": "application/json"
-        }
+        "X-Knack-Application-ID": Knack.application_id,
+        "X-Knack-REST-API-Key": "knack",
+        "Authorization": Knack.getUserToken(),
+        "Content-Type": "application/json"
     },
     async get(settings = {view, scene, recordId, helperData}){
         let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records${recordId}`;
