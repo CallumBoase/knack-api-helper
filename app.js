@@ -103,7 +103,7 @@ const knackAPI = {
 //         //Delete
 // }
 
-async function view17Handler(){
+async function view17Handler(record){
 
     async function getConnectedChildren(record){
         const connectedChildren = await knackAPI.getMany({
@@ -128,13 +128,13 @@ async function view17Handler(){
     }
 
     try {
-        //const connectedChildren = await getConnectedChildren(record);
-        const connectedChildren = await knackAPI.getMany({
-            view: 'view_13', 
-            scene: 'scene_9',
-            filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
-            helperData: {a: 1, b: 2}
-        });
+        const connectedChildren = await getConnectedChildren(record);
+        // const connectedChildren = await knackAPI.getMany({
+        //     view: 'view_13', 
+        //     scene: 'scene_9',
+        //     filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
+        //     helperData: {a: 1, b: 2}
+        // });
         console.log(connectedChildren);
         //CODE IN PROGRESS NEXT 3 LINES - FUNCTIONS NOT FINISHED
         const updateConnectedChildren = connectedChildrenUpdatePrep(connectedChildren);//Write the proper details
@@ -148,7 +148,7 @@ async function view17Handler(){
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    view17Handler();
+    view17Handler(record);
 });
 
 //Running myFetchMany
