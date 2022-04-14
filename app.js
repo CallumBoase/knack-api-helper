@@ -62,7 +62,7 @@ const knackAPI = {
     buildFilters(filters) {
         return `filters=${JSON.stringify(filters)}`
     },
-    async getMany(settings, page = 1, final = {records: [], pages: []}){
+    async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
         let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
@@ -88,9 +88,7 @@ const knackAPI = {
             return final;
         }
     },
-    putSetup(settings){
-        console.log(settings.body);
-        console.log(JSON.stringify(settings.body));
+    putSetup(settings = {record, view, scene, body, retries}){
         const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
         const options = {
             method: 'PUT',
@@ -105,11 +103,9 @@ const knackAPI = {
         const retries = settings.retries ? settings.retries : 5;
         return {url, options, retries};
     },
-    async put(settings){
-        const putSettings = knackAPI.putSetup(settings);
-        console.log(putSettings);
-        return await myFetchAutoRetry(putSettings);
-        //return await myFetchAutoRetry(knackAPI.putSetup(settings))
+    async put(settings = {record, view, scene, body, helperData, retries}){
+        const putSetup = knackAPI.putSetup(settings);
+        return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     }
 }
 
@@ -154,7 +150,8 @@ async function view17Handler(parentRecord){
             view: 'view_19',
             scene: 'scene_15',
             body: {field_21: new Date().getMilliseconds()},
-            retries: 5
+            retries: 5,
+            helperData: {a: 1, b: 2}
         });
     }
 
