@@ -103,7 +103,7 @@ const knackAPI = {
 //         //Delete
 // }
 
-function view17Handler(){
+async function view17Handler(){
 
     async function getConnectedChildren(record){
         return await knackAPI.getMany({
