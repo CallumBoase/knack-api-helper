@@ -100,7 +100,7 @@ const knackAPI = {
                 "Authorization": Knack.getUserToken(),
                 "Content-Type": "application/json"
             },
-            body: settings.body
+            body: JSON.stringify(settings.body)
         }
         const retries = settings.retries ? settings.retries : 5;
         return {url, options, retries};
