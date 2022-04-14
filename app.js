@@ -118,12 +118,12 @@ const knackAPI = {
 
 // function knackAPI(){
 //     //Put some stuff here to help us build Knack API requests
-//         //Get single record
-//         //Get multi records
-//         //Get multi records with multi pages
-//         //Post 
-//         //Put
-//         //Delete
+//         //Get single record DONE
+//         //Get multi records DONE
+//         //Get multi records with multi pages DONE
+//         //Post TO DO
+//         //Put DONE
+//         //Delete TO DO
 // }
 
 async function view17Handler(parentRecord){
