@@ -141,7 +141,7 @@ const knackAPI = {
 //         //Delete
 // }
 
-async function view17Handler(record){
+async function view17Handler(parentRecord){
 
     async function getConnectedChildren(record){
         const connectedChildren = await knackAPI.getMany({
@@ -159,7 +159,7 @@ async function view17Handler(record){
                 record,
                 view: 'view_14',
                 scene: 'scene_11',
-                body: {field_18: record.field_19},
+                body: {field_18: parentRecord.field_19},
                 retries: 5
             });
         });
