@@ -168,7 +168,7 @@ async function view17Handler(parentRecord){
     }
 
     try {
-        const connectedChildren = await getConnectedChildren(record);
+        const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
 
         const updateResult = await updateConnectedChildren(connectedChildren);
