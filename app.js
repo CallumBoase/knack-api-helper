@@ -104,6 +104,9 @@ const knackAPI = {
         }
         const retries = settings.retries ? settings.retries : 5;
         return {url, options, retries};
+    },
+    async put(settings){
+        return await myFetchAutoRetry(knackAPI.putSetup(settings))
     }
 }
 
@@ -120,13 +123,12 @@ const knackAPI = {
 async function view17Handler(parentRecord){
 
     async function getConnectedChildren(record){
-        const connectedChildren = await knackAPI.getMany({
+        return await knackAPI.getMany({
             view: 'view_13', 
             scene: 'scene_9',
             filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
             helperData: {a: 1, b: 2}
         });
-        return connectedChildren;
     };
 
     async function updateConnectedChildren(connectedChildren){
@@ -143,12 +145,25 @@ async function view17Handler(parentRecord){
         return await myFetchMany(connectedChildren.records);
     }
 
+    async function timestampParent(record){
+        return await knackAPI.put({
+            record,
+            view: 'view_19',
+            scene: 'scene_15',
+            body: {field_21: new Date().getMilliseconds()},
+            retries: 5
+        });
+    }
+
     try {
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
 
-        const updateResult = await updateConnectedChildren(connectedChildren);
-        console.log(updateResult);
+        const updateChildrenResult = await updateConnectedChildren(connectedChildren);
+        console.log(updateChildrenResult);
+
+        const timestampParentResult = await timestampParent(parentRecord);
+        console.log(timestampParentResult);
 
     } catch(err) {
         console.log(err);
