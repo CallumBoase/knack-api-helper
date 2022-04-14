@@ -63,7 +63,7 @@ const knackAPI = {
         return `filters=${JSON.stringify(filters)}`
     },
     async getMany(settings, page = 1, final = {records: [], pages: []}){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/recordss`;
         url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
         
@@ -112,7 +112,6 @@ async function view17Handler(record){
             filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
             helperData: {a: 1, b: 2}
         });
-        console.log(connectedChildren);
         return connectedChildren;
     }
 
@@ -129,12 +128,6 @@ async function view17Handler(record){
 
     try {
         const connectedChildren = await getConnectedChildren(record);
-        // const connectedChildren = await knackAPI.getMany({
-        //     view: 'view_13', 
-        //     scene: 'scene_9',
-        //     filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
-        //     helperData: {a: 1, b: 2}
-        // });
         console.log(connectedChildren);
         //CODE IN PROGRESS NEXT 3 LINES - FUNCTIONS NOT FINISHED
         const updateConnectedChildren = connectedChildrenUpdatePrep(connectedChildren);//Write the proper details
