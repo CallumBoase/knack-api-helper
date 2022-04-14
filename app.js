@@ -89,9 +89,45 @@ const knackAPI = {
         }
     },
     putSetup(settings){
-        //Insert logic to generate put
+        const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
+        const options = {
+            method: 'PUT',
+            headers: {
+                "X-Knack-Application-ID": Knack.application_id,
+                "X-Knack-REST-API-Key": "knack",
+                "Authorization": Knack.getUserToken()
+            },
+            body: JSON.stringify(settings.body)
+        }
+        const retries = settings.retries ? settings.retries : 5;
+        return {url, options, retries};
     }
 }
+
+// records.forEach(record => {
+//     record.fetch = {
+//         url: `
+//             https://jsonplaceholder.typicode.com/todoss/${record.id}?
+//             filters={"match":"and","rules":[{"field":"field_20","operator":"is","value":["${record.id}"]}]}
+//         `,
+//         retries: 5,
+//         options: {
+//             method: 'GET',
+//             headers: {},
+//             body: {
+//                 field_1: record.field_1
+//             }
+//         }
+//     }
+// });
+
+// records.forEach(record => {
+//     record.fetch = {
+//         url: `https://jsonplaceholder.typicode.com/todoss/${record.id}`,
+//         options: {},
+//         retries: 5
+//     }
+// });
 
 // function knackAPI(){
 //     //Put some stuff here to help us build Knack API requests
@@ -113,26 +149,27 @@ async function view17Handler(record){
             helperData: {a: 1, b: 2}
         });
         return connectedChildren;
-    }
+    };
 
-    function connectedChildrenUpdatePrep(connectedChildren){
-        return connectedChildren.records.forEach(record => {
+    async function updateConnectedChildren(connectedChildren){
+        connectedChildren.records.forEach(record => {
             record.fetch = knackAPI.putSetup({//Need to write putSetup to emulate output line 149-154
                 record,
-                view: 'view_XXX',
-                scene: 'scene_XXX',
-                body: {field_18: record.field_19}
+                view: 'view_14',
+                scene: 'scene_11',
+                body: {field_18: record.field_19},
+                retries: 5
             });
         });
+        return await myFetchMany(connectedChildren.records);
     }
 
     try {
         const connectedChildren = await getConnectedChildren(record);
         console.log(connectedChildren);
 
-        const updateConnectedChildren = connectedChildrenUpdatePrep(connectedChildren);//Write the proper details
-        const result = await myFetchMany(updateConnectedChildren);
-        console.log(result);
+        const updateResult = await updateConnectedChildren(connectedChildren);
+        console.log(updateResult);
 
     } catch(err) {
         console.log(err);
