@@ -63,7 +63,7 @@ const knackAPI = {
         return `filters=${JSON.stringify(filters)}`
     },
     async getMany(settings, page = 1, final = {records: [], pages: []}){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/recordss`;
+        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
         
@@ -129,7 +129,7 @@ async function view17Handler(record){
     try {
         const connectedChildren = await getConnectedChildren(record);
         console.log(connectedChildren);
-        //CODE IN PROGRESS NEXT 3 LINES - FUNCTIONS NOT FINISHED
+
         const updateConnectedChildren = connectedChildrenUpdatePrep(connectedChildren);//Write the proper details
         const result = await myFetchMany(updateConnectedChildren);
         console.log(result);
