@@ -165,7 +165,7 @@ async function view17Handler(parentRecord){
     async function getParent(recordId){
         return await knackAPI.get({
             view: 'view_18',
-            scene, 'scene_9',
+            scene: 'scene_9',
             recordId,
             helperData: {a: 1, b: 2}
         });
