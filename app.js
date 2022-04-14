@@ -161,6 +161,7 @@ async function view17Handler(record){
                 retries: 5
             });
         });
+        console.log(connectedChildren);
         return await myFetchMany(connectedChildren.records);
     }
 
