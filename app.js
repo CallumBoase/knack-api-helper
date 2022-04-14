@@ -89,6 +89,8 @@ const knackAPI = {
         }
     },
     putSetup(settings){
+        console.log(settings.body);
+        console.log(JSON.stringify(settings.body));
         const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
         const options = {
             method: 'PUT',
