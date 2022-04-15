@@ -124,7 +124,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(records);
+        return await myFetchMany(settings.records);
     }
 }
 
