@@ -32,8 +32,10 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
 }
 
 async function myFetchDelayed (settings) {
-  await delay(settings.delayMs ? settings.delayMs : 0);
-  return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
+    console.log(settings.delayMs);
+    await delay(settings.delayMs ? settings.delayMs : 0);
+    console.log(settings.delayMs);
+    return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
 }
 
 async function myFetchMany (records, delay = 125) {
