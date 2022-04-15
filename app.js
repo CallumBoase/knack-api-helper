@@ -111,10 +111,30 @@ const knackAPI = {
         return {url, options, retries};
     },
     async put(settings = {record, view, scene, body, helperData, retries}){
-        const putSetup = knackAPI.putSetup(settings);
+        const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
+    },
+    async putMany(settings = {records, view, scene, body, retries}){
+        records.forEach(record => {
+            record.fetch = this.putSetup({record, view, scene, body, retries});
+        });
+        return await myFetchMany(records);
     }
 }
+
+// async function updateConnectedChildren(connectedChildren, parentRecord){
+//     connectedChildren.records.forEach(record => {
+//         record.fetch = knackAPI.putSetup({//Need to write putSetup to emulate output line 149-154
+//             record,
+//             view: 'view_14',
+//             scene: 'scene_11',
+//             body: {field_18: parentRecord.field_19},
+//             retries: 5
+//         });
+//     });
+//     console.log(connectedChildren);
+//     return await myFetchMany(connectedChildren.records);
+// }
 
 // function knackAPI(){
 //     //Put some stuff here to help us build Knack API requests
@@ -140,18 +160,14 @@ async function view17Handler(parentRecord){
         });
     };
 
-    async function updateConnectedChildren(connectedChildren){
-        connectedChildren.records.forEach(record => {
-            record.fetch = knackAPI.putSetup({//Need to write putSetup to emulate output line 149-154
-                record,
-                view: 'view_14',
-                scene: 'scene_11',
-                body: {field_18: parentRecord.field_19},
-                retries: 5
-            });
+    async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
+        return await knackAPI.putMany({
+            records: connectedChildrenRecords,
+            view: 'view_14',
+            scene: 'scene_11',
+            body: {field_18: parentRecord.field_19},
+            retries: 5
         });
-        console.log(connectedChildren);
-        return await myFetchMany(connectedChildren.records);
     }
 
     async function timestampParent(record){
@@ -178,7 +194,7 @@ async function view17Handler(parentRecord){
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
 
-        const updateChildrenResult = await updateConnectedChildren(connectedChildren);
+        const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
 
         const timestampParentResult = await timestampParent(parentRecord);
