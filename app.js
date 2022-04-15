@@ -115,8 +115,8 @@ const knackAPI = {
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
     async putMany(settings = {records, view, scene, body, retries}){
-        records.forEach(record => {
-            record.fetch = this.putSetup({record, view, scene, body, retries});
+        settings.records.forEach(record => {
+            record.fetch = this.putSetup({record, settings.view, settings.scene, settings.body, settings.retries});
         });
         return await myFetchMany(records);
     }
