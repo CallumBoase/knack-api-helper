@@ -59,7 +59,7 @@ async function myFetchMany (records, delay = 125, tickCallback) {
         });
     }
 
-    return Promise.allSettled(promises)
+    return Promise.allSettled(promises.map(tick))
     .then(results => {
         return results;
     })
