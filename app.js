@@ -41,7 +41,7 @@ async function myFetchMany (records, delay = 125) {
         const promise = myFetchDelayed({
             url: record.fetch.url, 
             options: record.fetch.options, 
-            helperData: {originalRecord: record, delay: i*125, i}, 
+            helperData: {originalRecord: record, delay: i*delay, i}, 
             retries: record.fetch.retries, 
             delayMs: i*delay
         })
