@@ -50,7 +50,7 @@ async function myFetchMany (records, delay = 125, tickCallback) {
     });
 
     const len = promises.length;
-    const progress = 0;
+    let progress = 0;
 
     function tick(promise){
         promise.then(() => {
