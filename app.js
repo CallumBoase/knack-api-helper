@@ -59,9 +59,6 @@ async function myFetchMany (records, delay = 125) {
 }
 
 const knackAPI = {
-    buildFilters(filters) {
-        return `filters=${JSON.stringify(filters)}`
-    },
     headers: {
         "X-Knack-Application-ID": Knack.application_id,
         "X-Knack-REST-API-Key": "knack",
@@ -81,7 +78,7 @@ const knackAPI = {
     async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
         let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         url += `?page=${page}&rows_per_page=1000`;
-        if(settings.filters) url += `&${this.buildFilters(settings.filters)}`;
+        if(settings.filters) url += `&filters=${JSON.stringify(settings.filters)}`;
         
         const options = {
             method: 'GET',
