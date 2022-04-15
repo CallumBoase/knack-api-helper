@@ -116,7 +116,13 @@ const knackAPI = {
     },
     async putMany(settings = {records, view, scene, body, retries}){
         settings.records.forEach(record => {
-            record.fetch = this.putSetup({record, settings.view, settings.scene, settings.body, settings.retries});
+            record.fetch = this.putSetup({
+                record, 
+                view: settings.view, 
+                scene: settings.scene, 
+                body: settings.body, 
+                retries: settings.retries
+            });
         });
         return await myFetchMany(records);
     }
