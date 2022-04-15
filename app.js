@@ -35,7 +35,7 @@ async function myFetchDelayed (settings) {
   return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
 }
 
-async function myFetchMany (records) {
+async function myFetchMany (records, delay = 125) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = myFetchDelayed({
@@ -43,7 +43,7 @@ async function myFetchMany (records) {
             options: record.fetch.options, 
             helperData: {originalRecord: record, delay: i*125, i}, 
             retries: record.fetch.retries, 
-            delayMs: i*125
+            delayMs: i*delay
         })
         promises.push(promise);
     });
@@ -124,7 +124,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records);
+        return await myFetchMany(settings.records, 125);
     }
 }
 
