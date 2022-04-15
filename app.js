@@ -1,5 +1,5 @@
 async function delay(ms) {
-    new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 async function myFetch(url, options = {}, helperData = {}) {
