@@ -32,9 +32,7 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
 }
 
 async function myFetchDelayed (settings) {
-    console.log(settings.delayMs);
     await delay(settings.delayMs ? settings.delayMs : 0);
-    console.log(settings.delayMs);
     return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
 }
 
@@ -124,7 +122,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records, 1000);
+        return await myFetchMany(settings.records, 125);
     }
 }
 
