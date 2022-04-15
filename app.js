@@ -1,4 +1,4 @@
-function delay(ms) {
+async function delay(ms) {
     new Promise((resolve) => setTimeout(resolve, ms));
 };
 
@@ -21,6 +21,7 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
     //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
     for(let i = 1; i <= retries; i++){
         try {
+            await delay(1000);
             return await myFetch(url, options, helperData);
         } catch (err){
             const isLastRetry = i === retries;
@@ -121,7 +122,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records, 125);
+        return await myFetchMany(settings.records, 0);
     }
 }
 
