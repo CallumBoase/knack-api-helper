@@ -36,7 +36,7 @@ async function myFetchDelayed (settings) {
     return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
 }
 
-async function myFetchMany (records, delay = 125) {
+async function myFetchMany (records, delay = 125, tickCallback) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = myFetchDelayed({
@@ -48,6 +48,16 @@ async function myFetchMany (records, delay = 125) {
         })
         promises.push(promise);
     });
+
+    const len = promises.length;
+    const progress = 0;
+
+    function tick(promise){
+        promise.then(() => {
+            progress++;
+            tickCallback(progress, len)
+        });
+    }
 
     return Promise.allSettled(promises)
     .then(results => {
@@ -112,7 +122,7 @@ const knackAPI = {
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
-    async putMany(settings = {records, view, scene, body, retries}){
+    async putMany(settings = {records, view, scene, body, retries, tickCallback}){
         settings.records.forEach(record => {
             record.fetch = this.putSetup({
                 record, 
@@ -122,23 +132,9 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records, 125);
+        return await myFetchMany(settings.records, 125, settings.tickCallback);
     }
 }
-
-// async function updateConnectedChildren(connectedChildren, parentRecord){
-//     connectedChildren.records.forEach(record => {
-//         record.fetch = knackAPI.putSetup({//Need to write putSetup to emulate output line 149-154
-//             record,
-//             view: 'view_14',
-//             scene: 'scene_11',
-//             body: {field_18: parentRecord.field_19},
-//             retries: 5
-//         });
-//     });
-//     console.log(connectedChildren);
-//     return await myFetchMany(connectedChildren.records);
-// }
 
 // function knackAPI(){
 //     //Put some stuff here to help us build Knack API requests
@@ -170,7 +166,10 @@ async function view17Handler(parentRecord){
             view: 'view_14',
             scene: 'scene_11',
             body: {field_18: parentRecord.field_19},
-            retries: 5
+            retries: 5,
+            tickCallback(progress, len){
+                console.log(progress, len)
+            }
         });
     }
 
