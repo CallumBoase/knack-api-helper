@@ -39,7 +39,7 @@ async function myFetchDelayed (settings) {
 async function myFetchMany (records, delay = 125, tickCallback) {
     let promises = [];
     records.forEach( (record, i) => {
-        const promise = () {
+        const promise = async () => {
             await delay(i*delay);
             const fetchResult = await myFetchAutoRetry(
                 record.fetch.url, 
