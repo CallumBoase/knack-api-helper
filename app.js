@@ -21,7 +21,7 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
     //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
     for(let i = 1; i <= retries; i++){
         try {
-            await delay(1000);
+            if(i > 1) await delay(1000);
             return await myFetch(url, options, helperData);
         } catch (err){
             const isLastRetry = i === retries;
@@ -49,7 +49,7 @@ async function myFetchMany (records, delay = 125, tickCallback) {
             progress++
             tickCallback(progress, len);
             return fetchResult;
-        };
+        }();
         promises.push(promise);
         // const promise = myFetchDelayed({
         //     url: record.fetch.url, 
