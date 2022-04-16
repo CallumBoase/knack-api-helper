@@ -40,7 +40,7 @@ async function myFetchMany (records, delay = 125, tickCallback) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = async () => {
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 await delay(i*delay);
                 const fetchResult = await myFetchAutoRetry(
                     record.fetch.url, 
