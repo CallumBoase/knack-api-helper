@@ -40,16 +40,29 @@ async function myFetchMany (records, delay = 125, tickCallback) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = async () => {
-            await delay(i*delay);
-            const fetchResult = await myFetchAutoRetry(
-                record.fetch.url, 
-                record.fetch.options, 
-                {originalRecord: record, delay: i*delay, i},
-            );
-            progress++
-            tickCallback(progress, len);
-            return fetchResult;
-        }();
+            return new Promise(resolve, reject){
+                await delay(i*delay);
+                const fetchResult = await myFetchAutoRetry(
+                    record.fetch.url, 
+                    record.fetch.options, 
+                    {originalRecord: record, delay: i*delay, i},
+                );
+                progress++
+                tickCallback(progress, len);
+                return fetchResult;
+            });
+        };
+        // const promise = async () => {
+        //     await delay(i*delay);
+        //     const fetchResult = await myFetchAutoRetry(
+        //         record.fetch.url, 
+        //         record.fetch.options, 
+        //         {originalRecord: record, delay: i*delay, i},
+        //     );
+        //     progress++
+        //     tickCallback(progress, len);
+        //     return fetchResult;
+        // };
         promises.push(promise);
         // const promise = myFetchDelayed({
         //     url: record.fetch.url, 
