@@ -39,27 +39,39 @@ async function myFetchDelayed (settings) {
 async function myFetchMany (records, delay = 125, tickCallback) {
     let promises = [];
     records.forEach( (record, i) => {
-        const promise = myFetchDelayed({
-            url: record.fetch.url, 
-            options: record.fetch.options, 
-            helperData: {originalRecord: record, delay: i*delay, i}, 
-            retries: record.fetch.retries, 
-            delayMs: i*delay
-        })
+        const promise = () {
+            await delay(i*delay);
+            const fetchResult = await myFetchAutoRetry(
+                record.fetch.url, 
+                record.fetch.options, 
+                {originalRecord: record, delay: i*delay, i},
+            );
+            progress++
+            tickCallback(progress, len);
+            return fetchResult;
+        };
         promises.push(promise);
+        // const promise = myFetchDelayed({
+        //     url: record.fetch.url, 
+        //     options: record.fetch.options, 
+        //     helperData: {originalRecord: record, delay: i*delay, i}, 
+        //     retries: record.fetch.retries, 
+        //     delayMs: i*delay
+        // })
+        // promises.push(promise);
     });
 
     const len = promises.length;
     let progress = 0;
 
-    function tick(promise){
-        promise.then(() => {
-            progress++;
-            tickCallback(progress, len);
-        });
-    }
+    // function tick(promise){
+    //     promise.then(() => {
+    //         progress++;
+    //         tickCallback(progress, len);
+    //     });
+    // }
 
-    return Promise.allSettled(promises.map(tick))
+    return Promise.allSettled(promises)
     .then(results => {
         return results;
     })
