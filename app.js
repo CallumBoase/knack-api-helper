@@ -201,7 +201,7 @@ async function view17Handler(parentRecord, parentRecordView){
             progressCb(progress, len, fetchResult){
                 console.log(progress, len);
                 console.log(fetchResult);
-                knackAPI.tools.progressBar.update(progressId, progress, len);
+                knackAPI.tools.progressBar.update('updateChildrenProgress', progress, len);
             }
         });
     }
