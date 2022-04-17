@@ -161,7 +161,7 @@ async function view17Handler(parentRecord, parentRecordView){
                 console.log(progress, len);
                 console.log(fetchResult);
                 $(`#progressBar`).val(len / progress * 100);
-                $(`#progressText`).text(`${len}/${progress}`);
+                $(`#progressText`).text(`${progress}/${len}`);
             }
         });
     }
