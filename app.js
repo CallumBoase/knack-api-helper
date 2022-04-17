@@ -31,11 +31,6 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
     }
 }
 
-async function myFetchDelayed (settings) {
-    await delay(settings.delayMs ? settings.delayMs : 0);
-    return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
-}
-
 async function myFetchMany (records, delayMs = 125, progressCb) {
     let promises = [];
     records.forEach( (record, i) => {
@@ -123,6 +118,20 @@ const knackAPI = {
             });
         });
         return await myFetchMany(settings.records, 125, settings.progressCb);
+    },
+    progressBar: {
+        create(id){
+            return $(`
+                <div id="${id}">
+                    <progress id="progressBar" value="0" max="100"></progress>
+                    <span style="margin-left: 5px;" id="progressText"></span>
+                </div>
+            `);
+        },
+        update(id, progress, len){
+            $(`#${id} #progressBar`).val(Math.round(progress / len * 100));
+            $(`#${id} #progressText`).text(`${progress}/${len}`);
+        }
     }
 }
 
@@ -151,6 +160,8 @@ async function view17Handler(parentRecord, parentRecordView){
     };
 
     async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
+        const progressId = 'updateChildrenProgress';
+        knackAPI.progressBar.create(progressId).insertAfter(`#${parentRecordView.key}`);
         return await knackAPI.putMany({
             records: connectedChildrenRecords,
             view: 'view_14',
@@ -160,8 +171,7 @@ async function view17Handler(parentRecord, parentRecordView){
             progressCb(progress, len, fetchResult){
                 console.log(progress, len);
                 console.log(fetchResult);
-                $(`#progressBar`).val(Math.round(progress / len * 100));
-                $(`#progressText`).text(`${progress}/${len}`);
+                knackAPI.progressBar.update(progressId, progress, len);
             }
         });
     }
@@ -171,7 +181,7 @@ async function view17Handler(parentRecord, parentRecordView){
             record,
             view: 'view_19',
             scene: 'scene_15',
-            body: {field_21: new Date().getMilliseconds()},
+            body: {field_21: new Date()},
             retries: 5,
             helperData: {a: 1, b: 2}
         });
@@ -189,9 +199,6 @@ async function view17Handler(parentRecord, parentRecordView){
     try {
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
-
-        const $progress = $(`<progress id="progressBar" value="0" max="100"></progress><span id="progressText"></span>`);
-        $progress.insertAfter(`#${parentRecordView.key}`);
 
         const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
