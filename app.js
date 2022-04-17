@@ -139,7 +139,7 @@ const knackAPI = {
 //         //Delete TO DO
 // }
 
-async function view17Handler(parentRecord){
+async function view17Handler(parentRecord, parentRecordView){
 
     async function getConnectedChildren(record){
         return await knackAPI.getMany({
@@ -160,6 +160,8 @@ async function view17Handler(parentRecord){
             progressCb(progress, len, fetchResult){
                 console.log(progress, len);
                 console.log(fetchResult);
+                $(`#progressBar`).val(len / progress * 100);
+                $(`#progressText`).text(`${len}/${progress}`);
             }
         });
     }
@@ -187,6 +189,9 @@ async function view17Handler(parentRecord){
     try {
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
+
+        const $progress = $(`<progress id="progressBar" value="0" max="100"></progress><span id="progressText"></span>`);
+        $progress.insertAfter(`#${parentRecordView.key}`);
 
         const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
