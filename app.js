@@ -40,7 +40,7 @@ async function myFetchMany (records, delayMs = 125, progressCb) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = (async () => {
-            await delay(i*delay);
+            await delay(i*delayMs);
             const fetchResult = await myFetchAutoRetry(
                 record.fetch.url, 
                 record.fetch.options, 
@@ -144,7 +144,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records, 1000, settings.tickCallback);
+        return await myFetchMany(settings.records, 125, settings.tickCallback);
     }
 }
 
