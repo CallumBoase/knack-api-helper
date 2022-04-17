@@ -140,7 +140,7 @@ const knackAPI = {
                     if(result.status === 'fulfilled') fulfilled++;
                     return fulfilled;
                 });
-                const failed = resultsreduce((failed = 0, result) => {
+                const failed = results.reduce((failed = 0, result) => {
                     if(result.status === 'failed') failed++;
                     return failed;
                 });
@@ -149,6 +149,17 @@ const knackAPI = {
             htmlSummary(results){
                 const summary = this.summary(results);
                 console.log(summary);
+                return $(`
+                    <p><strong>Finished processing</strong></p>
+                    <p>Summary:</p>
+                    <p>
+                        <ul>
+                            <li>Failed: ${summary.failed}</li>
+                            <li>Succeeded: ${summary.fulfilled}</li>
+                        </ul>
+                    </p>
+                `)
+                
             }
         }
     }
