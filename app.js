@@ -144,7 +144,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records, 125, settings.tickCallback);
+        return await myFetchMany(settings.records, 150, settings.tickCallback);
     }
 }
 
