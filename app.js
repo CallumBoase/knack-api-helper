@@ -136,13 +136,13 @@ const knackAPI = {
         },
         manyResults: {
             summary(results){
-                const fulfilled = results.reduce((fulfilled = 0, result) => {
-                    if(result.status === 'fulfilled') fulfilled++;
-                    return fulfilled;
+                const fulfilled = results.reduce((acc, curr) => {
+                    if(curr.status === 'fulfilled') acc++;
+                    return acc;
                 });
-                const rejected = results.reduce((rejected = 0, result) => {
-                    if(result.status === 'rejected') rejected++;
-                    return failed;
+                const rejected = results.reduce((acc, curr) => {
+                    if(curr.status === 'rejected') acc++;
+                    return acc;
                 });
                 console.log(fulfilled)
                 console.log(rejected)
