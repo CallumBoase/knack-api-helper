@@ -1,4 +1,4 @@
-async function delay(ms) {
+function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
@@ -36,7 +36,7 @@ async function myFetchDelayed (settings) {
     return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
 }
 
-async function myFetchMany (records, delay = 125, progressCb) {
+async function myFetchMany (records, delayMs = 125, progressCb) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = (async () => {
@@ -44,7 +44,7 @@ async function myFetchMany (records, delay = 125, progressCb) {
             const fetchResult = await myFetchAutoRetry(
                 record.fetch.url, 
                 record.fetch.options, 
-                {originalRecord: record, delay: i*delay, i},
+                {originalRecord: record, delayMs: i*delayMs, i},
             );
             progress++
             progressCb(progress, len);
