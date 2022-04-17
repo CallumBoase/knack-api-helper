@@ -36,33 +36,20 @@ async function myFetchDelayed (settings) {
     return await myFetchAutoRetry(settings.url, settings.options, settings.helperData, settings.retries)  
 }
 
-async function myFetchMany (records, delay = 125, tickCallback) {
+async function myFetchMany (records, delay = 125, progressCb) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = (async () => {
-            return new Promise(async (resolve, reject) => {
-                await delay(i*delay);
-                const fetchResult = await myFetchAutoRetry(
-                    record.fetch.url, 
-                    record.fetch.options, 
-                    {originalRecord: record, delay: i*delay, i},
-                );
-                progress++
-                tickCallback(progress, len);
-                return fetchResult;
-            });
+            await delay(i*delay);
+            const fetchResult = await myFetchAutoRetry(
+                record.fetch.url, 
+                record.fetch.options, 
+                {originalRecord: record, delay: i*delay, i},
+            );
+            progress++
+            progressCb(progress, len);
+            return fetchResult;
         })();
-        // const promise = async () => {
-        //     await delay(i*delay);
-        //     const fetchResult = await myFetchAutoRetry(
-        //         record.fetch.url, 
-        //         record.fetch.options, 
-        //         {originalRecord: record, delay: i*delay, i},
-        //     );
-        //     progress++
-        //     tickCallback(progress, len);
-        //     return fetchResult;
-        // };
         promises.push(promise);
         // const promise = myFetchDelayed({
         //     url: record.fetch.url, 
@@ -84,13 +71,13 @@ async function myFetchMany (records, delay = 125, tickCallback) {
     //     });
     // }
 
-    return Promise.allSettled(promises)
-    .then(results => {
-        return results;
-    })
-    .catch(err => {
-        throw err;
-    }); 
+    return Promise.allSettled(promises);
+    // .then(results => {
+    //     return results;
+    // })
+    // .catch(err => {
+    //     throw err;
+    // }); 
 
 }
 
@@ -193,7 +180,7 @@ async function view17Handler(parentRecord){
             body: {field_18: parentRecord.field_19},
             retries: 5,
             tickCallback(progress, len){
-                console.log(progress, len)
+                console.log(progress, len);
             }
         });
     }
