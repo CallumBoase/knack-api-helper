@@ -160,7 +160,7 @@ async function view17Handler(parentRecord, parentRecordView){
             progressCb(progress, len, fetchResult){
                 console.log(progress, len);
                 console.log(fetchResult);
-                $(`#progressBar`).val(len / progress * 100);
+                $(`#progressBar`).val(Math.round(progress / len * 100));
                 $(`#progressText`).text(`${progress}/${len}`);
             }
         });
