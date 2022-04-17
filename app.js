@@ -121,6 +121,7 @@ const knackAPI = {
     },
     progressBar: {
         create(id){
+            $(`#${id}`).remove();
             return $(`
                 <div id="${id}">
                     <progress id="progressBar" value="0" max="100"></progress>
