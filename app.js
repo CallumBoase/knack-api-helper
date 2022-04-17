@@ -144,6 +144,8 @@ const knackAPI = {
                     if(result.status === 'failed') failed++;
                     return failed;
                 });
+                console.log(fulfilled)
+                console.log(failed)
                 return {fulfilled, failed};
             },
             htmlSummary(results){
