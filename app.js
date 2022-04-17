@@ -120,8 +120,7 @@ const knackAPI = {
         return await myFetchMany(settings.records, 125, settings.progressCb);
     },
     progressBar: {
-        create(id){
-            $(`#${id}`).remove();
+        generateHtml(id){
             return $(`
                 <div id="${id}">
                     <progress id="progressBar" value="0" max="100"></progress>
@@ -162,7 +161,8 @@ async function view17Handler(parentRecord, parentRecordView){
 
     async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
         const progressId = 'updateChildrenProgress';
-        knackAPI.progressBar.create(progressId).insertAfter(`#${parentRecordView.key}`);
+        $(`#${progressId}`).remove();
+        knackAPI.progressBar.generateHtml(progressId).insertAfter(`#${parentRecordView.key}`);
         return await knackAPI.putMany({
             records: connectedChildrenRecords,
             view: 'view_14',
