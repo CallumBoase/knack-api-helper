@@ -209,5 +209,5 @@ async function view17Handler(parentRecord, parentRecordView){
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    view17Handler(record);
+    view17Handler(record, view);
 });
