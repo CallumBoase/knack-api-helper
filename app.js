@@ -20,6 +20,7 @@ async function myFetch(url, options = {}, helperData = {}) {
 async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
     //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
     for(let i = 1; i <= retries; i++){
+        console.log(i);
         try {
             if(i > 1) await delay(1000);
             return await myFetch(url, options, helperData);
