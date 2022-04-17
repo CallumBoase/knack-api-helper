@@ -139,11 +139,11 @@ const knackAPI = {
                 const fulfilled = results.reduce((acc, curr) => {
                     if(curr.status === 'fulfilled') acc++;
                     return acc;
-                });
+                },0);
                 const rejected = results.reduce((acc, curr) => {
                     if(curr.status === 'rejected') acc++;
                     return acc;
-                });
+                },0);
                 console.log(fulfilled)
                 console.log(rejected)
                 return {fulfilled, rejected};
