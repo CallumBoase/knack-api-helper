@@ -119,18 +119,37 @@ const knackAPI = {
         });
         return await myFetchMany(settings.records, 125, settings.progressCb);
     },
-    progressBar: {
-        generateHtml(id){
-            return $(`
-                <div id="${id}">
-                    <progress id="progressBar" value="0" max="100"></progress>
-                    <span style="margin-left: 5px;" id="progressText"></span>
-                </div>
-            `);
+    tools: {
+        progressBar: {
+            html(id){
+                return $(`
+                    <div id="${id}">
+                        <progress id="progressBar" value="0" max="100"></progress>
+                        <span style="margin-left: 5px;" id="progressText"></span>
+                    </div>
+                `);
+            },
+            update(id, progress, len){
+                $(`#${id} #progressBar`).val(Math.round(progress / len * 100));
+                $(`#${id} #progressText`).text(`${progress}/${len}`);
+            }
         },
-        update(id, progress, len){
-            $(`#${id} #progressBar`).val(Math.round(progress / len * 100));
-            $(`#${id} #progressText`).text(`${progress}/${len}`);
+        manyResults: {
+            summary(results){
+                const fulfilled = results.reduce((fulfilled = 0, result) => {
+                    if(result.status === 'fulfilled') fulfilled++;
+                    return fulfilled;
+                });
+                const failed = resultsreduce((failed = 0, result) => {
+                    if(result.status === 'failed') failed++;
+                    return failed;
+                });
+                return {fulfilled, failed};
+            }
+            htmlSummary(results){
+                const summary = this.summary(results);
+                console.log(summary);
+            }
         }
     }
 }
@@ -160,9 +179,6 @@ async function view17Handler(parentRecord, parentRecordView){
     };
 
     async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
-        const progressId = 'updateChildrenProgress';
-        $(`#${progressId}`).remove();
-        knackAPI.progressBar.generateHtml(progressId).insertAfter(`#${parentRecordView.key}`);
         return await knackAPI.putMany({
             records: connectedChildrenRecords,
             view: 'view_14',
@@ -172,7 +188,7 @@ async function view17Handler(parentRecord, parentRecordView){
             progressCb(progress, len, fetchResult){
                 console.log(progress, len);
                 console.log(fetchResult);
-                knackAPI.progressBar.update(progressId, progress, len);
+                knackAPI.tools.progressBar.update(progressId, progress, len);
             }
         });
     }
@@ -201,8 +217,12 @@ async function view17Handler(parentRecord, parentRecordView){
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
 
+        const progressId = 'updateChildrenProgress';
+        $(`#${progressId}`).remove();
+        knackAPI.tools.progressBar.html(progressId).insertAfter(`#${parentRecordView.key}`);
         const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
+        knackAPI.tools.manyResults.htmlSummary(updateChildrenResult).insertAfter(`#${progressId}`);
 
         const timestampParentResult = await timestampParent(parentRecord);
         console.log(timestampParentResult);
