@@ -145,7 +145,7 @@ const knackAPI = {
                     return failed;
                 });
                 return {fulfilled, failed};
-            }
+            },
             htmlSummary(results){
                 const summary = this.summary(results);
                 console.log(summary);
