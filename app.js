@@ -140,13 +140,13 @@ const knackAPI = {
                     if(result.status === 'fulfilled') fulfilled++;
                     return fulfilled;
                 });
-                const failed = results.reduce((failed = 0, result) => {
-                    if(result.status === 'failed') failed++;
+                const rejected = results.reduce((rejected = 0, result) => {
+                    if(result.status === 'rejected') rejected++;
                     return failed;
                 });
                 console.log(fulfilled)
-                console.log(failed)
-                return {fulfilled, failed};
+                console.log(rejected)
+                return {fulfilled, rejected};
             },
             htmlSummary(results){
                 const summary = this.summary(results);
@@ -156,7 +156,7 @@ const knackAPI = {
                     <p>Summary:</p>
                     <p>
                         <ul>
-                            <li>Failed: ${summary.failed}</li>
+                            <li>Failed: ${summary.rejected}</li>
                             <li>Succeeded: ${summary.fulfilled}</li>
                         </ul>
                     </p>
