@@ -42,43 +42,21 @@ async function myFetchMany (records, delayMs = 125, progressCb) {
         const promise = (async () => {
             await delay(i*delayMs);
             const fetchResult = await myFetchAutoRetry(
-                record.fetch.url, 
-                record.fetch.options, 
+                record.fetchSettings.url, 
+                record.fetchSettings.options, 
                 {originalRecord: record, delayMs: i*delayMs, i},
             );
             progress++
-            progressCb(progress, len);
+            progressCb(progress, len, fetchResult);
             return fetchResult;
         })();
         promises.push(promise);
-        // const promise = myFetchDelayed({
-        //     url: record.fetch.url, 
-        //     options: record.fetch.options, 
-        //     helperData: {originalRecord: record, delay: i*delay, i}, 
-        //     retries: record.fetch.retries, 
-        //     delayMs: i*delay
-        // })
-        // promises.push(promise);
     });
 
     const len = promises.length;
     let progress = 0;
 
-    // function tick(promise){
-    //     promise.then(() => {
-    //         progress++;
-    //         tickCallback(progress, len);
-    //     });
-    // }
-
     return Promise.allSettled(promises);
-    // .then(results => {
-    //     return results;
-    // })
-    // .catch(err => {
-    //     throw err;
-    // }); 
-
 }
 
 const knackAPI = {
@@ -134,9 +112,9 @@ const knackAPI = {
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
-    async putMany(settings = {records, view, scene, body, retries, tickCallback}){
+    async putMany(settings = {records, view, scene, body, retries, progressCb}){
         settings.records.forEach(record => {
-            record.fetch = this.putSetup({
+            record.fetchSettings = this.putSetup({
                 record, 
                 view: settings.view, 
                 scene: settings.scene, 
@@ -144,7 +122,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
-        return await myFetchMany(settings.records, 125, settings.tickCallback);
+        return await myFetchMany(settings.records, 125, settings.progressCb);
     }
 }
 
@@ -179,8 +157,9 @@ async function view17Handler(parentRecord){
             scene: 'scene_11',
             body: {field_18: parentRecord.field_19},
             retries: 5,
-            tickCallback(progress, len){
+            progressCb(progress, len, fetchResult){
                 console.log(progress, len);
+                console.log(fetchResult);
             }
         });
     }
