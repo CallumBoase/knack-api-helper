@@ -107,7 +107,7 @@ const knackAPI = {
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
-    async putMany(settings = {records, view, scene, body, retries, progressCb}){
+    async putMany(settings = {records, view, scene, body, retries, progressBar, progressCb}){
         settings.records.forEach(record => {
             record.fetchSettings = this.putSetup({
                 record, 
@@ -117,6 +117,13 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
+        if(!settings.progressCb && settings.progressBar){
+            settings.progressCb = (progress, len, fetchResult) => {
+                knackAPI.tools.progressBar.update(settings.progressBar, progress, len);
+                console.log(progress, len);
+                console.log(fetchResult);
+            } 
+        }
         return await myFetchMany(settings.records, 125, settings.progressCb);
     },
     tools: {
@@ -198,11 +205,12 @@ async function view17Handler(parentRecord, parentRecordView){
             scene: 'scene_11',
             body: {field_18: parentRecord.field_19},
             retries: 5,
-            progressCb(progress, len, fetchResult){
-                console.log(progress, len);
-                console.log(fetchResult);
-                knackAPI.tools.progressBar.update('updateChildrenProgress', progress, len);
-            }
+            progressBar: 'updateChildrenProgress',//Or alternatively a progressCb function(progress, len, fetchResult)
+            // progressCb(progress, len, fetchResult){
+            //     console.log(progress, len);
+            //     console.log(fetchResult);
+            //     knackAPI.tools.progressBar.update('updateChildrenProgress', progress, len);
+            // }
         });
     }
 
