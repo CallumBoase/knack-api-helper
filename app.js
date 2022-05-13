@@ -119,7 +119,7 @@ const knackAPI = {
         });
         if(!settings.progressCb && settings.progressBar){
             settings.progressCb = (progress, len, fetchResult) => {
-                knackAPI.tools.progressBar.update(settings.progressBar, progress, len);
+                this.tools.progressBar.update(settings.progressBar, progress, len);
                 console.log(progress, len);
                 console.log(fetchResult);
             } 
