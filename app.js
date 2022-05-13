@@ -42,15 +42,13 @@ async function myFetchMany (records, delayMs = 125, progressCbs) {
                 {originalRecord: record, delayMs: i*delayMs, i},
             );
             progress++
-            console.log(progressCbs)
-            console.log(progressCbs.length)
+
             if(progressCbs && progressCbs.length){
                 progressCbs.forEach(progressCb => {
-                    console.log('one cb')
                     progressCb(progress, len, fetchResult)
                 });
             }
-            //progressCb(progress, len, fetchResult);
+
             return fetchResult;
         })();
         promises.push(promise);
@@ -134,8 +132,8 @@ const knackAPI = {
                 console.log(fetchResult);
             });
         }
-        if(settings.progressCb){
-            progressCbs.push(settings.progressCb);
+        if(settings.progressCbs && settings.progressCbs.length){
+            progressCbs.forEach(progressCb => progressCbs.push(progressCb));
         }
         // if(!settings.progressCb && settings.progressBar){
         //     settings.progressCb = (progress, len, fetchResult) => {
@@ -240,8 +238,9 @@ async function view17Handler(parentRecord, parentRecordView){
             body: {field_18: parentRecord.field_19},
             retries: 5,
             progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
-            progressCb(progress, len, fetchResult){
-                console.log('custom progress', progress, len)
+            progressCbs: [
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress2', progress, len)
             },
         });
     }
