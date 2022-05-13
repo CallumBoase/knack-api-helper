@@ -42,6 +42,8 @@ async function myFetchMany (records, delayMs = 125, progressCbs) {
                 {originalRecord: record, delayMs: i*delayMs, i},
             );
             progress++
+            console.log(progressCbs)
+            console.log(progressCbs.length)
             if(progressCbs && progressCbs.length){
                 progressCbs.forEach(progressCb => {
                     console.log('one cb')
