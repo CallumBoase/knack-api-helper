@@ -133,7 +133,7 @@ const knackAPI = {
             });
         }
         if(settings.progressCbs && settings.progressCbs.length){
-            progressCbs.forEach(progressCb => progressCbs.push(progressCb));
+            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
         }
         // if(!settings.progressCb && settings.progressBar){
         //     settings.progressCb = (progress, len, fetchResult) => {
