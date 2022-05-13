@@ -117,6 +117,20 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
+        if(settings.progressBar){
+            $(`#${settings.progressBar.id}`).remove();
+            if(settings.progressBar.insertAfter){
+                this.tools.progressBar.html(settings.progressBar.id).insertAfter(settings.progressBar.insertAfter);
+            } else if(settings.progressBar.insertBefore){
+                this.tools.progressBar.html(settings.progressBar.id).insertBefore(settings.progressBar.insertBefre);
+            } else if(settings.progressBar.appendTo){
+                this.tools.progressBar.html(settings.progressBar.id).appendTo(settings.progressBar.appendTo);
+            } else if(settings.progressBar.prependTo){
+                this.tools.progressBar.html(settings.progressBar.id).prependTo(settings.progressBar.prependTo);
+            } else {
+                console.log('Invalid progress bar location');
+            }
+        }
         if(!settings.progressCb && settings.progressBar){
             settings.progressCb = (progress, len, fetchResult) => {
                 this.tools.progressBar.update(settings.progressBar, progress, len);
@@ -205,11 +219,9 @@ async function view17Handler(parentRecord, parentRecordView){
             scene: 'scene_11',
             body: {field_18: parentRecord.field_19},
             retries: 5,
-            progressBar: 'updateChildrenProgress',//Or alternatively a progressCb function(progress, len, fetchResult)
-            // progressCb(progress, len, fetchResult){
-            //     console.log(progress, len);
-            //     console.log(fetchResult);
-            //     knackAPI.tools.progressBar.update('updateChildrenProgress', progress, len);
+            progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
+            // progressCb(progress, len, fetchResult) => {
+            //     console.log('custom progress', progress, len);
             // }
         });
     }
@@ -240,7 +252,7 @@ async function view17Handler(parentRecord, parentRecordView){
 
         const progressId = 'updateChildrenProgress';
         $(`#${progressId}`).remove();
-        knackAPI.tools.progressBar.html(progressId).insertAfter(`#${parentRecordView.key}`);
+        // knackAPI.tools.progressBar.html(progressId).insertAfter(`#${parentRecordView.key}`);
         const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
         knackAPI.tools.manyResults.htmlSummary(updateChildrenResult).insertAfter(`#${progressId}`);
