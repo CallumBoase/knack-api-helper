@@ -144,7 +144,7 @@ const knackAPI = {
         //         console.log(fetchResult);
         //     } 
         // }
-        return await myFetchMany(settings.records, 125, settings.progressCbs);
+        return await myFetchMany(settings.records, 125, progressCbs);
     },
     tools: {
         progressBar: {
