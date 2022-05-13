@@ -31,7 +31,7 @@ async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
     }
 }
 
-async function myFetchMany (records, delayMs = 125, progressCb) {
+async function myFetchMany (records, delayMs = 125, progressCbs) {
     let promises = [];
     records.forEach( (record, i) => {
         const promise = (async () => {
