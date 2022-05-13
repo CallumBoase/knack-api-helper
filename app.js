@@ -146,13 +146,13 @@ const knackAPI = {
             create(progressBar){
                 $(`#${progressBar.id}`).remove();
                 if(progressBar.insertAfter){
-                    this.tools.progressBar.html(progressBar.id).insertAfter(progressBar.insertAfter);
+                    this.html(progressBar.id).insertAfter(progressBar.insertAfter);
                 } else if(progressBar.insertBefore){
-                    this.tools.progressBar.html(progressBar.id).insertBefore(progressBar.insertBefre);
+                    this.html(progressBar.id).insertBefore(progressBar.insertBefre);
                 } else if(progressBar.appendTo){
-                    this.tools.progressBar.html(progressBar.id).appendTo(progressBar.appendTo);
+                    this.html(progressBar.id).appendTo(progressBar.appendTo);
                 } else if(progressBar.prependTo){
-                    this.tools.progressBar.html(progressBar.id).prependTo(progressBar.prependTo);
+                    this.html(progressBar.id).prependTo(progressBar.prependTo);
                 } else {
                     console.log('Invalid progress bar location');
                 } 
