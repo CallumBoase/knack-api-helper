@@ -118,18 +118,7 @@ const knackAPI = {
             });
         });
         if(settings.progressBar){
-            $(`#${settings.progressBar.id}`).remove();
-            if(settings.progressBar.insertAfter){
-                this.tools.progressBar.html(settings.progressBar.id).insertAfter(settings.progressBar.insertAfter);
-            } else if(settings.progressBar.insertBefore){
-                this.tools.progressBar.html(settings.progressBar.id).insertBefore(settings.progressBar.insertBefre);
-            } else if(settings.progressBar.appendTo){
-                this.tools.progressBar.html(settings.progressBar.id).appendTo(settings.progressBar.appendTo);
-            } else if(settings.progressBar.prependTo){
-                this.tools.progressBar.html(settings.progressBar.id).prependTo(settings.progressBar.prependTo);
-            } else {
-                console.log('Invalid progress bar location');
-            }
+            this.tools.progressBar.create(settings.progressBar);
         }
         if(!settings.progressCb && settings.progressBar){
             settings.progressCb = (progress, len, fetchResult) => {
@@ -153,6 +142,20 @@ const knackAPI = {
             update(id, progress, len){
                 $(`#${id} #progressBar`).val(Math.round(progress / len * 100));
                 $(`#${id} #progressText`).text(`${progress}/${len}`);
+            },
+            create(progressBar){
+                $(`#${progressBar.id}`).remove();
+                if(progressBar.insertAfter){
+                    this.tools.progressBar.html(progressBar.id).insertAfter(progressBar.insertAfter);
+                } else if(progressBar.insertBefore){
+                    this.tools.progressBar.html(progressBar.id).insertBefore(progressBar.insertBefre);
+                } else if(progressBar.appendTo){
+                    this.tools.progressBar.html(progressBar.id).appendTo(progressBar.appendTo);
+                } else if(progressBar.prependTo){
+                    this.tools.progressBar.html(progressBar.id).prependTo(progressBar.prependTo);
+                } else {
+                    console.log('Invalid progress bar location');
+                } 
             }
         },
         manyResults: {
