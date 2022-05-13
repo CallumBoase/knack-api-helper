@@ -239,7 +239,7 @@ async function view17Handler(parentRecord, parentRecordView){
             retries: 5,
             progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
             progressCbs: [
-                (progress, len, fetchResult) => {console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
                 (progress, len, fetchResult) => console.log('custom progress2', progress, len)
             ],
         });
