@@ -42,7 +42,8 @@ async function myFetchMany (records, delayMs = 125, progressCb) {
                 {originalRecord: record, delayMs: i*delayMs, i},
             );
             progress++
-            progressCb(progress, len, fetchResult);
+            if(progressCbs && progressCbs.length) progressCbs.forEach(progressCb => progressCb(progress, len, fetchResult));
+            //progressCb(progress, len, fetchResult);
             return fetchResult;
         })();
         promises.push(promise);
@@ -117,17 +118,26 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
+        let progressCbs = [];
         if(settings.progressBar){
             this.tools.progressBar.create(settings.progressBar);
-        }
-        if(!settings.progressCb && settings.progressBar){
-            settings.progressCb = (progress, len, fetchResult) => {
+            progressCbs.push((progress, len, fetchResult) => {
                 this.tools.progressBar.update(settings.progressBar.id, progress, len);
                 console.log(progress, len);
                 console.log(fetchResult);
-            } 
+            });
         }
-        return await myFetchMany(settings.records, 125, settings.progressCb);
+        if(settings.progressCb){
+            progressCbs.push(settings.progressCb);
+        }
+        // if(!settings.progressCb && settings.progressBar){
+        //     settings.progressCb = (progress, len, fetchResult) => {
+        //         this.tools.progressBar.update(settings.progressBar.id, progress, len);
+        //         console.log(progress, len);
+        //         console.log(fetchResult);
+        //     } 
+        // }
+        return await myFetchMany(settings.records, 125, settings.progressCbs);
     },
     tools: {
         progressBar: {
