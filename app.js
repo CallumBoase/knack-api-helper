@@ -42,7 +42,12 @@ async function myFetchMany (records, delayMs = 125, progressCbs) {
                 {originalRecord: record, delayMs: i*delayMs, i},
             );
             progress++
-            if(progressCbs && progressCbs.length) progressCbs.forEach(progressCb => progressCb(progress, len, fetchResult));
+            if(progressCbs && progressCbs.length){
+                progressCbs.forEach(progressCb => {
+                    console.log('one cb')
+                    progressCb(progress, len, fetchResult)
+                });
+            }
             //progressCb(progress, len, fetchResult);
             return fetchResult;
         })();
