@@ -87,7 +87,9 @@ const knackAPI = new KnackAPI({
 
 function KnackAPI(settings) {
 
-    if(true){
+    console.log(settings.auth);
+
+    if(settings.auth === 'view-based'){
 
         this.headers = {
             "X-Knack-Application-ID": settings.applicationId,
@@ -410,7 +412,7 @@ async function view17Handler(parentRecord, parentRecordView){
 
     async function createTenThirdThings(val){
         const records = [];
-        for(let i = 0; i < 100; i++){
+        for(let i = 0; i < 10; i++){
             records.push({
                 field_27: `${val} ${i}`
             });
