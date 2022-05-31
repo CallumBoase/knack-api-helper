@@ -87,7 +87,7 @@ const knackAPI = new KnackAPI({
 
 function KnackAPI(settings) {
 
-    if(settings.auth === 'view_based'){
+    if(true){
 
         this.headers = {
             "X-Knack-Application-ID": settings.applicationId,
