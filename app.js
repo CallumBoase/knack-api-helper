@@ -660,8 +660,8 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
         console.log(connectedChildren);
 
         //UPDATE MANY
-        // const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
-        // console.log(updateChildrenResult);
+        const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
+        console.log(updateChildrenResult);
 
         //UPDATE SINGLE
         const timestampParentResult = await timestampParent(parentRecord);
