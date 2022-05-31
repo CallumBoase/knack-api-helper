@@ -133,7 +133,7 @@ const knackAPI = {
 
         if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
 
-        const progressCbs = this.progressSetup(settings);
+        const progressCbs = this.progressCbSetup(settings); 
 
         // let progressCbs = [];
         // if(settings.progressBar){
@@ -156,7 +156,7 @@ const knackAPI = {
         return results;
     },
 
-    progressSetup(settings){
+    progressCbSetup(settings){
 
         let progressCbs = [];
         if(settings.progressBar){
