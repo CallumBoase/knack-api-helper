@@ -96,27 +96,6 @@ function KnackAPI(config) {
             "Content-Type": "application/json"
         }
 
-        this.url = function(scene, view, recordId){
-            let url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
-            if(recordId) url += recordId;
-            return url;
-        }
-
-        this.setup = function(method, settings){
-            const url = this.url(settings.scene, settings.view, settings.recordId);
-    
-            const options = {
-                method,
-                headers: this.headers,
-            }
-    
-            if(settings.body) options.body = JSON.stringify(settings.body);
-    
-            const retries = settings.retries ? settings.retries: 5;
-            return {url, options, retries, helperData: settings.helperData};
-    
-        }
-
     } else if(config.auth === 'object-based'){
 
         this.headers = {
@@ -125,26 +104,36 @@ function KnackAPI(config) {
             "Content-Type": "application/json"
         }
 
-        this.url = function(objectId, recordId){
+    }
+
+    this.url = function(scene, view, recordId){
+        if(config.auth === 'view-based'){
+            let url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
+        } else if (config.auth === 'object-based'){
             let url = `https://api.knack.com/v1/object/${objectId}/records/`;
-            if(recordId) url += recordId;
-            return url;
+        }
+        
+        if(recordId) url += recordId;
+        return url;
+    }
+
+    this.setup = function(method, settings){
+
+        if(config.auth === 'view-based'){
+            const url = this.url(settings.scene, settings.view, settings.recordId);
+        } else if (config.auth === 'object-based'){
+            const url = this.url(settings.objectId, settings.recordId);
         }
 
-        this.setup = function(method, settings){
-            const url = this.url(settings.objectId, settings.recordId);
-    
-            const options = {
-                method,
-                headers: this.headers,
-            }
-    
-            if(settings.body) options.body = JSON.stringify(settings.body);
-    
-            const retries = settings.retries ? settings.retries: 5;
-            return {url, options, retries, helperData: settings.helperData};
-    
+        const options = {
+            method,
+            headers: this.headers,
         }
+
+        if(settings.body) options.body = JSON.stringify(settings.body);
+
+        const retries = settings.retries ? settings.retries: 5;
+        return {url, options, retries, helperData: settings.helperData};
 
     }
 
