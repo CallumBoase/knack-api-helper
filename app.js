@@ -408,7 +408,7 @@ async function view17Handler(parentRecord, parentRecordView){
         });
     }
 
-    async function createOneHundredThirdThings(val){
+    async function createTenThirdThings(val){
         const records = [];
         for(let i = 0; i < 100; i++){
             records.push({
@@ -488,8 +488,8 @@ async function view17Handler(parentRecord, parentRecordView){
         console.log(singleThirdThing);
 
         //CREATE MANY
-        const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
-        console.log(OneHundredThirdThings)
+        const tenThirdThings = await createTenThirdThings(parentRecord.field_19);
+        console.log(tenThirdThings)
 
         
         //DELETE SINGLE
