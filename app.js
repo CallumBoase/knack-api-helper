@@ -521,7 +521,7 @@ async function view17Handler_viewBased(parentRecord, parentRecordView){
 
         
         //DELETE SINGLE
-        const deleteResult = await deleteThirdThing(singleThirdThing.json.id);
+        const deleteResult = await deleteThirdThing(singleThirdThing.json.record.id);
         console.log(deleteResult);
 
         //GET MANY
