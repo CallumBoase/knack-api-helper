@@ -104,6 +104,8 @@ function KnackAPI(config) {
             "Content-Type": "application/json"
         }
 
+    } else {
+        throw new Error(`KnackAPI.auth invalid - should be "view-based" or "object-based" but got "${config.auth}"`);
     }
 
     this.url = function(scene, view, recordId){
