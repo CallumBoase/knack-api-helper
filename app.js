@@ -413,32 +413,40 @@ async function view17Handler(parentRecord, parentRecordView){
     }
 
     try {
+        //GET MANY
         // const connectedChildren = await getConnectedChildren(parentRecord);
         // console.log(connectedChildren);
 
+        //UPDATE MANY
         // const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         // console.log(updateChildrenResult);
 
+        //UPDATE SINGLE
         // const timestampParentResult = await timestampParent(parentRecord);
         // console.log(timestampParentResult);
 
+        //GET SINGLE
         // const parentRecordUpdated = await getParent(parentRecord.id);
         // console.log(parentRecordUpdated);
 
+        //CREATE SINGLE
         // const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
         // console.log(singleThirdThing);
 
+        //CREATE MANY
         // const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
         // console.log(OneHundredThirdThings)
 
         
-
+        //DELETE SINGLE
         // const deleteResult = await deleteThirdThing('62958c26328474001fb6d239');
         // console.log(deleteResult);
 
+        //GET MANY
         const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
         console.log(thirdThingsToDelete);
 
+        //DELETE MANY
         if(thirdThingsToDelete.records){
             const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
             console.log(deleteThirdThingsResult);
