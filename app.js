@@ -43,8 +43,8 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
         const promise = (async () => {
             await delay(i*settings.delayMs);
             const fetchResult = await myFetchAutoRetry({
-                url: request.fetchSettings.url, 
-                options: reqeuest.fetchSettings.options, 
+                url: request.url, 
+                options: reqeuest.options, 
                 helperData: {request, delayMs: i*settings.delayMs, i},
             });
             progress++
