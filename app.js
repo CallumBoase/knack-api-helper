@@ -121,8 +121,6 @@ const knackAPI = {
 
     async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultsReport}){
 
-        if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
-
         settings.records.forEach(record => {
             record.fetchSettings = this.putSetup({
                 record, 
@@ -133,19 +131,21 @@ const knackAPI = {
             });
         });
 
-        let progressCbs = [];
-        if(settings.progressBar){
-            this.tools.progressBar.create(settings.progressBar);
-            progressCbs.push((progress, len, fetchResult) => {
-                this.tools.progressBar.update(settings.progressBar.id, progress, len);
-                console.log(progress, len);
-                console.log(fetchResult);
-            });
-        }
+        if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
 
-        if(settings.progressCbs && settings.progressCbs.length){
-            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
-        }
+        const progressCbs = this.progressSetup(settings);
+
+        // let progressCbs = [];
+        // if(settings.progressBar){
+        //     this.tools.progressBar.create(settings.progressBar);
+        //     progressCbs.push((progress, len, fetchResult) => {
+        //         this.tools.progressBar.update(settings.progressBar.id, progress, len);
+        //     });
+        // }
+
+        // if(settings.progressCbs && settings.progressCbs.length){
+        //     settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
+        // }
 
         const results = await myFetchMany(settings.records, 125, progressCbs);
 
@@ -153,9 +153,27 @@ const knackAPI = {
             this.tools.manyResultsReport.create(settings.resultsReport, results);
         }
 
-        return results
+        return results;
     },
-    
+
+    progressSetup(settings){
+
+        let progressCbs = [];
+        if(settings.progressBar){
+            this.tools.progressBar.create(settings.progressBar);
+            progressCbs.push((progress, len, fetchResult) => {
+                this.tools.progressBar.update(settings.progressBar.id, progress, len);
+            });
+        }
+
+        if(settings.progressCbs && settings.progressCbs.length){
+            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
+        }
+
+        return progressCbs;
+
+    }
+
     tools: {
         progressBar: {
 
