@@ -195,8 +195,7 @@ const knackAPI = {
                 },
 
                 html(id, results){
-                    const summary = this.summary(results);
-                    console.log(summary);
+                    const summary = this.calc(results);
                     return $(`
                         <div id=${id}>
                             <p><strong>Finished processing</strong></p>
