@@ -109,6 +109,7 @@ function KnackAPI(config) {
     }
 
     this.url = function(settings = {scene, view, object, recordId}){
+        console.log(settings);
         let url = "";
         if(config.auth === 'view-based'){
             url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/`;
