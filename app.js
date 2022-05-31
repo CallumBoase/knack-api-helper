@@ -387,6 +387,31 @@ async function view17Handler(parentRecord, parentRecordView){
         })
     }
 
+    async function getThirdThingRecords(val){
+        return await knackAPI.getMany({
+            scene: 'scene_9', 
+            view: 'view_21',
+            filters: {match: 'and', rules: [{field: 'field_27', operator: 'contains', value: val}]},
+            helperData: {from: 'getThirdThingRecords'}
+        });
+    }
+
+    async function deleteThirdThingRecords(records){
+        return await knackAPI.deleteMany({
+            records,
+            scene: 'scene_9',
+            view: 'view_21',
+            helperData: {from: 'deleteThirdThingRecords'},
+            retries: 5,
+            progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'deleteThirdThingsProgress'},
+            progressCbs: [
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress2', progress, len)
+            ],
+            resultsReport: {insertAfter: `#deleteThirdThingsProgress`, id: 'deleteThirdThingsSummary'}
+        });
+    }
+
     try {
         // const connectedChildren = await getConnectedChildren(parentRecord);
         // console.log(connectedChildren);
@@ -406,8 +431,15 @@ async function view17Handler(parentRecord, parentRecordView){
         // const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
         // console.log(OneHundredThirdThings)
 
-        const deleteResult = await deleteThirdThing('62958c26328474001fb6d239');
-        console.log(deleteResult);
+        
+
+        // const deleteResult = await deleteThirdThing('62958c26328474001fb6d239');
+        // console.log(deleteResult);
+
+        const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
+        console.log(thirdThingsToDelete);
+
+        //const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.)
 
     } catch(err) {
         console.log(err);
