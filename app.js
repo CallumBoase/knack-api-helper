@@ -44,7 +44,7 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
             await delay(i*settings.delayMs);
             const fetchResult = await myFetchAutoRetry({
                 url: request.url, 
-                options: reqeuest.options, 
+                options: request.options, 
                 helperData: {request, delayMs: i*settings.delayMs, i},
             });
             progress++
