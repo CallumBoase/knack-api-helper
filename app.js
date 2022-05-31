@@ -85,14 +85,14 @@ const knackAPI = new KnackAPI({
 //     apiKey = 'asdfasdfasdfasdf'
 // });
 
-function KnackAPI(constructorPrefs) {
+function KnackAPI(config) {
 
-    if(constructorPrefs.auth === 'view-based'){
+    if(config.auth === 'view-based'){
 
         this.headers = {
-            "X-Knack-Application-ID": constructorPrefs.applicationId,
+            "X-Knack-Application-ID": config.applicationId,
             "X-Knack-REST-API-Key": "knack",
-            "Authorization": constructorPrefs.staticUserToken ? constructorPrefs.staticUserToken : Knack.getUserToken(),
+            "Authorization": config.staticUserToken ? config.staticUserToken : Knack.getUserToken(),
             "Content-Type": "application/json"
         }
 
@@ -117,11 +117,11 @@ function KnackAPI(constructorPrefs) {
     
         }
 
-    } else if(constructorPrefs.auth === 'object-based'){
+    } else if(config.auth === 'object-based'){
 
         this.headers = {
-            "X-Knack-Application-ID": constructorPrefs.applicationId,
-            "X-Knack-REST-API-Key": constructorPrefs.apiKey,
+            "X-Knack-Application-ID": config.applicationId,
+            "X-Knack-REST-API-Key": config.apiKey,
             "Content-Type": "application/json"
         }
 
