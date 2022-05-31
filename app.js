@@ -344,7 +344,7 @@ function KnackAPI(config) {
         }
 
         if(!config.applicationId) throw new Error(`KnackAPI.applicationId not found`);
-        if(config.auth === 'view-based' && !staticUserToken){
+        if(config.auth === 'view-based' && !config.staticUserToken){
             if(!Knack) throw new Error('Selectd view-based auth without a specified user token, but cannot find Knack object');
         }
 
