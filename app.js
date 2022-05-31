@@ -345,10 +345,10 @@ async function view17Handler(parentRecord, parentRecordView){
         });
     }
 
-    async function createRecord(val){
+    async function createThirdThingRecord(val){
         return await knackAPI.post({
-            view: 'view_9',
-            scene: 'scene_20',
+            scene: 'scene_9',
+            view: 'view_20',
             body: {field_27: val},
             helperData: {from: 'createRecord', something: 'else'}
         });
@@ -367,7 +367,7 @@ async function view17Handler(parentRecord, parentRecordView){
         // const parentRecordUpdated = await getParent(parentRecord.id);
         // console.log(parentRecordUpdated);
 
-        const singleThirdThing = await createRecord(parentRecord.field_19);
+        const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
         console.log(singleThirdThing);
 
     } catch(err) {
