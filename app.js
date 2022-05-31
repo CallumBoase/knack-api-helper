@@ -676,8 +676,8 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
         console.log(singleThirdThing);
 
         //CREATE MANY
-        // const tenThirdThings = await createTenThirdThings(parentRecord.field_19);
-        // console.log(tenThirdThings)
+        const tenThirdThings = await createTenThirdThings(parentRecord.field_19);
+        console.log(tenThirdThings)
 
         
         //DELETE SINGLE
