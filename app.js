@@ -172,6 +172,7 @@ const knackAPI = {
     },
 
     async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+        //Records must contain a record ID
 
         const requests = [];
 
@@ -314,19 +315,17 @@ async function view17Handler(parentRecord, parentRecordView){
     async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
 
         const records = [];
-        connectedChildrenRecords.forEach(record => {
+        connectedChildrenRecords.forEach((record, i) => {
             records.push({
                 id: record.id,
-                field_18: parentRecord.field_19
+                field_18: `${parentRecord.field_19} ${i}`
             });
         });
 
         return await knackAPI.putMany({
             records,
-            //recordIds: connectedChildrenRecords.map(record => record.id),
             view: 'view_14',
             scene: 'scene_11',
-            //body: {field_18: parentRecord.field_19},
             helperData: {connectedChildrenRecords, foo: 'bar', something: 'else'},
             retries: 5,
             progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
