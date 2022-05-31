@@ -68,23 +68,6 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
 
 
 
-const knackAPI = new KnackAPI({
-    auth: 'view-based',
-    applicationId: Knack.application_id,
-});
-
-// const knackAPI = new KnackAPI({
-//     auth: 'view-based',
-//     applicationId: Knack.application_id,
-//     staticUserToken: 'asdfasdafsdf'
-// });
-
-// const knackAPI = new KnackAPI({
-//     auth: 'object-based',
-//     applicationId: Knack.application_id,
-//     apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
-// });
-
 function KnackAPI(config) {
 
     checkConfig();
@@ -371,6 +354,17 @@ function KnackAPI(config) {
     }
 }
 
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: Knack.application_id,
+});
+
+// const knackAPI = new KnackAPI({
+//     auth: 'view-based',
+//     applicationId: Knack.application_id,
+//     staticUserToken: 'asdfasdafsdf'
+// });
+
 async function view17Handler_viewBased(parentRecord, parentRecordView){
 
     async function getConnectedChildren(record){
@@ -540,10 +534,16 @@ async function view17Handler_viewBased(parentRecord, parentRecordView){
     } 
 }
 
+const knackAPI_objectBased = new knackAPI({
+    auth: 'object-based',
+    applicationId: Knack.application_id,
+    apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
+});
+
 async function view17Handler_objectBased(parentRecord, parentRecordView){
 
     async function getConnectedChildren(record){
-        return await knackAPI.getMany({
+        return await knackAPI_objectBased.getMany({
             object: 'object_6',
             filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
             helperData: {a: 1, b: 2}
@@ -560,7 +560,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
             });
         });
 
-        return await knackAPI.putMany({
+        return await knackAPI_objectBased.putMany({
             records,
             object: 'object_6',
             helperData: {connectedChildrenRecords, foo: 'bar', something: 'else'},
@@ -575,7 +575,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     async function timestampParent(record){
-        return await knackAPI.put({
+        return await knackAPI_objectBased.put({
             recordId: record.id,
             object: 'object_7',
             body: {field_21: new Date()},
@@ -585,7 +585,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     async function getParent(recordId){
-        return await knackAPI.get({
+        return await knackAPI_objectBased.get({
             object: 'object_7',
             recordId: recordId,
             helperData: {a: 1, b: 2}
@@ -593,7 +593,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     async function createThirdThingRecord(val){
-        return await knackAPI.post({
+        return await knackAPI_objectBased.post({
             object: 'object_9',
             body: {field_27: val},
             helperData: {from: 'createRecord', something: 'else'}
@@ -608,7 +608,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
             });
         }
 
-        return await knackAPI.postMany({
+        return await knackAPI_objectBased.postMany({
             records,
             object: 'object_9',
             helperData: {from: 'create100ThirdThings', baseVal: val},
@@ -624,7 +624,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     async function deleteThirdThing(id){
-        return await knackAPI.delete({
+        return await knackAPI_objectBased.delete({
             recordId: id, 
             object: 'object_9',
             helperData: {from: 'deleteThirdThing', id},
@@ -632,7 +632,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     async function getThirdThingRecords(val){
-        return await knackAPI.getMany({
+        return await knackAPI_objectBased.getMany({
             object: 'object_9',
             filters: {match: 'and', rules: [{field: 'field_27', operator: 'contains', value: val}]},
             helperData: {from: 'getThirdThingRecords'}
@@ -640,7 +640,7 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     async function deleteThirdThingRecords(records){
-        return await knackAPI.deleteMany({
+        return await knackAPI_objectBased.deleteMany({
             records,
             object: 'object_9',
             helperData: {from: 'deleteThirdThingRecords'},
