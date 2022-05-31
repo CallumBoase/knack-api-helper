@@ -327,7 +327,7 @@ async function view17Handler(parentRecord, parentRecordView){
             view: 'view_14',
             scene: 'scene_11',
             //body: {field_18: parentRecord.field_19},
-            helperData: {connectedChildrenRecordsFull: connectedChildrenrecords, line: 319, something: 'else'},
+            helperData: {connectedChildrenRecords, foo: 'bar', something: 'else'},
             retries: 5,
             progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
             progressCbs: [
