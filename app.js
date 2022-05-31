@@ -210,15 +210,15 @@ const knackAPI = {
                     `) 
                 },
 
-                create(htmlSummary, results){
-                    if(htmlSummary.insertAfter){
-                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.insertAfter);
-                    } else if(htmlSummary.insertBefore){
-                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.insertBefore);
-                    } else if(htmlSummary.appendTo){
-                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.appendTo);
-                    } else if(htmlSummary.prependTo){
-                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.prependTo);
+                create(resultSummary, results){
+                    if(resultSummary.insertAfter){
+                        this.html(resultSummary.id, results).insertAfter(resultSummary.insertAfter);
+                    } else if(resultSummary.insertBefore){
+                        this.html(resultSummary.id, results).insertAfter(resultSummary.insertBefore);
+                    } else if(resultSummary.appendTo){
+                        this.html(resultSummary.id, results).insertAfter(resultSummary.appendTo);
+                    } else if(resultSummary.prependTo){
+                        this.html(resultSummary.id, results).insertAfter(resultSummary.prependTo);
                     } else {
                         console.log('Invalid summary location');
                     } 
