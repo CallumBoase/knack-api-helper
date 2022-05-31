@@ -66,10 +66,18 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
     return Promise.allSettled(promises);
 }
 
+
+
 const knackAPI = new KnackAPI({
     auth: 'view-based',
     applicationId: Knack.application_id,
 });
+
+// const knackAPI = new KnackAPI({
+//     auth: 'view-based',
+//     applicationId: Knack.application_id,
+//     staticUserToken: 'asdfasdafsdf'
+// });
 
 // KnackAPI.init({
 //     auth: 'object-based',
@@ -79,38 +87,71 @@ const knackAPI = new KnackAPI({
 
 function KnackAPI(settings) {
 
-    this.headers = {
-        "X-Knack-Application-ID": Knack.application_id,
-        "X-Knack-REST-API-Key": "knack",
-        "Authorization": Knack.getUserToken(),
-        "Content-Type": "application/json"
-    },
+    if(settings.auth === 'view_based'){
 
-    this.url = function(scene, view, recordId){
-        let url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
-        if(recordId) url += recordId;
-        return url;
-    },
-
-    this.setup = function(method, settings){
-        const url = this.url(settings.scene, settings.view, settings.recordId);
-
-        const options = {
-            method,
-            headers: this.headers,
+        this.headers = {
+            "X-Knack-Application-ID": settings.applicationId,
+            "X-Knack-REST-API-Key": "knack",
+            "Authorization": settings.staticUserToken ? settings.staticUserToken : Knack.getUserToken(),
+            "Content-Type": "application/json"
         }
 
-        if(settings.body) options.body = JSON.stringify(settings.body);
+        this.url = function(scene, view, recordId){
+            let url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
+            if(recordId) url += recordId;
+            return url;
+        }
 
-        const retries = settings.retries ? settings.retries: 5;
-        return {url, options, retries, helperData: settings.helperData};
+        this.setup = function(method, settings){
+            const url = this.url(settings.scene, settings.view, settings.recordId);
+    
+            const options = {
+                method,
+                headers: this.headers,
+            }
+    
+            if(settings.body) options.body = JSON.stringify(settings.body);
+    
+            const retries = settings.retries ? settings.retries: 5;
+            return {url, options, retries, helperData: settings.helperData};
+    
+        }
 
-    },
+    } else if(settings.auth === 'object-based'){
+
+        this.headers = {
+            "X-Knack-Application-ID": settings.applicationId,
+            "X-Knack-REST-API-Key": settings.apiKey,
+            "Content-Type": "application/json"
+        }
+
+        this.url = function(objectId, recordId){
+            let url = `https://api.knack.com/v1/object/${objectId}/records/`;
+            if(recordId) url += recordId;
+            return url;
+        }
+
+        this.setup = function(method, settings){
+            const url = this.url(settings.objectId, settings.recordId);
+    
+            const options = {
+                method,
+                headers: this.headers,
+            }
+    
+            if(settings.body) options.body = JSON.stringify(settings.body);
+    
+            const retries = settings.retries ? settings.retries: 5;
+            return {url, options, retries, helperData: settings.helperData};
+    
+        }
+
+    }
 
     this.single = async function(method, settings){
         const req = this.setup(method, settings);
         return await myFetchAutoRetry(req);
-    },
+    }
 
     this.many = async function(method, settings){
 
@@ -146,7 +187,7 @@ function KnackAPI(settings) {
         }
 
         return results;
-    },
+    }
 
     this.progressCbsSetup = function(settings){
 
@@ -164,23 +205,23 @@ function KnackAPI(settings) {
 
         return progressCbs;
 
-    },
+    }
 
     this.get = async function(settings = {view, scene, recordId, helperData}){
         return await this.single('GET', settings);
-    },
+    }
 
     this.post = async function(settings = {view, scene, body, helperData, retries}){
         return await this.single('POST', settings);
-    },
+    }
 
     this.put = async function(settings = {recordId, view, scene, body, helperData, retries}){
         return await this.single('PUT', settings);
-    },
+    }
 
     this.delete = async function(settings = {recordId, view, scene, helperData, retries}){
         return await this.single('DELETE', settings);
-    },
+    }
 
 
     this.getMany = async function(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
@@ -201,19 +242,19 @@ function KnackAPI(settings) {
         } else {
             return final;
         }
-    },
+    }
 
     this.putMany = async function(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('PUT', settings);
-    },
+    }
 
     this.postMany = async function (settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('POST', settings);
-    },
+    }
 
     this.deleteMany = async function(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('DELETE', settings);
-    },
+    }
 
     this.tools = {
         progressBar: {
