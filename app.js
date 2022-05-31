@@ -85,11 +85,9 @@ const knackAPI = new KnackAPI({
 //     apiKey = 'asdfasdfasdfasdf'
 // });
 
-function KnackAPI(settings) {
+function KnackAPI(constructorPrefs) {
 
-    console.log(settings.auth);
-
-    if(settings.auth === 'view-based'){
+    if(constructorPrefs.auth === 'view-based'){
 
         this.headers = {
             "X-Knack-Application-ID": settings.applicationId,
@@ -119,7 +117,7 @@ function KnackAPI(settings) {
     
         }
 
-    } else if(settings.auth === 'object-based'){
+    } else if(constructorPrefs.auth === 'object-based'){
 
         this.headers = {
             "X-Knack-Application-ID": settings.applicationId,
