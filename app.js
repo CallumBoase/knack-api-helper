@@ -166,7 +166,7 @@ const knackAPI = {
     },
 
     async delete(settings = {recordId, view, scene, helperData, retries}){
-        return await this.single('PUT', settings);
+        return await this.single('DELETE', settings);
     },
 
 
