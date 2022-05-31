@@ -115,20 +115,28 @@ const knackAPI = {
     },
 
     async get(settings = {view, scene, recordId, helperData}){
+        const req = this.setup('GET', settings);
+        return await myFetchAutoRetry(req);
+    },
 
-        const get = this.setup('GET', settings);
-        return await myFetchAutoRetry(get);
+    async put(settings = {recordId, view, scene, body, helperData, retries}){
+        const req = this.setup('PUT', settings);
+        return await myFetchAutoRetry(req);
+    },
 
+    async post(settings = {view, scene, body, helperData, retries}){
+        const req = this.setup('POST', settings);
+        return await myFetchAutoRetry(req);
     },
 
     async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
-        const get = this.setup('GET', settings);
+        const req = this.setup('GET', settings);
 
-        get.url += `?page=${page}&rows_per_page=1000`;
-        if(settings.filters) get.url += `&filters=${JSON.stringify(settings.filters)}`;
+        req.url += `?page=${page}&rows_per_page=1000`;
+        if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
 
-        const result = await myFetchAutoRetry(get);
+        const result = await myFetchAutoRetry(req);
 
         final.pages.push(result);
         result.json.records.map(record => final.records.push(record));
@@ -141,25 +149,24 @@ const knackAPI = {
         }
     },
 
-    async put(settings = {recordId, view, scene, body, helperData, retries}){
-        const put = this.setup('PUT', settings);
-        return await myFetchAutoRetry(put);
-    },
-
-    async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
-        //Records must contain a record ID
+    async many(method, settings){
+        //Records must contain a record ID for put, but not for post
 
         const requests = [];
 
         settings.records.forEach(record => {
             const reqSettings = {
-                recordId: record.id,
                 view: settings.view, 
                 scene: settings.scene, 
-                body: record,
                 retries: settings.retries
             }
-            requests.push(this.setup('PUT', reqSettings));
+            if(method !== 'DELETE'){
+                reqSettings.body = record;
+            }
+            if(method !== 'POST'){
+                reqSettings.recordId = record.id,
+            }
+            requests.push(this.setup(method, reqSettings));
         });
 
         if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
@@ -176,6 +183,45 @@ const knackAPI = {
 
         return results;
     },
+
+    async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+        return await this.many('PUT', settings);
+    },
+
+    async postMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+        return await this.many('POST', settings);
+    }
+
+    // async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    //     //Records must contain a record ID for put, but not for post
+
+    //     const requests = [];
+
+    //     settings.records.forEach(record => {
+    //         const reqSettings = {
+    //             recordId: record.id,
+    //             view: settings.view, 
+    //             scene: settings.scene, 
+    //             body: record,
+    //             retries: settings.retries
+    //         }
+    //         requests.push(this.setup('PUT', reqSettings));
+    //     });
+
+    //     if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
+
+    //     const progressCbs = this.progressCbSetup(settings); 
+
+    //     const results = await myFetchMany({requests, delayMs: 125, progressCbs});
+    //     results.settings = settings;
+    //     results.summary = this.tools.manyResultsReport.calc(results);
+
+    //     if(settings.resultsReport){
+    //         this.tools.manyResultsReport.create(settings.resultsReport, results);
+    //     }
+
+    //     return results;
+    // },
 
     tools: {
         progressBar: {
