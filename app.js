@@ -68,10 +68,10 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
 
 
 
-// const knackAPI = new KnackAPI({
-//     auth: 'view-based',
-//     applicationId: Knack.application_id,
-// });
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: Knack.application_id,
+});
 
 // const knackAPI = new KnackAPI({
 //     auth: 'view-based',
@@ -79,11 +79,11 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
 //     staticUserToken: 'asdfasdafsdf'
 // });
 
-const knackAPI = new KnackAPI({
-    auth: 'object-based',
-    applicationId: Knack.application_id,
-    apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
-});
+// const knackAPI = new KnackAPI({
+//     auth: 'object-based',
+//     applicationId: Knack.application_id,
+//     apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
+// });
 
 function KnackAPI(config) {
 
@@ -521,18 +521,18 @@ async function view17Handler_viewBased(parentRecord, parentRecordView){
 
         
         //DELETE SINGLE
-        // const deleteResult = await deleteThirdThing('62958c26328474001fb6d239');
-        // console.log(deleteResult);
+        const deleteResult = await deleteThirdThing(singleThirdThing.json.id);
+        console.log(deleteResult);
 
         //GET MANY
-        // const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
-        // console.log(thirdThingsToDelete);
+        const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
+        console.log(thirdThingsToDelete);
 
         //DELETE MANY
-        // if(thirdThingsToDelete.records){
-        //     const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
-        //     console.log(deleteThirdThingsResult);
-        // }
+        if(thirdThingsToDelete.records){
+            const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
+            console.log(deleteThirdThingsResult);
+        }
 
     } catch(err) {
         console.log(err);
@@ -701,6 +701,6 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    //view17Handler_viewBased(record, view);
-    view17Handler_objectBased(record, view);
+    view17Handler_viewBased(record, view);
+    //view17Handler_objectBased(record, view);
 });
