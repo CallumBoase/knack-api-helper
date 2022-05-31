@@ -345,18 +345,30 @@ async function view17Handler(parentRecord, parentRecordView){
         });
     }
 
+    async function createRecord(val){
+        return await knackAPI.post({
+            view: 'view_9',
+            scene: 'scene_20',
+            body: {field_27: val},
+            helperData: {from: 'createRecord', something: 'else'}
+        });
+    }
+
     try {
-        const connectedChildren = await getConnectedChildren(parentRecord);
-        console.log(connectedChildren);
+        // const connectedChildren = await getConnectedChildren(parentRecord);
+        // console.log(connectedChildren);
 
-        const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
-        console.log(updateChildrenResult);
+        // const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
+        // console.log(updateChildrenResult);
 
-        const timestampParentResult = await timestampParent(parentRecord);
-        console.log(timestampParentResult);
+        // const timestampParentResult = await timestampParent(parentRecord);
+        // console.log(timestampParentResult);
 
-        const parentRecordUpdated = await getParent(parentRecord.id);
-        console.log(parentRecordUpdated);
+        // const parentRecordUpdated = await getParent(parentRecord.id);
+        // console.log(parentRecordUpdated);
+
+        const singleThirdThing = await createRecord(parentRecord.field_19);
+        console.log(singleThirdThing);
 
     } catch(err) {
         console.log(err);
