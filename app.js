@@ -703,6 +703,6 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
 }
 
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    view17Handler_viewBased(record, view);
-    //view17Handler_objectBased(record, view);
+    //view17Handler_viewBased(record, view);
+    view17Handler_objectBased(record, view);
 });
