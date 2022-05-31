@@ -266,7 +266,7 @@ async function view17Handler(parentRecord, parentRecordView){
                 (progress, len, fetchResult) => console.log('custom progress', progress, len),
                 (progress, len, fetchResult) => console.log('custom progress2', progress, len)
             ],
-            resultSummary: {insertAfter: `#${updateChildrenProgress}`, id: 'updateChildrenSummary'}
+            resultSummary: {insertAfter: `#updateChildrenProgress`, id: 'updateChildrenSummary'}
         });
     }
 
