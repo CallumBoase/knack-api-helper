@@ -114,6 +114,9 @@ const knackAPI = {
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
     async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultSummary}){
+
+        if(settings.resultSummary) this.tools.manyResults.summary.remove(settings.resultSummary); 
+
         settings.records.forEach(record => {
             record.fetchSettings = this.putSetup({
                 record, 
@@ -123,6 +126,7 @@ const knackAPI = {
                 retries: settings.retries
             });
         });
+
         let progressCbs = [];
         if(settings.progressBar){
             this.tools.progressBar.create(settings.progressBar);
@@ -132,6 +136,7 @@ const knackAPI = {
                 console.log(fetchResult);
             });
         }
+
         if(settings.progressCbs && settings.progressCbs.length){
             settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
         }
@@ -222,6 +227,10 @@ const knackAPI = {
                     } else {
                         console.log('Invalid summary location');
                     } 
+                },
+
+                remove(resultSummary){
+                    $(`#${resultSummary.id}`).remove();
                 }
             }
 
@@ -293,12 +302,8 @@ async function view17Handler(parentRecord, parentRecordView){
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
 
-        // const progressId = 'updateChildrenProgress';
-        // $(`#${progressId}`).remove();
-        // knackAPI.tools.progressBar.html(progressId).insertAfter(`#${parentRecordView.key}`);
         const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
-        // knackAPI.tools.manyResults.htmlSummary(updateChildrenResult).insertAfter(`#${progressId}`);
 
         const timestampParentResult = await timestampParent(parentRecord);
         console.log(timestampParentResult);
