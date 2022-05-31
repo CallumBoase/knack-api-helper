@@ -66,22 +66,33 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
     return Promise.allSettled(promises);
 }
 
-const knackAPI = {
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: Knack.application_id,
+});
 
-    headers: {
+// KnackAPI.init({
+//     auth: 'object-based',
+//     applicationId: Knack.application_id,
+//     apiKey = 'asdfasdfasdfasdf'
+// });
+
+function KnackAPI(settings) {
+
+    this.headers: {
         "X-Knack-Application-ID": Knack.application_id,
         "X-Knack-REST-API-Key": "knack",
         "Authorization": Knack.getUserToken(),
         "Content-Type": "application/json"
     },
 
-    url(scene, view, recordId){
+    this.url = function(scene, view, recordId){
         let url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
         if(recordId) url += recordId;
         return url;
     },
 
-    setup(method, settings){
+    this.setup = function(method, settings){
         const url = this.url(settings.scene, settings.view, settings.recordId);
 
         const options = {
@@ -96,12 +107,12 @@ const knackAPI = {
 
     },
 
-    async single(method, settings){
+    this.single = async function(method, settings){
         const req = this.setup(method, settings);
         return await myFetchAutoRetry(req);
     },
 
-    async many(method, settings){
+    this.many = async function(method, settings){
 
         if(method === 'GET') return console.log('knackAPI.many is only for POST, PUT and DELETE');
 
@@ -137,7 +148,7 @@ const knackAPI = {
         return results;
     },
 
-    progressCbsSetup(settings){
+    this.progressCbsSetup = function(settings){
 
         let progressCbs = [];
         if(settings.progressBar){
@@ -155,24 +166,24 @@ const knackAPI = {
 
     },
 
-    async get(settings = {view, scene, recordId, helperData}){
+    this.get = async function(settings = {view, scene, recordId, helperData}){
         return await this.single('GET', settings);
     },
 
-    async post(settings = {view, scene, body, helperData, retries}){
+    this.post = async function(settings = {view, scene, body, helperData, retries}){
         return await this.single('POST', settings);
     },
 
-    async put(settings = {recordId, view, scene, body, helperData, retries}){
+    this.put = async function(settings = {recordId, view, scene, body, helperData, retries}){
         return await this.single('PUT', settings);
     },
 
-    async delete(settings = {recordId, view, scene, helperData, retries}){
+    this.delete = async function(settings = {recordId, view, scene, helperData, retries}){
         return await this.single('DELETE', settings);
     },
 
 
-    async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
@@ -192,19 +203,19 @@ const knackAPI = {
         }
     },
 
-    async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    this.putMany = async function(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('PUT', settings);
     },
 
-    async postMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    this.postMany = async function (settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('POST', settings);
     },
 
-    async deleteMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    this.deleteMany = async function(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('DELETE', settings);
     },
 
-    tools: {
+    this.tools = {
         progressBar: {
 
             html(id){
