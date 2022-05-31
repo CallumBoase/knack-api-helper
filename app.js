@@ -354,6 +354,30 @@ async function view17Handler(parentRecord, parentRecordView){
         });
     }
 
+    async function createOneHundredThirdThings(val){
+        const records = [];
+        for(let i = 0; i < 100; i++){
+            records.push({
+                field_27: `${val} ${i}`
+            });
+        }
+
+        return await knackAPI.postMany({
+            records,
+            scene: 'scene_9',
+            view: 'view_20',
+            helperData: {from: 'create100ThirdThings', baseVal: val},
+            retries: 5,
+            progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'create100Progress'},
+            progressCbs: [
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress2', progress, len)
+            ],
+            resultsReport: {insertAfter: `#create100Progress`, id: 'create100Summary'}
+        });
+
+    }
+
     try {
         // const connectedChildren = await getConnectedChildren(parentRecord);
         // console.log(connectedChildren);
@@ -369,6 +393,9 @@ async function view17Handler(parentRecord, parentRecordView){
 
         const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
         console.log(singleThirdThing);
+
+        const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
+        console.log(OneHundredThirdThings)
 
     } catch(err) {
         console.log(err);
