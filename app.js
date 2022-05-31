@@ -164,7 +164,7 @@ const knackAPI = {
                 reqSettings.body = record;
             }
             if(method !== 'POST'){
-                reqSettings.recordId = record.id,
+                reqSettings.recordId = record.id;
             }
             requests.push(this.setup(method, reqSettings));
         });
