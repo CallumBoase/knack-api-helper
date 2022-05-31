@@ -378,6 +378,15 @@ async function view17Handler(parentRecord, parentRecordView){
 
     }
 
+    async function deleteThirdThing(id){
+        return await knackAPI.delete({
+            recordId: id, 
+            scene: 'scene_9',
+            view: 'view_21',
+            helperData: {from: 'deleteThirdThing', id},
+        })
+    }
+
     try {
         // const connectedChildren = await getConnectedChildren(parentRecord);
         // console.log(connectedChildren);
@@ -391,11 +400,14 @@ async function view17Handler(parentRecord, parentRecordView){
         // const parentRecordUpdated = await getParent(parentRecord.id);
         // console.log(parentRecordUpdated);
 
-        const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
-        console.log(singleThirdThing);
+        // const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
+        // console.log(singleThirdThing);
 
-        const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
-        console.log(OneHundredThirdThings)
+        // const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
+        // console.log(OneHundredThirdThings)
+
+        const deleteResult = await deleteThirdThing('62958c26328474001fb6d239');
+        console.log(deleteResult);
 
     } catch(err) {
         console.log(err);
