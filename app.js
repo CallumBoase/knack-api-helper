@@ -113,7 +113,7 @@ function KnackAPI(config) {
         if(config.auth === 'view-based'){
             url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/`;
         } else if (config.auth === 'object-based'){
-            url = `https://api.knack.com/v1/object/${settings.object}/records/`;
+            url = `https://api.knack.com/v1/objects/${settings.object}/records/`;
         }
         
         if(settings.recordId) url += settings.recordId;
