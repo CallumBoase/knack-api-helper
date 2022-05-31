@@ -135,18 +135,6 @@ const knackAPI = {
 
         const progressCbs = this.progressCbSetup(settings); 
 
-        // let progressCbs = [];
-        // if(settings.progressBar){
-        //     this.tools.progressBar.create(settings.progressBar);
-        //     progressCbs.push((progress, len, fetchResult) => {
-        //         this.tools.progressBar.update(settings.progressBar.id, progress, len);
-        //     });
-        // }
-
-        // if(settings.progressCbs && settings.progressCbs.length){
-        //     settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
-        // }
-
         const results = await myFetchMany(settings.records, 125, progressCbs);
 
         if(settings.resultsReport){
