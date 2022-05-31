@@ -61,12 +61,14 @@ async function myFetchMany (records, delayMs = 125, progressCbs) {
 }
 
 const knackAPI = {
+
     headers: {
         "X-Knack-Application-ID": Knack.application_id,
         "X-Knack-REST-API-Key": "knack",
         "Authorization": Knack.getUserToken(),
         "Content-Type": "application/json"
     },
+
     async get(settings = {view, scene, recordId, helperData}){
         let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.recordId}`;
 
@@ -77,6 +79,7 @@ const knackAPI = {
 
         return await myFetchAutoRetry(url, options, settings.helperData);
     },
+
     async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
         let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
         url += `?page=${page}&rows_per_page=1000`;
@@ -99,6 +102,7 @@ const knackAPI = {
             return final;
         }
     },
+
     putSetup(settings = {record, view, scene, body, retries}){
         const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
         const options = {
@@ -109,10 +113,12 @@ const knackAPI = {
         const retries = settings.retries ? settings.retries : 5;
         return {url, options, retries};
     },
+
     async put(settings = {record, view, scene, body, helperData, retries}){
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
+
     async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultsReport}){
 
         if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
@@ -149,6 +155,7 @@ const knackAPI = {
 
         return results
     },
+    
     tools: {
         progressBar: {
 
