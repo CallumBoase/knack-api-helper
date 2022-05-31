@@ -339,7 +339,7 @@ function KnackAPI(config) {
         if(!config) throw new Error('KnackAPI config settings object not found');
 
         if(!config.auth) throw new Error('KnackAPI.auth configuration not found');
-        if(config.auth !== 'object-based' || config.auth !== 'view-based') {
+        if(config.auth !== 'object-based' && config.auth !== 'view-based') {
             throw new Error(`KnackAPI.auth invalid - should be "view-based" or "object-based" but got "${config.auth}"`);
         }
 
