@@ -220,13 +220,21 @@ const knackAPI = {
         const requests = [];
 
         settings.records.forEach(record => {
-            requests.push(this.putSetup({
+            const settings = {
                 recordId: record.id,
                 view: settings.view, 
                 scene: settings.scene, 
                 body: record,
                 retries: settings.retries
-            }));
+            }
+            requests.push(this.setup('PUT', settings));
+            // requests.push(this.putSetup({
+            //     recordId: record.id,
+            //     view: settings.view, 
+            //     scene: settings.scene, 
+            //     body: record,
+            //     retries: settings.retries
+            // }));
         });
 
         if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
