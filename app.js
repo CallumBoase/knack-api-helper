@@ -172,7 +172,7 @@ const knackAPI = {
 
         return progressCbs;
 
-    }
+    },
 
     tools: {
         progressBar: {
