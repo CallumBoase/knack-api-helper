@@ -101,28 +101,30 @@ const knackAPI = {
 
     async get(settings = {view, scene, recordId, helperData}){
 
-        const url = this.url(settings.scene, settings.view, settings.recordId);
+        const get = this.setup('GET', settings);
+        get.helperData = settings.helperData;
 
-        const options = {
-            method: 'GET',
-            headers: this.headers
-        };
+        return await myFetchAutoRetry(get);
 
-        return await myFetchAutoRetry({url, options, helperData: settings.helperData});
+        // const url = this.url(settings.scene, settings.view, settings.recordId);
+
+        // const options = {
+        //     method: 'GET',
+        //     headers: this.headers
+        // };
+
+        // return await myFetchAutoRetry({url, options, helperData: settings.helperData});
     },
 
     async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
-        let url = this.url(settings.scene, settings.view);
-        url += `?page=${page}&rows_per_page=1000`;
-        if(settings.filters) url += `&filters=${JSON.stringify(settings.filters)}`;
-        
-        const options = {
-            method: 'GET',
-            headers: this.headers
-        }
+        const get = this.setup('GET', settings);
+        get.helperData = settings.helperData;
 
-        const result = await myFetchAutoRetry({url, options, helperData: settings.helperData});
+        get.url += `?page=${page}&rows_per_page=1000`;
+        if(settings.filters) get.url += `&filters=${JSON.stringify(settings.filters)}`;
+
+        const result = await myFetchAutoRetry(get);
 
         final.pages.push(result);
         result.json.records.map(record => final.records.push(record));
@@ -135,40 +137,81 @@ const knackAPI = {
         }
     },
 
-    putSetup(settings = {recordId, view, scene, body, retries}){
+    // async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
+    //     let url = this.url(settings.scene, settings.view);
+    //     url += `?page=${page}&rows_per_page=1000`;
+    //     if(settings.filters) url += `&filters=${JSON.stringify(settings.filters)}`;
+        
+    //     const options = {
+    //         method: 'GET',
+    //         headers: this.headers
+    //     }
+
+    //     const result = await myFetchAutoRetry({url, options, helperData: settings.helperData});
+
+    //     final.pages.push(result);
+    //     result.json.records.map(record => final.records.push(record));
+    //     final.helperData = settings.helperData;
+
+    //     if(result.json.total_pages > result.json.current_page){
+    //         return await this.getMany(settings, result.json.current_page + 1, final);
+    //     } else {
+    //         return final;
+    //     }
+    // },
+
+    // putSetup(settings = {recordId, view, scene, body, retries}){
+
+    //     const url = this.url(settings.scene, settings.view, settings.recordId);
+
+    //     const options = {
+    //         method: 'PUT',
+    //         headers: this.headers,
+    //         body: JSON.stringify(settings.body)
+    //     }
+    //     const retries = settings.retries ? settings.retries : 5;
+    //     return {url, options, retries};
+    // },
+
+    // postSetup(settings = {record, view, scene, body, retries}){
+
+    //     const url = this.url(settings.scene, settings.view);
+
+    //     const options = {
+    //         method: 'POST',
+    //         headers: this.headers,
+    //         body: JSON.stringify(settings.body)
+    //     }
+    //     const retries = settings.retries ? settings.retries : 5;
+    //     return {url, options, retries};
+    // },
+
+    setup(method, settings){
         const url = this.url(settings.scene, settings.view, settings.recordId);
 
         const options = {
-            method: 'PUT',
+            method,
             headers: this.headers,
-            body: JSON.stringify(settings.body)
         }
-        const retries = settings.retries ? settings.retries : 5;
+
+        if(settings.body) options.body = JSON.stringify(settings.body);
+
+        const retries = settings.retries ? settings.retries: 5;
         return {url, options, retries};
-    },
 
-    postSetup(settings = {record, view, scene, body, retries}){
-
-        const url = this.url(settings.scene, settings.view);
-
-        const options = {
-            method: 'POST',
-            headers: this.headers,
-            body: JSON.stringify(settings.body)
-        }
-        const retries = settings.retries ? settings.retries : 5;
-        return {url, options, retries};
     },
 
     async put(settings = {recordId, view, scene, body, helperData, retries}){
-        const putSetup = this.putSetup(settings);
-        return await myFetchAutoRetry({
-            url: putSetup.url, 
-            options: putSetup.options, 
-            helperData: settings.helperData, 
-            retries: putSetup.retries
-        });
+        const put = this.setup('PUT', settings);
+        put.helperData = settings.helperData;
+        return await myFetchAutoRetry(put);
+        // return await myFetchAutoRetry({
+        //     url: putSetup.url, 
+        //     options: putSetup.options, 
+        //     helperData: settings.helperData, 
+        //     retries: putSetup.retries
+        // });
     },
 
     async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
