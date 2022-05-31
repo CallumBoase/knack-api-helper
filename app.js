@@ -103,6 +103,8 @@ const knackAPI = {
 
     async many(method, settings){
 
+        if(method === 'GET') return console.log('knackAPI.many is only for POST, PUT and DELETE');
+
         const requests = [];
 
         settings.records.forEach(record => {
@@ -122,7 +124,7 @@ const knackAPI = {
 
         if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
 
-        const progressCbs = this.progressCbSetup(settings); 
+        const progressCbs = this.progressCbsSetup(settings); 
 
         const results = await myFetchMany({requests, delayMs: 125, progressCbs});
         results.settings = settings;
@@ -135,7 +137,7 @@ const knackAPI = {
         return results;
     },
 
-    progressCbSetup(settings){
+    progressCbsSetup(settings){
 
         let progressCbs = [];
         if(settings.progressBar){
