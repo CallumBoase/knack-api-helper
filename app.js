@@ -231,10 +231,14 @@ function KnackAPI(config) {
 
     this.getMany = async function(settings = {view, scene, object, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
+        console.log(settings);
         const req = this.setup('GET', settings);
+        console.log(req.url);
 
         req.url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
+
+        console.log(req.url)
 
         const result = await myFetchAutoRetry(req);
 
