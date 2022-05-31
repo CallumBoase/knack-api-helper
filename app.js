@@ -87,6 +87,8 @@ const knackAPI = new KnackAPI({
 
 function KnackAPI(config) {
 
+    checkConfig();
+
     if(config.auth === 'view-based'){
 
         this.headers = {
@@ -104,8 +106,6 @@ function KnackAPI(config) {
             "Content-Type": "application/json"
         }
 
-    } else {
-        throw new Error(`KnackAPI.auth invalid - should be "view-based" or "object-based" but got "${config.auth}"`);
     }
 
     this.url = function(scene, view, recordId){
@@ -331,6 +331,29 @@ function KnackAPI(config) {
                 $(`#${resultsReport.id}`).remove();
             }
 
+        }
+    }
+
+    function checkConfig(){
+
+        if(!config) throw new Error('KnackAPI config settings object not found');
+
+        if(!config.auth) throw new Error('KnackAPI.auth configuration not found');
+        if(config.auth !== 'object-based' || config.auth !== 'view-based') {
+            throw new Error(`KnackAPI.auth invalid - should be "view-based" or "object-based" but got "${config.auth}"`);
+        }
+
+        if(!config.applicationId) throw new Error(`KnackAPI.applicationId not found`);
+        if(config.auth === 'view-based' && !staticUserToken){
+            if(!Knack) throw new Error('Selectd view-based auth without a specified user token, but cannot find Knack object');
+        }
+
+        if(config.auth === 'object-based' && !config.apiKey) throw new Error('Object-based auth selected but did not find an API key');
+        if(config.auth === 'object-based' && Knack) {
+            console.log(`
+                Warning! Object-based auth selected but it looks like you are running code in the Knack Javascript area. 
+                We strongly recommend you use view-based auth instead;
+            `)
         }
     }
 }
