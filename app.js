@@ -655,33 +655,33 @@ async function view17Handler_objectBased(parentRecord, parentRecordView){
     }
 
     try {
-        // //GET MANY
-        // const connectedChildren = await getConnectedChildren(parentRecord);
-        // console.log(connectedChildren);
+        //GET MANY
+        const connectedChildren = await getConnectedChildren(parentRecord);
+        console.log(connectedChildren);
 
-        // //UPDATE MANY
-        // const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
-        // console.log(updateChildrenResult);
+        //UPDATE MANY
+        const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
+        console.log(updateChildrenResult);
 
-        // //UPDATE SINGLE
-        // const timestampParentResult = await timestampParent(parentRecord);
-        // console.log(timestampParentResult);
+        //UPDATE SINGLE
+        const timestampParentResult = await timestampParent(parentRecord);
+        console.log(timestampParentResult);
 
-        // //GET SINGLE
-        // const parentRecordUpdated = await getParent(parentRecord.id);
-        // console.log(parentRecordUpdated);
+        //GET SINGLE
+        const parentRecordUpdated = await getParent(parentRecord.id);
+        console.log(parentRecordUpdated);
 
-        // //CREATE SINGLE
-        // const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
-        // console.log(singleThirdThing);
+        //CREATE SINGLE
+        const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
+        console.log(singleThirdThing);
 
-        // //CREATE MANY
-        // const tenThirdThings = await createTenThirdThings(parentRecord.field_19);
-        // console.log(tenThirdThings)
+        //CREATE MANY
+        const tenThirdThings = await createTenThirdThings(parentRecord.field_19);
+        console.log(tenThirdThings)
 
         
         //DELETE SINGLE
-        const deleteResult = await deleteThirdThing('6295b7669e5b3a001e0c116f');
+        const deleteResult = await deleteThirdThing(singleThirdThing.json.record.id);
         console.log(deleteResult);
 
         //GET MANY
