@@ -81,24 +81,6 @@ const knackAPI = {
         return url;
     },
 
-    progressCbSetup(settings){
-
-        let progressCbs = [];
-        if(settings.progressBar){
-            this.tools.progressBar.create(settings.progressBar);
-            progressCbs.push((progress, len, fetchResult) => {
-                this.tools.progressBar.update(settings.progressBar.id, progress, len);
-            });
-        }
-
-        if(settings.progressCbs && settings.progressCbs.length){
-            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
-        }
-
-        return progressCbs;
-
-    },
-
     setup(method, settings){
         const url = this.url(settings.scene, settings.view, settings.recordId);
 
@@ -153,6 +135,24 @@ const knackAPI = {
         return results;
     },
 
+    progressCbSetup(settings){
+
+        let progressCbs = [];
+        if(settings.progressBar){
+            this.tools.progressBar.create(settings.progressBar);
+            progressCbs.push((progress, len, fetchResult) => {
+                this.tools.progressBar.update(settings.progressBar.id, progress, len);
+            });
+        }
+
+        if(settings.progressCbs && settings.progressCbs.length){
+            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
+        }
+
+        return progressCbs;
+
+    },
+
     async get(settings = {view, scene, recordId, helperData}){
         return await this.single('GET', settings);
     },
@@ -201,37 +201,6 @@ const knackAPI = {
     async deleteMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('DELETE', settings);
     },
-
-    // async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
-    //     //Records must contain a record ID for put, but not for post
-
-    //     const requests = [];
-
-    //     settings.records.forEach(record => {
-    //         const reqSettings = {
-    //             recordId: record.id,
-    //             view: settings.view, 
-    //             scene: settings.scene, 
-    //             body: record,
-    //             retries: settings.retries
-    //         }
-    //         requests.push(this.setup('PUT', reqSettings));
-    //     });
-
-    //     if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
-
-    //     const progressCbs = this.progressCbSetup(settings); 
-
-    //     const results = await myFetchMany({requests, delayMs: 125, progressCbs});
-    //     results.settings = settings;
-    //     results.summary = this.tools.manyResultsReport.calc(results);
-
-    //     if(settings.resultsReport){
-    //         this.tools.manyResultsReport.create(settings.resultsReport, results);
-    //     }
-
-    //     return results;
-    // },
 
     tools: {
         progressBar: {
@@ -319,19 +288,6 @@ const knackAPI = {
         }
     }
 }
-
-// function knackAPI(){
-//     //Put some stuff here to help us build Knack API requests
-//         //Get single record DONE
-//         //Get multi records DONE
-//         //Get multi records with multi pages DONE    
-//         //Post setup TO DO
-//         //Post TO DO
-//         //Put setup DONE
-//         //Put DONE
-//         //Delete setup TO DO
-//         //Delete TO DO
-// }
 
 async function view17Handler(parentRecord, parentRecordView){
 
