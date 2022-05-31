@@ -79,7 +79,7 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
 //     staticUserToken: 'asdfasdafsdf'
 // });
 
-const knackAPI = KnackAPI.init({
+const knackAPI = new KnackAPI({
     auth: 'object-based',
     applicationId: Knack.application_id,
     apiKey = 'd72b5c15-0aca-4b49-b49c-9ced3d230b54';
