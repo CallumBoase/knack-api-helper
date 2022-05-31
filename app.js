@@ -35,7 +35,7 @@ async function myFetchAutoRetry (settings = {url, options, helperData, retries})
 }
 
 async function myFetchMany (settings = {records, delayMs, progressCbs}) {
-    
+
     if(settings.delayMs) settings.delayMs = 125;
 
     let promises = [];
@@ -66,35 +66,6 @@ async function myFetchMany (settings = {records, delayMs, progressCbs}) {
     return Promise.allSettled(promises);
 }
 
-// async function myFetchMany (records, delayMs = 125, progressCbs) {
-//     let promises = [];
-//     records.forEach( (record, i) => {
-//         const promise = (async () => {
-//             await delay(i*delayMs);
-//             const fetchResult = await myFetchAutoRetry({
-//                 url: record.fetchSettings.url, 
-//                 options: record.fetchSettings.options, 
-//                 helperData: {originalRecord: record, delayMs: i*delayMs, i},
-//             });
-//             progress++
-
-//             if(progressCbs && progressCbs.length){
-//                 progressCbs.forEach(progressCb => {
-//                     progressCb(progress, len, fetchResult)
-//                 });
-//             }
-
-//             return fetchResult;
-//         })();
-//         promises.push(promise);
-//     });
-
-//     const len = promises.length;
-//     let progress = 0;
-
-//     return Promise.allSettled(promises);
-// }
-
 const knackAPI = {
 
     headers: {
@@ -104,8 +75,33 @@ const knackAPI = {
         "Content-Type": "application/json"
     },
 
+    url(scene, view, recordId){
+        let url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
+        if(recordId) url += recordId;
+        return url;
+    },
+
+    progressCbSetup(settings){
+
+        let progressCbs = [];
+        if(settings.progressBar){
+            this.tools.progressBar.create(settings.progressBar);
+            progressCbs.push((progress, len, fetchResult) => {
+                this.tools.progressBar.update(settings.progressBar.id, progress, len);
+            });
+        }
+
+        if(settings.progressCbs && settings.progressCbs.length){
+            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
+        }
+
+        return progressCbs;
+
+    },
+
     async get(settings = {view, scene, recordId, helperData}){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.recordId}`;
+        // let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.recordId}`;
+        const url = this.url(settings.scene, settings.view, settings.recordId);
 
         const options = {
             method: 'GET',
@@ -116,7 +112,8 @@ const knackAPI = {
     },
 
     async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
-        let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        // let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+        let url = this.url(settings.scene, settings.view);
         url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) url += `&filters=${JSON.stringify(settings.filters)}`;
         
@@ -139,7 +136,8 @@ const knackAPI = {
     },
 
     putSetup(settings = {record, view, scene, body, retries}){
-        const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
+        // const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
+        const url = this.url(settings.scene, settings.view, settings.record.id);
         const options = {
             method: 'PUT',
             headers: this.headers,
@@ -182,24 +180,6 @@ const knackAPI = {
         }
 
         return results;
-    },
-
-    progressCbSetup(settings){
-
-        let progressCbs = [];
-        if(settings.progressBar){
-            this.tools.progressBar.create(settings.progressBar);
-            progressCbs.push((progress, len, fetchResult) => {
-                this.tools.progressBar.update(settings.progressBar.id, progress, len);
-            });
-        }
-
-        if(settings.progressCbs && settings.progressCbs.length){
-            settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
-        }
-
-        return progressCbs;
-
     },
 
     tools: {
