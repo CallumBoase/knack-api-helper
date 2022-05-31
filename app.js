@@ -109,7 +109,6 @@ function KnackAPI(config) {
     }
 
     this.url = function(settings = {scene, view, object, recordId}){
-        console.log(settings);
         let url = "";
         if(config.auth === 'view-based'){
             url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/`;
@@ -168,6 +167,7 @@ function KnackAPI(config) {
             const reqSettings = {
                 view: settings.view, 
                 scene: settings.scene, 
+                object: settings.object,
                 retries: settings.retries
             }
             if(method !== 'DELETE'){
@@ -231,14 +231,10 @@ function KnackAPI(config) {
 
     this.getMany = async function(settings = {view, scene, object, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
-        console.log(settings);
         const req = this.setup('GET', settings);
-        console.log(req.url);
 
         req.url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
-
-        console.log(req.url)
 
         const result = await myFetchAutoRetry(req);
 
