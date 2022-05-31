@@ -354,6 +354,7 @@ function KnackAPI(config) {
     }
 }
 
+//VIEW BASED USAGE EXAMPLE
 const knackAPI = new KnackAPI({
     auth: 'view-based',
     applicationId: Knack.application_id,
@@ -534,7 +535,8 @@ async function view17Handler_viewBased(parentRecord, parentRecordView){
     } 
 }
 
-const knackAPI_objectBased = new knackAPI({
+//OBJECT BASED USAGE EXAMPLE
+const knackAPI_objectBased = new KnackAPI({
     auth: 'object-based',
     applicationId: Knack.application_id,
     apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
