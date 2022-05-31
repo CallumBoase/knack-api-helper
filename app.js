@@ -113,9 +113,9 @@ const knackAPI = {
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
-    async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultSummary}){
+    async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultsReport}){
 
-        if(settings.resultSummary) this.tools.manyResults.summary.remove(settings.resultSummary); 
+        if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
 
         settings.records.forEach(record => {
             record.fetchSettings = this.putSetup({
@@ -143,8 +143,8 @@ const knackAPI = {
 
         const results = await myFetchMany(settings.records, 125, progressCbs);
 
-        if(settings.resultSummary){
-            this.tools.manyResults.summary.create(settings.resultSummary, results);
+        if(settings.resultsReport){
+            this.tools.manyResultsReport.create(settings.resultsReport, results);
         }
 
         return results
@@ -181,57 +181,55 @@ const knackAPI = {
                 } 
             }
         },
-        manyResults: {
 
-            summary : {
+        manyResultsReport: {
 
-                calc(results){
-                    const fulfilled = results.reduce((acc, curr) => {
-                        if(curr.status === 'fulfilled') acc++;
-                        return acc;
-                    },0);
-                    const rejected = results.reduce((acc, curr) => {
-                        if(curr.status === 'rejected') acc++;
-                        return acc;
-                    },0);
-                    console.log(fulfilled)
-                    console.log(rejected)
-                    return {fulfilled, rejected};
-                },
+            calc(results){
+                const fulfilled = results.reduce((acc, curr) => {
+                    if(curr.status === 'fulfilled') acc++;
+                    return acc;
+                },0);
+                const rejected = results.reduce((acc, curr) => {
+                    if(curr.status === 'rejected') acc++;
+                    return acc;
+                },0);
+                console.log(fulfilled)
+                console.log(rejected)
+                return {fulfilled, rejected};
+            },
 
-                html(id, results){
-                    const summary = this.calc(results);
-                    return $(`
-                        <div id=${id}>
-                            <p><strong>Finished processing</strong></p>
-                            <p>Summary:</p>
-                            <p>
-                                <ul>
-                                    <li>Failed: ${summary.rejected}</li>
-                                    <li>Succeeded: ${summary.fulfilled}</li>
-                                </ul>
-                            </p>
-                        </div>
-                    `) 
-                },
+            html(id, results){
+                const summary = this.calc(results);
+                return $(`
+                    <div id=${id}>
+                        <p><strong>Finished processing</strong></p>
+                        <p>Summary:</p>
+                        <p>
+                            <ul>
+                                <li>Failed: ${summary.rejected}</li>
+                                <li>Succeeded: ${summary.fulfilled}</li>
+                            </ul>
+                        </p>
+                    </div>
+                `) 
+            },
 
-                create(resultSummary, results){
-                    if(resultSummary.insertAfter){
-                        this.html(resultSummary.id, results).insertAfter(resultSummary.insertAfter);
-                    } else if(resultSummary.insertBefore){
-                        this.html(resultSummary.id, results).insertAfter(resultSummary.insertBefore);
-                    } else if(resultSummary.appendTo){
-                        this.html(resultSummary.id, results).insertAfter(resultSummary.appendTo);
-                    } else if(resultSummary.prependTo){
-                        this.html(resultSummary.id, results).insertAfter(resultSummary.prependTo);
-                    } else {
-                        console.log('Invalid summary location');
-                    } 
-                },
+            create(resultsReport, results){
+                if(resultsReport.insertAfter){
+                    this.html(resultsReport.id, results).insertAfter(resultsReport.insertAfter);
+                } else if(resultsReport.insertBefore){
+                    this.html(resultsReport.id, results).insertAfter(resultsReport.insertBefore);
+                } else if(resultsReport.appendTo){
+                    this.html(resultsReport.id, results).insertAfter(resultsReport.appendTo);
+                } else if(resultsReport.prependTo){
+                    this.html(resultsReport.id, results).insertAfter(resultsReport.prependTo);
+                } else {
+                    console.log('Invalid summary location');
+                } 
+            },
 
-                remove(resultSummary){
-                    $(`#${resultSummary.id}`).remove();
-                }
+            remove(resultsReport){
+                $(`#${resultsReport.id}`).remove();
             }
 
         }
@@ -274,7 +272,7 @@ async function view17Handler(parentRecord, parentRecordView){
                 (progress, len, fetchResult) => console.log('custom progress', progress, len),
                 (progress, len, fetchResult) => console.log('custom progress2', progress, len)
             ],
-            resultSummary: {insertAfter: `#updateChildrenProgress`, id: 'updateChildrenSummary'}
+            resultsReport: {insertAfter: `#updateChildrenProgress`, id: 'updateChildrenSummary'}
         });
     }
 
