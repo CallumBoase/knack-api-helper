@@ -139,7 +139,7 @@ const knackAPI = {
         const results = await myFetchMany(settings.records, 125, progressCbs);
 
         if(settings.resultSummary){
-            this.tools.manyResults.summary.create(resultSummary, results);
+            this.tools.manyResults.summary.create(settings.resultSummary, results);
         }
 
         return results
