@@ -190,7 +190,7 @@ const knackAPI = {
 
     async postMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('POST', settings);
-    }
+    },
 
     // async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
     //     //Records must contain a record ID for put, but not for post
