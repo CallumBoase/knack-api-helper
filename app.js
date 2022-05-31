@@ -34,18 +34,18 @@ async function myFetchAutoRetry (settings = {url, options, helperData, retries})
     }
 }
 
-async function myFetchMany (settings = {records, delayMs, progressCbs}) {
+async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
 
     if(settings.delayMs) settings.delayMs = 125;
 
     let promises = [];
-    settings.records.forEach( (record, i) => {
+    settings.requests.forEach( (request, i) => {
         const promise = (async () => {
             await delay(i*settings.delayMs);
             const fetchResult = await myFetchAutoRetry({
-                url: record.fetchSettings.url, 
-                options: record.fetchSettings.options, 
-                helperData: {originalRecord: record, delayMs: i*settings.delayMs, i},
+                url: request.fetchSettings.url, 
+                options: reqeuest.fetchSettings.options, 
+                helperData: {request, delayMs: i*settings.delayMs, i},
             });
             progress++
 
@@ -100,7 +100,7 @@ const knackAPI = {
     },
 
     async get(settings = {view, scene, recordId, helperData}){
-        // let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.recordId}`;
+
         const url = this.url(settings.scene, settings.view, settings.recordId);
 
         const options = {
@@ -112,7 +112,7 @@ const knackAPI = {
     },
 
     async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
-        // let url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records`;
+
         let url = this.url(settings.scene, settings.view);
         url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) url += `&filters=${JSON.stringify(settings.filters)}`;
@@ -135,9 +135,10 @@ const knackAPI = {
         }
     },
 
-    putSetup(settings = {record, view, scene, body, retries}){
-        // const url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/${settings.record.id}`;
-        const url = this.url(settings.scene, settings.view, settings.record.id);
+    putSetup(settings = {recordId, view, scene, body, retries}){
+
+        const url = this.url(settings.scene, settings.view, settings.recordId);
+
         const options = {
             method: 'PUT',
             headers: this.headers,
@@ -147,7 +148,20 @@ const knackAPI = {
         return {url, options, retries};
     },
 
-    async put(settings = {record, view, scene, body, helperData, retries}){
+    postSetup(settings = {record, view, scene, body, retries}){
+
+        const url = this.url(settings.scene, settings.view);
+
+        const options = {
+            method: 'POST',
+            headers: this.headers,
+            body: JSON.stringify(settings.body)
+        }
+        const retries = settings.retries ? settings.retries : 5;
+        return {url, options, retries};
+    },
+
+    async put(settings = {recordId, view, scene, body, helperData, retries}){
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry({
             url: putSetup.url, 
@@ -157,23 +171,27 @@ const knackAPI = {
         });
     },
 
-    async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultsReport}){
+    async putMany(settings = {recordIds, view, scene, body, helperData, retries, progressBar, progressCbs, resultsReport}){
 
-        settings.records.forEach(record => {
-            record.fetchSettings = this.putSetup({
-                record, 
+        const requests = [];
+
+        settings.recordIds.forEach(recordId => {
+            requests.push(this.putSetup({
+                recordId,
                 view: settings.view, 
                 scene: settings.scene, 
                 body: settings.body, 
                 retries: settings.retries
-            });
+            }));
         });
 
         if(settings.resultsReport) this.tools.manyResultsReport.remove(settings.resultsReport); 
 
         const progressCbs = this.progressCbSetup(settings); 
 
-        const results = await myFetchMany({records: settings.records, delayMs: 125, progressCbs});
+        const results = await myFetchMany({requests, delayMs: 125, progressCbs});
+        results.helperData = settings.helperData;
+        results.summary = this.tools.manyResultsReport.calc(results);
 
         if(settings.resultsReport){
             this.tools.manyResultsReport.create(settings.resultsReport, results);
@@ -295,10 +313,11 @@ async function view17Handler(parentRecord, parentRecordView){
 
     async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
         return await knackAPI.putMany({
-            records: connectedChildrenRecords,
+            recordIds: connectedChildrenRecords.map(record => record.id),
             view: 'view_14',
             scene: 'scene_11',
             body: {field_18: parentRecord.field_19},
+            helperData: {originalRecords: connectedChildrenRecords, line: 319, something: 'else'},
             retries: 5,
             progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
             progressCbs: [
@@ -311,7 +330,7 @@ async function view17Handler(parentRecord, parentRecordView){
 
     async function timestampParent(record){
         return await knackAPI.put({
-            record,
+            recordId: record.id,
             view: 'view_19',
             scene: 'scene_15',
             body: {field_21: new Date()},
