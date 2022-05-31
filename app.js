@@ -171,16 +171,16 @@ const knackAPI = {
         });
     },
 
-    async putMany(settings = {recordIds, view, scene, body, helperData, retries, progressBar, progressCbs, resultsReport}){
+    async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
 
         const requests = [];
 
-        settings.recordIds.forEach(recordId => {
+        settings.records.forEach(record => {
             requests.push(this.putSetup({
-                recordId,
+                recordId: record.id,
                 view: settings.view, 
                 scene: settings.scene, 
-                body: settings.body, 
+                body: record,
                 retries: settings.retries
             }));
         });
@@ -190,7 +190,7 @@ const knackAPI = {
         const progressCbs = this.progressCbSetup(settings); 
 
         const results = await myFetchMany({requests, delayMs: 125, progressCbs});
-        results.helperData = settings.helperData;
+        results.settings = settings;
         results.summary = this.tools.manyResultsReport.calc(results);
 
         if(settings.resultsReport){
@@ -312,12 +312,22 @@ async function view17Handler(parentRecord, parentRecordView){
     };
 
     async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
+
+        const records = [];
+        connectedChildrenRecords.forEach(record => {
+            records.push({
+                id: record.id,
+                field_18: parentRecord.field_19
+            });
+        });
+
         return await knackAPI.putMany({
-            recordIds: connectedChildrenRecords.map(record => record.id),
+            records,
+            //recordIds: connectedChildrenRecords.map(record => record.id),
             view: 'view_14',
             scene: 'scene_11',
-            body: {field_18: parentRecord.field_19},
-            helperData: {originalRecords: connectedChildrenRecords, line: 319, something: 'else'},
+            //body: {field_18: parentRecord.field_19},
+            helperData: {connectedChildrenRecordsFull: connectedChildrenrecords, line: 319, something: 'else'},
             retries: 5,
             progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
             progressCbs: [
