@@ -220,14 +220,14 @@ const knackAPI = {
         const requests = [];
 
         settings.records.forEach(record => {
-            const settings = {
+            const reqSettings = {
                 recordId: record.id,
                 view: settings.view, 
                 scene: settings.scene, 
                 body: record,
                 retries: settings.retries
             }
-            requests.push(this.setup('PUT', settings));
+            requests.push(this.setup('PUT', reqSettings));
             // requests.push(this.putSetup({
             //     recordId: record.id,
             //     view: settings.view, 
