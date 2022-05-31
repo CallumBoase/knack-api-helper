@@ -249,7 +249,7 @@ function KnackAPI(config) {
 
             html(id){
                 return $(`
-                    <div id="${id}">
+                    <div id="${id}" style="margin-bottom: 10px;">
                         <span class="before-progress-bar" style="margin-right: 5px;"><em><strong>Processing records</em></strong></span>
                         <progress id="progressBar" value="0" max="100"></progress>
                         <span class="after-progress-bar" style="margin-left: 5px;" id="progressText">Initialising...</span>
