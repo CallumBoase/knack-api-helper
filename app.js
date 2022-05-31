@@ -113,7 +113,7 @@ const knackAPI = {
         const putSetup = this.putSetup(settings);
         return await myFetchAutoRetry(putSetup.url, putSetup.options, settings.helperData, putSetup.retries);
     },
-    async putMany(settings = {records, view, scene, body, retries, progressBar, progressCb}){
+    async putMany(settings = {records, view, scene, body, retries, progressBar, progressCbs, resultSummary}){
         settings.records.forEach(record => {
             record.fetchSettings = this.putSetup({
                 record, 
@@ -135,17 +135,18 @@ const knackAPI = {
         if(settings.progressCbs && settings.progressCbs.length){
             settings.progressCbs.forEach(progressCb => progressCbs.push(progressCb));
         }
-        // if(!settings.progressCb && settings.progressBar){
-        //     settings.progressCb = (progress, len, fetchResult) => {
-        //         this.tools.progressBar.update(settings.progressBar.id, progress, len);
-        //         console.log(progress, len);
-        //         console.log(fetchResult);
-        //     } 
-        // }
-        return await myFetchMany(settings.records, 125, progressCbs);
+
+        const results = await myFetchMany(settings.records, 125, progressCbs);
+
+        if(settings.resultSummary){
+            this.tools.manyResults.summary.create(resultSummary, results);
+        }
+
+        return results
     },
     tools: {
         progressBar: {
+
             html(id){
                 return $(`
                     <div id="${id}">
@@ -154,16 +155,18 @@ const knackAPI = {
                     </div>
                 `);
             },
+
             update(id, progress, len){
                 $(`#${id} #progressBar`).val(Math.round(progress / len * 100));
                 $(`#${id} #progressText`).text(`${progress}/${len}`);
             },
+
             create(progressBar){
                 $(`#${progressBar.id}`).remove();
                 if(progressBar.insertAfter){
                     this.html(progressBar.id).insertAfter(progressBar.insertAfter);
                 } else if(progressBar.insertBefore){
-                    this.html(progressBar.id).insertBefore(progressBar.insertBefre);
+                    this.html(progressBar.id).insertBefore(progressBar.insertBefore);
                 } else if(progressBar.appendTo){
                     this.html(progressBar.id).appendTo(progressBar.appendTo);
                 } else if(progressBar.prependTo){
@@ -174,34 +177,55 @@ const knackAPI = {
             }
         },
         manyResults: {
-            summary(results){
-                const fulfilled = results.reduce((acc, curr) => {
-                    if(curr.status === 'fulfilled') acc++;
-                    return acc;
-                },0);
-                const rejected = results.reduce((acc, curr) => {
-                    if(curr.status === 'rejected') acc++;
-                    return acc;
-                },0);
-                console.log(fulfilled)
-                console.log(rejected)
-                return {fulfilled, rejected};
-            },
-            htmlSummary(results){
-                const summary = this.summary(results);
-                console.log(summary);
-                return $(`
-                    <p><strong>Finished processing</strong></p>
-                    <p>Summary:</p>
-                    <p>
-                        <ul>
-                            <li>Failed: ${summary.rejected}</li>
-                            <li>Succeeded: ${summary.fulfilled}</li>
-                        </ul>
-                    </p>
-                `)
-                
+
+            summary : {
+
+                calc(results){
+                    const fulfilled = results.reduce((acc, curr) => {
+                        if(curr.status === 'fulfilled') acc++;
+                        return acc;
+                    },0);
+                    const rejected = results.reduce((acc, curr) => {
+                        if(curr.status === 'rejected') acc++;
+                        return acc;
+                    },0);
+                    console.log(fulfilled)
+                    console.log(rejected)
+                    return {fulfilled, rejected};
+                },
+
+                html(id, results){
+                    const summary = this.summary(results);
+                    console.log(summary);
+                    return $(`
+                        <div id=${id}>
+                            <p><strong>Finished processing</strong></p>
+                            <p>Summary:</p>
+                            <p>
+                                <ul>
+                                    <li>Failed: ${summary.rejected}</li>
+                                    <li>Succeeded: ${summary.fulfilled}</li>
+                                </ul>
+                            </p>
+                        </div>
+                    `) 
+                },
+
+                create(htmlSummary, results){
+                    if(htmlSummary.insertAfter){
+                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.insertAfter);
+                    } else if(htmlSummary.insertBefore){
+                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.insertBefore);
+                    } else if(htmlSummary.appendTo){
+                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.appendTo);
+                    } else if(htmlSummary.prependTo){
+                        this.html(htmlSummary.id, results).insertAfter(htmlSummary.prependTo);
+                    } else {
+                        console.log('Invalid summary location');
+                    } 
+                }
             }
+
         }
     }
 }
@@ -242,6 +266,7 @@ async function view17Handler(parentRecord, parentRecordView){
                 (progress, len, fetchResult) => console.log('custom progress', progress, len),
                 (progress, len, fetchResult) => console.log('custom progress2', progress, len)
             ],
+            resultSummary: {insertAfter: `#${updateChildrenProgress}`, id: 'updateChildrenSummary'}
         });
     }
 
@@ -269,12 +294,12 @@ async function view17Handler(parentRecord, parentRecordView){
         const connectedChildren = await getConnectedChildren(parentRecord);
         console.log(connectedChildren);
 
-        const progressId = 'updateChildrenProgress';
-        $(`#${progressId}`).remove();
+        // const progressId = 'updateChildrenProgress';
+        // $(`#${progressId}`).remove();
         // knackAPI.tools.progressBar.html(progressId).insertAfter(`#${parentRecordView.key}`);
         const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
         console.log(updateChildrenResult);
-        knackAPI.tools.manyResults.htmlSummary(updateChildrenResult).insertAfter(`#${progressId}`);
+        // knackAPI.tools.manyResults.htmlSummary(updateChildrenResult).insertAfter(`#${progressId}`);
 
         const timestampParentResult = await timestampParent(parentRecord);
         console.log(timestampParentResult);
