@@ -108,24 +108,36 @@ function KnackAPI(config) {
 
     }
 
-    this.url = function(scene, view, recordId){
+    this.url = function(settings = {scene, view, object, recordId}){
         let url = "";
         if(config.auth === 'view-based'){
-            url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
+            url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/`;
         } else if (config.auth === 'object-based'){
-            url = `https://api.knack.com/v1/object/${object}/records/`;
+            url = `https://api.knack.com/v1/object/${settings.object}/records/`;
         }
         
-        if(recordId) url += recordId;
+        if(settings.recordId) url += settings.recordId;
         return url;
     }
 
     this.setup = function(method, settings){
         let url = "";
+
         if(config.auth === 'view-based'){
-            url = this.url(settings.scene, settings.view, settings.recordId);
+
+            url = this.url({
+                scene: settings.scene, 
+                view: settings.view, 
+                recordId: settings.recordId
+            });
+        
         } else if (config.auth === 'object-based'){
-            url = this.url(settings.object, settings.recordId);
+
+            url = this.url({
+                object: settings.object, 
+                recordId: settings.recordId
+            });
+
         }
 
         const options = {
