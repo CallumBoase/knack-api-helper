@@ -79,7 +79,7 @@ const knackAPI = new KnackAPI({
 
 function KnackAPI(settings) {
 
-    this.headers: {
+    this.headers = {
         "X-Knack-Application-ID": Knack.application_id,
         "X-Knack-REST-API-Key": "knack",
         "Authorization": Knack.getUserToken(),
@@ -427,28 +427,28 @@ async function view17Handler(parentRecord, parentRecordView){
 
     try {
         //GET MANY
-        // const connectedChildren = await getConnectedChildren(parentRecord);
-        // console.log(connectedChildren);
+        const connectedChildren = await getConnectedChildren(parentRecord);
+        console.log(connectedChildren);
 
         //UPDATE MANY
-        // const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
-        // console.log(updateChildrenResult);
+        const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
+        console.log(updateChildrenResult);
 
         //UPDATE SINGLE
-        // const timestampParentResult = await timestampParent(parentRecord);
-        // console.log(timestampParentResult);
+        const timestampParentResult = await timestampParent(parentRecord);
+        console.log(timestampParentResult);
 
         //GET SINGLE
-        // const parentRecordUpdated = await getParent(parentRecord.id);
-        // console.log(parentRecordUpdated);
+        const parentRecordUpdated = await getParent(parentRecord.id);
+        console.log(parentRecordUpdated);
 
         //CREATE SINGLE
-        // const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
-        // console.log(singleThirdThing);
+        const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
+        console.log(singleThirdThing);
 
         //CREATE MANY
-        // const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
-        // console.log(OneHundredThirdThings)
+        const OneHundredThirdThings = await createOneHundredThirdThings(parentRecord.field_19);
+        console.log(OneHundredThirdThings)
 
         
         //DELETE SINGLE
@@ -456,14 +456,14 @@ async function view17Handler(parentRecord, parentRecordView){
         // console.log(deleteResult);
 
         //GET MANY
-        const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
-        console.log(thirdThingsToDelete);
+        // const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
+        // console.log(thirdThingsToDelete);
 
         //DELETE MANY
-        if(thirdThingsToDelete.records){
-            const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
-            console.log(deleteThirdThingsResult);
-        }
+        // if(thirdThingsToDelete.records){
+        //     const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
+        //     console.log(deleteThirdThingsResult);
+        // }
 
     } catch(err) {
         console.log(err);
