@@ -34,34 +34,23 @@ async function myFetchAutoRetry (settings = {url, options, helperData, retries})
     }
 }
 
-// async function myFetchAutoRetry (url, options, helperData = {}, retries = 5) {
-//     //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
-//     for(let i = 1; i <= retries; i++){
-//         try {
-//             if(i > 1) await delay(1000);
-//             return await myFetch(url, options, helperData);
-//         } catch (err){
-//             const isLastRetry = i === retries;
-//             if(isLastRetry) throw err;
-//             console.log(`failed myFetch ${options.method ? options.method : ""} to ${url}, attempt ${i}. retrying`);
-//         }
-//     }
-// }
+async function myFetchMany (settings = {records, delayMs, progressCbs}) {
+    
+    if(settings.delayMs) settings.delayMs = 125;
 
-async function myFetchMany (records, delayMs = 125, progressCbs) {
     let promises = [];
-    records.forEach( (record, i) => {
+    settings.records.forEach( (record, i) => {
         const promise = (async () => {
-            await delay(i*delayMs);
+            await delay(i*settings.delayMs);
             const fetchResult = await myFetchAutoRetry({
                 url: record.fetchSettings.url, 
                 options: record.fetchSettings.options, 
-                helperData: {originalRecord: record, delayMs: i*delayMs, i},
+                helperData: {originalRecord: record, delayMs: i*settings.delayMs, i},
             });
             progress++
 
-            if(progressCbs && progressCbs.length){
-                progressCbs.forEach(progressCb => {
+            if(settings.progressCbs && settings.progressCbs.length){
+                settings.progressCbs.forEach(progressCb => {
                     progressCb(progress, len, fetchResult)
                 });
             }
@@ -76,6 +65,35 @@ async function myFetchMany (records, delayMs = 125, progressCbs) {
 
     return Promise.allSettled(promises);
 }
+
+// async function myFetchMany (records, delayMs = 125, progressCbs) {
+//     let promises = [];
+//     records.forEach( (record, i) => {
+//         const promise = (async () => {
+//             await delay(i*delayMs);
+//             const fetchResult = await myFetchAutoRetry({
+//                 url: record.fetchSettings.url, 
+//                 options: record.fetchSettings.options, 
+//                 helperData: {originalRecord: record, delayMs: i*delayMs, i},
+//             });
+//             progress++
+
+//             if(progressCbs && progressCbs.length){
+//                 progressCbs.forEach(progressCb => {
+//                     progressCb(progress, len, fetchResult)
+//                 });
+//             }
+
+//             return fetchResult;
+//         })();
+//         promises.push(promise);
+//     });
+
+//     const len = promises.length;
+//     let progress = 0;
+
+//     return Promise.allSettled(promises);
+// }
 
 const knackAPI = {
 
@@ -157,7 +175,7 @@ const knackAPI = {
 
         const progressCbs = this.progressCbSetup(settings); 
 
-        const results = await myFetchMany(settings.records, 125, progressCbs);
+        const results = await myFetchMany({records: settings.records, delayMs: 125, progressCbs});
 
         if(settings.resultsReport){
             this.tools.manyResultsReport.create(settings.resultsReport, results);
