@@ -68,16 +68,16 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
 
 
 
-const knackAPI = new KnackAPI({
-    auth: 'view-basedz',
-    applicationId: Knack.application_id,
-});
-
 // const knackAPI = new KnackAPI({
 //     auth: 'view-based',
 //     applicationId: Knack.application_id,
-//     staticUserToken: 'asdfasdafsdf'
 // });
+
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: Knack.application_id,
+    staticUserToken: 'asdfasdafsdf'
+});
 
 // KnackAPI.init({
 //     auth: 'object-based',
