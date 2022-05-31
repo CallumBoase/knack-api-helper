@@ -114,43 +114,12 @@ const knackAPI = {
 
     },
 
-    async get(settings = {view, scene, recordId, helperData}){
-        const req = this.setup('GET', settings);
+    async single(method, settings){
+        const req = this.setup(method, settings);
         return await myFetchAutoRetry(req);
-    },
-
-    async put(settings = {recordId, view, scene, body, helperData, retries}){
-        const req = this.setup('PUT', settings);
-        return await myFetchAutoRetry(req);
-    },
-
-    async post(settings = {view, scene, body, helperData, retries}){
-        const req = this.setup('POST', settings);
-        return await myFetchAutoRetry(req);
-    },
-
-    async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
-
-        const req = this.setup('GET', settings);
-
-        req.url += `?page=${page}&rows_per_page=1000`;
-        if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
-
-        const result = await myFetchAutoRetry(req);
-
-        final.pages.push(result);
-        result.json.records.map(record => final.records.push(record));
-        final.helperData = settings.helperData;
-
-        if(result.json.total_pages > result.json.current_page){
-            return await this.getMany(settings, result.json.current_page + 1, final);
-        } else {
-            return final;
-        }
     },
 
     async many(method, settings){
-        //Records must contain a record ID for put, but not for post
 
         const requests = [];
 
@@ -184,12 +153,53 @@ const knackAPI = {
         return results;
     },
 
+    async get(settings = {view, scene, recordId, helperData}){
+        return await this.single('GET', settings);
+    },
+
+    async post(settings = {view, scene, body, helperData, retries}){
+        return await this.single('POST', settings);
+    },
+
+    async put(settings = {recordId, view, scene, body, helperData, retries}){
+        return await this.single('PUT', settings);
+    },
+
+    async delete(settings = {recordId, view, scene, helperData, retries}){
+        return await this.single('PUT', settings);
+    },
+
+
+    async getMany(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
+
+        const req = this.setup('GET', settings);
+
+        req.url += `?page=${page}&rows_per_page=1000`;
+        if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
+
+        const result = await myFetchAutoRetry(req);
+
+        final.pages.push(result);
+        result.json.records.map(record => final.records.push(record));
+        final.helperData = settings.helperData;
+
+        if(result.json.total_pages > result.json.current_page){
+            return await this.getMany(settings, result.json.current_page + 1, final);
+        } else {
+            return final;
+        }
+    },
+
     async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('PUT', settings);
     },
 
     async postMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('POST', settings);
+    },
+
+    async deleteMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+        return await this.many('DELETE', settings);
     },
 
     // async putMany(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
