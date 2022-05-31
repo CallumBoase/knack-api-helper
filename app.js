@@ -440,7 +440,8 @@ async function view17Handler(parentRecord, parentRecordView){
         console.log(thirdThingsToDelete);
 
         if(thirdThingsToDelete.records){
-            const deleteThirdThingsResult = await deleteThingThingRecords(thirdThingsToDelete.records);
+            const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
+            console.log(deleteThirdThingsResult);
         }
 
     } catch(err) {
