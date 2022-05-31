@@ -113,7 +113,7 @@ function KnackAPI(config) {
         if(config.auth === 'view-based'){
             url = `https://api.knack.com/v1/pages/${scene}/views/${view}/records/`;
         } else if (config.auth === 'object-based'){
-            url = `https://api.knack.com/v1/object/${objectId}/records/`;
+            url = `https://api.knack.com/v1/object/${object}/records/`;
         }
         
         if(recordId) url += recordId;
@@ -125,7 +125,7 @@ function KnackAPI(config) {
         if(config.auth === 'view-based'){
             url = this.url(settings.scene, settings.view, settings.recordId);
         } else if (config.auth === 'object-based'){
-            url = this.url(settings.objectId, settings.recordId);
+            url = this.url(settings.object, settings.recordId);
         }
 
         const options = {
@@ -199,24 +199,24 @@ function KnackAPI(config) {
 
     }
 
-    this.get = async function(settings = {view, scene, recordId, helperData}){
+    this.get = async function(settings = {view, scene, object, recordId, helperData}){
         return await this.single('GET', settings);
     }
 
-    this.post = async function(settings = {view, scene, body, helperData, retries}){
+    this.post = async function(settings = {view, scene, object, body, helperData, retries}){
         return await this.single('POST', settings);
     }
 
-    this.put = async function(settings = {recordId, view, scene, body, helperData, retries}){
+    this.put = async function(settings = {recordId, view, scene, object, body, helperData, retries}){
         return await this.single('PUT', settings);
     }
 
-    this.delete = async function(settings = {recordId, view, scene, helperData, retries}){
+    this.delete = async function(settings = {recordId, view, scene, object, helperData, retries}){
         return await this.single('DELETE', settings);
     }
 
 
-    this.getMany = async function(settings = {view, scene, filters, helperData}, page = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, object, filters, helperData}, page = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
@@ -236,15 +236,15 @@ function KnackAPI(config) {
         }
     }
 
-    this.putMany = async function(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    this.putMany = async function(settings = {records, view, scene, object, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('PUT', settings);
     }
 
-    this.postMany = async function (settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    this.postMany = async function (settings = {records, view, scene, object, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('POST', settings);
     }
 
-    this.deleteMany = async function(settings = {records, view, scene, helperData, retries, progressBar, progressCbs, resultsReport}){
+    this.deleteMany = async function(settings = {records, view, scene, object, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('DELETE', settings);
     }
 
@@ -358,7 +358,7 @@ function KnackAPI(config) {
     }
 }
 
-async function view17Handler(parentRecord, parentRecordView){
+async function view17Handler_viewBased(parentRecord, parentRecordView){
 
     async function getConnectedChildren(record){
         return await knackAPI.getMany({
@@ -527,6 +527,167 @@ async function view17Handler(parentRecord, parentRecordView){
     } 
 }
 
+async function view17Handler_objectBased(parentRecord, parentRecordView){
+
+    async function getConnectedChildren(record){
+        return await knackAPI.getMany({
+            object: 'object_6',
+            filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
+            helperData: {a: 1, b: 2}
+        });
+    };
+
+    async function updateConnectedChildren(connectedChildrenRecords, parentRecord){
+
+        const records = [];
+        connectedChildrenRecords.forEach((record, i) => {
+            records.push({
+                id: record.id,
+                field_18: `${parentRecord.field_19} ${i}`
+            });
+        });
+
+        return await knackAPI.putMany({
+            records,
+            object: 'object_6',
+            helperData: {connectedChildrenRecords, foo: 'bar', something: 'else'},
+            retries: 5,
+            progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'updateChildrenProgress'},
+            progressCbs: [
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress2', progress, len)
+            ],
+            resultsReport: {insertAfter: `#updateChildrenProgress`, id: 'updateChildrenSummary'}
+        });
+    }
+
+    async function timestampParent(record){
+        return await knackAPI.put({
+            recordId: record.id,
+            object: 'object_7',
+            body: {field_21: new Date()},
+            retries: 5,
+            helperData: {a: 1, b: 2}
+        });
+    }
+
+    async function getParent(recordId){
+        return await knackAPI.get({
+            object: 'object_7',
+            recordId: recordId,
+            helperData: {a: 1, b: 2}
+        });
+    }
+
+    async function createThirdThingRecord(val){
+        return await knackAPI.post({
+            object: 'object_9',
+            body: {field_27: val},
+            helperData: {from: 'createRecord', something: 'else'}
+        });
+    }
+
+    async function createTenThirdThings(val){
+        const records = [];
+        for(let i = 0; i < 10; i++){
+            records.push({
+                field_27: `${val} ${i}`
+            });
+        }
+
+        return await knackAPI.postMany({
+            records,
+            object: 'object_9',
+            helperData: {from: 'create100ThirdThings', baseVal: val},
+            retries: 5,
+            progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'create100Progress'},
+            progressCbs: [
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress2', progress, len)
+            ],
+            resultsReport: {insertAfter: `#create100Progress`, id: 'create100Summary'}
+        });
+
+    }
+
+    async function deleteThirdThing(id){
+        return await knackAPI.delete({
+            recordId: id, 
+            object: 'object_9',
+            helperData: {from: 'deleteThirdThing', id},
+        })
+    }
+
+    async function getThirdThingRecords(val){
+        return await knackAPI.getMany({
+            object: 'object_9',
+            filters: {match: 'and', rules: [{field: 'field_27', operator: 'contains', value: val}]},
+            helperData: {from: 'getThirdThingRecords'}
+        });
+    }
+
+    async function deleteThirdThingRecords(records){
+        return await knackAPI.deleteMany({
+            records,
+            object: 'object_9',
+            helperData: {from: 'deleteThirdThingRecords'},
+            retries: 5,
+            progressBar: {insertAfter: `#${parentRecordView.key}`, id: 'deleteThirdThingsProgress'},
+            progressCbs: [
+                (progress, len, fetchResult) => console.log('custom progress', progress, len),
+                (progress, len, fetchResult) => console.log('custom progress2', progress, len)
+            ],
+            resultsReport: {insertAfter: `#deleteThirdThingsProgress`, id: 'deleteThirdThingsSummary'}
+        });
+    }
+
+    try {
+        //GET MANY
+        const connectedChildren = await getConnectedChildren(parentRecord);
+        console.log(connectedChildren);
+
+        //UPDATE MANY
+        const updateChildrenResult = await updateConnectedChildren(connectedChildren.records, parentRecord);
+        console.log(updateChildrenResult);
+
+        //UPDATE SINGLE
+        const timestampParentResult = await timestampParent(parentRecord);
+        console.log(timestampParentResult);
+
+        //GET SINGLE
+        const parentRecordUpdated = await getParent(parentRecord.id);
+        console.log(parentRecordUpdated);
+
+        //CREATE SINGLE
+        const singleThirdThing = await createThirdThingRecord(parentRecord.field_19);
+        console.log(singleThirdThing);
+
+        //CREATE MANY
+        const tenThirdThings = await createTenThirdThings(parentRecord.field_19);
+        console.log(tenThirdThings)
+
+        
+        //DELETE SINGLE
+        // const deleteResult = await deleteThirdThing('62958c26328474001fb6d239');
+        // console.log(deleteResult);
+
+        //GET MANY
+        // const thirdThingsToDelete = await getThirdThingRecords(parentRecord.field_19);
+        // console.log(thirdThingsToDelete);
+
+        //DELETE MANY
+        // if(thirdThingsToDelete.records){
+        //     const deleteThirdThingsResult = await deleteThirdThingRecords(thirdThingsToDelete.records);
+        //     console.log(deleteThirdThingsResult);
+        // }
+
+    } catch(err) {
+        console.log(err);
+        console.log(err.details);
+    } 
+}
+
 $(document).on('knack-form-submit.view_17', async (event, view, record) => {
-    view17Handler(record, view);
+    view17Handler_viewBased(record, view);
+    view17Handler_objectBased(record, view);
 });
