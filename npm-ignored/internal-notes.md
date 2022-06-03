@@ -1,3 +1,4 @@
-This repo is published as a package via Github packages
-Setup as per https://docs.github.com/en/packages/quickstart
-Except the root file is KnackAPI.js not index.js
+This repo is published on NPM under knack-api-helper
+
+To publish to NPM use command release-it
+This will step you through the release including updating package.json, github tags & npm
