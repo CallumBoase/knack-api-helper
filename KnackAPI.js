@@ -1,4 +1,4 @@
-import fetch from "node-fetch@3.2.5";
+import fetch from "node-fetch";
 
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
