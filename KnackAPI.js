@@ -1,5 +1,5 @@
-if(typeof require != 'undefined' && typeof fetch == 'undefined'){
-    const fetch = require('node-fetch');
+if(typeof require != 'undefined' && typeof fetch == undefined){
+    var fetch = require('node-fetch');
 }
 
 function delay(ms) {
@@ -360,7 +360,7 @@ function KnackAPI(config) {
                     We strongly recommend you use view-based auth instead;
                 `)
             }
-        } catch {
+        } catch(err) {
             console.log('could not check conditions involving the Knack object - we must be in a different environment');
         }
     }
