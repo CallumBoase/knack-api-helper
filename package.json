@@ -1,0 +1,19 @@
+{
+  "name": "knackapi",
+  "version": "0.5.0",
+  "description": "Methods for interacting with the Knack API using both view-based and object-based authentication",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CallumBoase/knack-async-tester.git"
+  },
+  "author": "Callum Boase (callum.boase@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CallumBoase/knack-async-tester/issues"
+  },
+  "homepage": "https://github.com/CallumBoase/knack-async-tester#readme"
+}
