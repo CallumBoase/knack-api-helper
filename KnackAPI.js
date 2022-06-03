@@ -1,4 +1,6 @@
-const fetch = require('node-fetch');
+if(require){
+    const fetch = require('node-fetch');
+}
 
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -364,7 +366,7 @@ function KnackAPI(config) {
     }
 }
 
-if(typeof module != "undefined" && typeof module.exports != "undefined"){
+if(module && module.exports){
     //https://medium.com/@gaute.meek/how-to-publish-a-js-library-to-npm-and-cdn-9d0bf9b48e11
    module.exports = KnackAPI;
 }
