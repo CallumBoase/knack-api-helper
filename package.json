@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/CallumBoase/knack-api/issues"
   },
-  "homepage": "https://github.com/CallumBoase/knack-api#readme"
+  "homepage": "https://github.com/CallumBoase/knack-api#readme",
+  "dependencies": {
+    "node-fetch": "^3.2.5"
+  }
 }
