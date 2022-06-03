@@ -357,6 +357,6 @@ function KnackAPI(config) {
 
 if(typeof exports != "undefined"){
     //https://medium.com/@gaute.meek/how-to-publish-a-js-library-to-npm-and-cdn-9d0bf9b48e11
-    exports = KnackAPI;
+    exports.KnackAPI = KnackAPI;
 }
 
