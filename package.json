@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CallumBoase/knack-async-tester.git"
+    "url": "git+https://github.com/CallumBoase/knack-api.git"
   },
   "author": "Callum Boase (callum.boase@gmail.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/CallumBoase/knack-async-tester/issues"
+    "url": "https://github.com/CallumBoase/knack-api/issues"
   },
-  "homepage": "https://github.com/CallumBoase/knack-async-tester#readme"
+  "homepage": "https://github.com/CallumBoase/knack-api#readme"
 }
