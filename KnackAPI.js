@@ -1,4 +1,4 @@
-if(require){
+if(typeof require != 'undefined' && typeof fetch == 'undefined'){
     const fetch = require('node-fetch');
 }
 
@@ -366,7 +366,7 @@ function KnackAPI(config) {
     }
 }
 
-if(module && module.exports){
+if(typeof module != 'undefined'){
     //https://medium.com/@gaute.meek/how-to-publish-a-js-library-to-npm-and-cdn-9d0bf9b48e11
    module.exports = KnackAPI;
 }
