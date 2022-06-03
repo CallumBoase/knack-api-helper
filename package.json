@@ -1,7 +1,6 @@
 {
   "name": "knack-api-helper",
   "version": "0.5.28",
-  "type": "module",
   "description": "Methods for interacting with the Knack API using both view-based and object-based authentication",
   "main": "KnackAPI.js",
   "scripts": {
@@ -18,6 +17,6 @@
   },
   "homepage": "https://github.com/CallumBoase/knack-api#readme",
   "dependencies": {
-    "node-fetch": "^3.2.5"
+    "node-fetch": "^2.6.1"
   }
 }
