@@ -1,4 +1,4 @@
-if(typeof require != 'undefined' && typeof fetch == undefined){
+if(typeof require != 'undefined' && typeof fetch == 'undefined'){
     var fetch = require('node-fetch');
 }
 
