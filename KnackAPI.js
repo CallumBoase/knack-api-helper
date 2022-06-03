@@ -1,3 +1,5 @@
+import fetch from "node-fetch@3.2.5";
+
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -364,6 +366,7 @@ function KnackAPI(config) {
 
 if(typeof exports != "undefined"){
     //https://medium.com/@gaute.meek/how-to-publish-a-js-library-to-npm-and-cdn-9d0bf9b48e11
+    const fetch = require("node-fetch@3.2.5");
     exports.KnackAPI = KnackAPI;
 }
 
