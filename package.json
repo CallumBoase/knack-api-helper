@@ -1,5 +1,5 @@
 {
-  "name": "@callumboase/knack-api",
+  "name": "knack-api-helper",
   "version": "0.5.1",
   "description": "Methods for interacting with the Knack API using both view-based and object-based authentication",
   "main": "KnackAPI.js",
@@ -16,7 +16,4 @@
     "url": "https://github.com/CallumBoase/knack-api/issues"
   },
   "homepage": "https://github.com/CallumBoase/knack-api#readme",
-  "publishConfig": {
-    "@CallumBoase:registry": "https://npm.pkg.github.com"
-  }
 }
