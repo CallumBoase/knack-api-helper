@@ -1,7 +1,7 @@
 //OBJECT BASED USAGE EXAMPLE
 const knackAPI_objectBased = new KnackAPI({
     auth: 'object-based',
-    applicationId: Knack.application_id,
+    applicationId: '6178696a94053c001efaad0b',
     apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
 });
 
@@ -10,7 +10,7 @@ async function runKnackApiCode(parentRecord, parentRecordView){
     async function getConnectedChildren(record){
         return await knackAPI_objectBased.getMany({
             object: 'object_6',
-            filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: record.id}]},
+            filters: {match: 'and', rules: [{field: 'field_20', operator: 'is', value: '624f9d8115eae700219143ef'}]},
             helperData: {a: 1, b: 2}
         });
     };
