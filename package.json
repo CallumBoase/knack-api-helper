@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CallumBoase/knack-api.git"
+    "url": "git+https://github.com/CallumBoase/knack-api-helper.git"
   },
   "author": "Callum Boase (callum.boase@gmail.com)",
   "license": "ISC",
