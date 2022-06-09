@@ -2,79 +2,6 @@ if(typeof require != 'undefined' && typeof fetch == 'undefined'){
     var _fetch = require('@callum.boase/fetch');
 }
 
-function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
-async function fetchWrapper(url, options = {}, helperData = {}) {
-    try {
-        const response = await fetch(url, options);
-        if(response && response.ok){
-            return {url, options, response, helperData, json: await response.json()}
-        }
-        const responseText = await response.text();
-        let err = new Error(`Successful http request but response.ok === false. Code: ${response.status}, responseText: ${responseText}`);
-        err.details = {url, options, response, helperData, responseText};
-        throw err;
-    } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
-        !err.details ? err.details = {url, options, helperData} : err.datails;
-        throw err;
-    }
-}
-
-async function _fetch (settings = {url, options, helperData, retries}) {
-    
-    if (!settings.retries) settings.retries = 5;
-
-    //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
-    for(let i = 1; i <= settings.retries; i++){
-        try {
-            if(i > 1) await delay(1000);
-            return await fetchWrapper(settings.url, settings.options, settings.helperData);
-        } catch (err){
-            const isLastRetry = i === settings.retries;
-            if(isLastRetry) throw err;
-            console.log(err.details.response.status);
-            console.log(err.details.responseText);
-            console.log(`failed fetchWrapper ${settings.options.method ? settings.options.method : ""} to ${settings.url}, attempt ${i}. retrying`);
-        }
-    }
-}
-
-async function _fetchMany (settings = {requests, delayMs, progressCbs}) {
-
-    if(settings.delayMs) settings.delayMs = 125;
-
-    let promises = [];
-    settings.requests.forEach( (request, i) => {
-        const promise = (async () => {
-            await delay(i*settings.delayMs);
-            const fetchResult = await _fetch({
-                url: request.url, 
-                options: request.options, 
-                helperData: {request, delayMs: i*settings.delayMs, i},
-            });
-            progress++
-
-            if(settings.progressCbs && settings.progressCbs.length){
-                settings.progressCbs.forEach(progressCb => {
-                    progressCb(progress, len, fetchResult)
-                });
-            }
-
-            return fetchResult;
-        })();
-        promises.push(promise);
-    });
-
-    const len = promises.length;
-    let progress = 0;
-
-    return Promise.allSettled(promises);
-}
-
-
-
 function KnackAPI(config) {
 
     checkConfig();
@@ -144,7 +71,7 @@ function KnackAPI(config) {
 
     this.single = async function(method, settings){
         const req = this.setup(method, settings);
-        return await _fetch(req);
+        return await _fetch.one(req);
     }
 
     this.many = async function(method, settings){
@@ -173,7 +100,7 @@ function KnackAPI(config) {
 
         const progressCbs = this.progressCbsSetup(settings); 
 
-        const results = await _fetchMany({requests, delayMs: 125, progressCbs});
+        const results = await _fetch.many({requests, delayMs: 125, progressCbs});
         results.settings = settings;
         results.summary = this.tools.manyResultsReport.calc(results);
 
@@ -226,7 +153,7 @@ function KnackAPI(config) {
         req.url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
 
-        const result = await _fetch(req);
+        const result = await _fetch.one(req);
 
         final.pages.push(result);
         result.json.records.map(record => final.records.push(record));
