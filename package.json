@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/CallumBoase/knack-api-helper#readme",
   "dependencies": {
-    "node-fetch": "^2.6.1"
+    "@callum.boase/fetch": "^1.0.0"
   }
 }
