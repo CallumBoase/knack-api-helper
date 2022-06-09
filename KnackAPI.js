@@ -1,5 +1,5 @@
 if(typeof require != 'undefined' && typeof fetch == 'undefined'){
-    var fetch = require('node-fetch');
+    var _fetch = require('@callum.boase/fetch');
 }
 
 function delay(ms) {
