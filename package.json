@@ -1,6 +1,6 @@
 {
   "name": "knack-api-helper",
-  "version": "0.6.1",
+  "version": "1.0.0",
   "description": "Methods for interacting with the Knack API using both view-based and object-based authentication",
   "main": "KnackAPI.js",
   "scripts": {
