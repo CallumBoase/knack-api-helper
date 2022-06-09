@@ -13,7 +13,7 @@ async function myFetch(url, options = {}, helperData = {}) {
             return {url, options, response, helperData, json: await response.json()}
         }
         let err = new Error(`Successful http request but got status of ${response.status}`)
-        err.details = {url, options, response, helperData};
+        err.details = {url, options, response, helperData, responseText: await response.text()};
         throw err;
     } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
         !err.details ? err.details = {url, options, helperData} : err.datails;
@@ -370,4 +370,3 @@ if(typeof module != 'undefined'){
     //https://medium.com/@gaute.meek/how-to-publish-a-js-library-to-npm-and-cdn-9d0bf9b48e11
    module.exports = KnackAPI;
 }
-
