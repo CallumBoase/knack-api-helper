@@ -12,8 +12,9 @@ async function fetchWrapper(url, options = {}, helperData = {}) {
         if(response && response.ok){
             return {url, options, response, helperData, json: await response.json()}
         }
-        let err = new Error(`Successful http request but got status of ${response.status}`)
-        err.details = {url, options, response, helperData, responseText: await response.text()};
+        const responseText = await response.text();
+        let err = new Error(`Successful http request but response.ok === false. Code: ${response.status}, responseText: ${responseText}`);
+        err.details = {url, options, response, helperData, responseText};
         throw err;
     } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
         !err.details ? err.details = {url, options, helperData} : err.datails;
@@ -33,6 +34,8 @@ async function _fetch (settings = {url, options, helperData, retries}) {
         } catch (err){
             const isLastRetry = i === settings.retries;
             if(isLastRetry) throw err;
+            console.log(err.details.response.status);
+            console.log(err.details.responseText);
             console.log(`failed fetchWrapper ${settings.options.method ? settings.options.method : ""} to ${settings.url}, attempt ${i}. retrying`);
         }
     }
