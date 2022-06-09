@@ -6,7 +6,7 @@ function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-async function myFetch(url, options = {}, helperData = {}) {
+async function fetchWrapper(url, options = {}, helperData = {}) {
     try {
         const response = await fetch(url, options);
         if(response && response.ok){
@@ -21,7 +21,7 @@ async function myFetch(url, options = {}, helperData = {}) {
     }
 }
 
-async function myFetchAutoRetry (settings = {url, options, helperData, retries}) {
+async function _fetch (settings = {url, options, helperData, retries}) {
     
     if (!settings.retries) settings.retries = 5;
 
@@ -29,16 +29,16 @@ async function myFetchAutoRetry (settings = {url, options, helperData, retries})
     for(let i = 1; i <= settings.retries; i++){
         try {
             if(i > 1) await delay(1000);
-            return await myFetch(settings.url, settings.options, settings.helperData);
+            return await fetchWrapper(settings.url, settings.options, settings.helperData);
         } catch (err){
             const isLastRetry = i === settings.retries;
             if(isLastRetry) throw err;
-            console.log(`failed myFetch ${settings.options.method ? settings.options.method : ""} to ${settings.url}, attempt ${i}. retrying`);
+            console.log(`failed fetchWrapper ${settings.options.method ? settings.options.method : ""} to ${settings.url}, attempt ${i}. retrying`);
         }
     }
 }
 
-async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
+async function _fetchMany (settings = {requests, delayMs, progressCbs}) {
 
     if(settings.delayMs) settings.delayMs = 125;
 
@@ -46,7 +46,7 @@ async function myFetchMany (settings = {requests, delayMs, progressCbs}) {
     settings.requests.forEach( (request, i) => {
         const promise = (async () => {
             await delay(i*settings.delayMs);
-            const fetchResult = await myFetchAutoRetry({
+            const fetchResult = await _fetch({
                 url: request.url, 
                 options: request.options, 
                 helperData: {request, delayMs: i*settings.delayMs, i},
@@ -141,7 +141,7 @@ function KnackAPI(config) {
 
     this.single = async function(method, settings){
         const req = this.setup(method, settings);
-        return await myFetchAutoRetry(req);
+        return await _fetch(req);
     }
 
     this.many = async function(method, settings){
@@ -170,7 +170,7 @@ function KnackAPI(config) {
 
         const progressCbs = this.progressCbsSetup(settings); 
 
-        const results = await myFetchMany({requests, delayMs: 125, progressCbs});
+        const results = await _fetchMany({requests, delayMs: 125, progressCbs});
         results.settings = settings;
         results.summary = this.tools.manyResultsReport.calc(results);
 
@@ -223,7 +223,7 @@ function KnackAPI(config) {
         req.url += `?page=${page}&rows_per_page=1000`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
 
-        const result = await myFetchAutoRetry(req);
+        const result = await _fetch(req);
 
         final.pages.push(result);
         result.json.records.map(record => final.records.push(record));
