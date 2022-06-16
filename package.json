@@ -21,14 +21,6 @@
     "@callum.boase/fetch": "^1.0.5"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "release-it": "^15.0.0"
-  },
-  "release-it": {
-    "hooks": {
-      "after:bump": [
-        "npm run build"
-      ]
-    }
+    "browserify": "^17.0.0"
   }
 }
