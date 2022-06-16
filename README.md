@@ -14,12 +14,23 @@ const KnackAPI = require('knack-api-helper');
 
 const knackAPI = new KnackAPI({
     auth: 'object-based',
+    applicationId: 'YOUR-APPLICATION-ID',
     apiKey: 'YOUR-API-KEY'
 });
-//More to come here
+
+```
+You can also use 'view-based' auth in your server-side environment.
+```javascript
+const KnackAPI = require('knack-api-helper');
+
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: 'YOUR-APPLICATION-ID',
+    staticUserToken: 'A-VALID-USER-TOKEN-FOR-YOUR-APP'
+});
 ```
 
-## Use in Browser:
+## Use in Browser or Knack javascript code area:
 
 JS file bundled with all needed dependencies, for browser is available via CDNJS
 (note only available from version 1.0.0 and higher)
