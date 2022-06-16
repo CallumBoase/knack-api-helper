@@ -1,10 +1,12 @@
 {
   "name": "knack-api-helper",
-  "version": "1.0.0",
+  "version": "0.6.1",
   "description": "Methods for interacting with the Knack API using both view-based and object-based authentication",
-  "main": "KnackAPI.js",
+  "main": "knack-api-helper.js",
   "scripts": {
-    "test": "exit 0"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "release-it",
+    "build": "browserify --external node-fetch main.js -o browser.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +20,16 @@
   "homepage": "https://github.com/CallumBoase/knack-api-helper#readme",
   "dependencies": {
     "@callum.boase/fetch": "^1.0.0"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "release-it": "^15.0.0"
+  },
+  "release-it": {
+    "hooks": {
+      "after:bump": [
+        "npm run build"
+      ]
+    }
   }
 }
