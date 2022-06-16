@@ -5,7 +5,6 @@
   "main": "knack-api-helper.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish": "release-it",
     "build": "browserify --external node-fetch knack-api-helper.js -o browser.js"
   },
   "repository": {
