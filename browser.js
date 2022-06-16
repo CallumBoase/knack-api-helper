@@ -1,3 +1,4 @@
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const _fetch = require('@callum.boase/fetch');
 
 function KnackAPI(config) {
@@ -295,3 +296,104 @@ function KnackAPI(config) {
 }
 
 module.exports = KnackAPI;
+},{"@callum.boase/fetch":2}],2:[function(require,module,exports){
+//Only load node-fetch in nodeJs environment
+//If we're running this file in browser, we'll use the browser's fetch API which is built-in
+//If bundling this module for browser usage, skip bundling node-fetch
+//Eg if bundling using browserify add flag "--external node-fetch" when running "browserify..."
+//  The bundling will assume node-fetch is already avaialble in the environment, which it will NOT be
+//  So the if statement ensures we don't try to use the non-existent node-fetch
+if(typeof fetch == 'undefined' && typeof require != 'undefined'){
+    var fetch = require('node-fetch');
+}
+
+const _fetch = {
+    
+    delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    },
+
+    async wrapper(url, options = {}, helperData = {}) {
+        try {
+
+            const response = await fetch(url, options);
+            
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            
+            let json = null;
+            let text = null;
+            if(isJson){//We can only do either response.json() or response.text();
+                json = await response.json();
+            } else {
+                text = await response.text();
+            }
+
+            if(response && response.ok){
+                return {url, options, response, helperData, json, text}
+            }
+
+            let err = new Error(`Successful http request but response.ok === false. Code: ${response.status}, Text: ${text}`);
+            err.details = {url, options, response, helperData, json, text};
+            throw err;
+       
+        } catch(err) {//This runs with either the above manually thrown error, or with fetch-API generated errors
+            !err.details ? err.details = {url, options, helperData} : err.datails;
+            throw err;
+        }
+    },
+
+    async one (settings = {url, options, helperData, retries}) {
+    
+        if (!settings.retries) settings.retries = 5;
+        if (!settings.options) settings.options = {method: 'GET'};
+        if (!settings.options.method) settings.options.method = 'GET';
+    
+        //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
+        for(let i = 1; i <= settings.retries; i++){
+            try {
+                if(i > 1) await this.delay(1000);
+                return await this.wrapper(settings.url, settings.options, settings.helperData);
+            } catch (err){
+                const isLastRetry = i === settings.retries;
+                if(isLastRetry) throw err;
+                console.log(`failed fetch ${settings.options.method} to ${settings.url}. Code: ${err.details && err.details.response ? err.details.response.status : ""}. Attempt ${i}. Retrying...`);
+            }
+        }
+    },
+
+    async many (settings = {requests, delayMs, progressCbs}) {
+
+        if(settings.delayMs) settings.delayMs = 125;
+    
+        let promises = [];
+        settings.requests.forEach( (request, i) => {
+            const promise = (async () => {
+                await this.delay(i*settings.delayMs);
+                const fetchResult = await this.one({
+                    url: request.url, 
+                    options: request.options, 
+                    helperData: {request, delayMs: i*settings.delayMs, i},
+                });
+                progress++
+    
+                if(settings.progressCbs && settings.progressCbs.length){
+                    settings.progressCbs.forEach(progressCb => {
+                        progressCb(progress, len, fetchResult)
+                    });
+                }
+    
+                return fetchResult;
+            })();
+            promises.push(promise);
+        });
+    
+        const len = promises.length;
+        let progress = 0;
+    
+        return Promise.allSettled(promises);
+    }
+
+}
+
+module.exports = _fetch;
+},{"node-fetch":"node-fetch"}]},{},[1]);

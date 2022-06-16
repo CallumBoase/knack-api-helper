@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "publish": "release-it",
-    "build": "browserify --external node-fetch main.js -o browser.js"
+    "build": "browserify --external node-fetch knack-api-helper.js -o browser.js"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/CallumBoase/knack-api-helper#readme",
   "dependencies": {
-    "@callum.boase/fetch": "^1.0.0"
+    "@callum.boase/fetch": "^1.0.5"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
