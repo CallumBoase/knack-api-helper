@@ -6,7 +6,7 @@ $ git add .
 $ git commit -a -m "Prep for versoin release x.x.x"
 $ git push origin
 $ npm publish
-$ git tag -m "Release version x.x.x" X.X.X //Tags the current version in github
+$ git tag X.X.X //Tags the current version in github
 $ git push origin X.X.X //Pushes the tag to github
 
 This repo is published on NPM under knack-api-helper
