@@ -289,7 +289,6 @@ function KnackAPI(config) {
                 `)
             }
         } catch(err) {
-            console.log('could not check conditions involving the Knack object - we must be in a different environment');
         }
     }
 }

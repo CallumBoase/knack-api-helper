@@ -290,7 +290,6 @@ function KnackAPI(config) {
                 `)
             }
         } catch(err) {
-            console.log('could not check conditions involving the Knack object - we must be in a different environment');
         }
     }
 }
@@ -303,8 +302,19 @@ module.exports = KnackAPI;
 //Eg if bundling using browserify add flag "--external node-fetch" when running "browserify..."
 //  The bundling will assume node-fetch is already avaialble in the environment, which it will NOT be
 //  So the if statement ensures we don't try to use the non-existent node-fetch
-if(typeof fetch == 'undefined' && typeof require != 'undefined'){
+if(inBrowser()){
+    fetch = window.fetch;
+} else {
     var fetch = require('node-fetch');
+}
+
+function inBrowser(){
+    try {
+        window.fetch;
+        return true
+    } catch (err){
+        return false;
+    }
 }
 
 const _fetch = {
@@ -314,19 +324,17 @@ const _fetch = {
     },
 
     async wrapper(url, options = {}, helperData = {}) {
+
         try {
 
             const response = await fetch(url, options);
-            
-            const isJson = response.headers.get('content-type')?.includes('application/json');
-            
+
+            const text = await response.text();
+
             let json = null;
-            let text = null;
-            if(isJson){//We can only do either response.json() or response.text();
-                json = await response.json();
-            } else {
-                text = await response.text();
-            }
+            if(isJson(text)){
+                json = JSON.parse(text);
+            } 
 
             if(response && response.ok){
                 return {url, options, response, helperData, json, text}
@@ -340,6 +348,16 @@ const _fetch = {
             !err.details ? err.details = {url, options, helperData} : err.datails;
             throw err;
         }
+
+        function isJson(text){
+            try {
+                JSON.parse(text);
+                return true;
+            } catch(err){
+                return false;
+            }
+        }
+
     },
 
     async one (settings = {url, options, helperData, retries}) {
@@ -395,7 +413,7 @@ const _fetch = {
 
 }
 
-module.exports = _fetch;
+if(typeof require != 'undefined') module.exports = _fetch;
 },{"node-fetch":3}],3:[function(require,module,exports){
 
 },{}]},{},[1])(1)
