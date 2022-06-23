@@ -361,10 +361,12 @@ const _fetch = {
     },
 
     async one (settings = {url, options, helperData, retries}) {
-    
+
+        if(typeof settings !== 'object' || !settings.url) throw new Error('Invalid argument when calling _fetch.one. You must call _fetch.one with an object (settings), containing at-minimum: settings = {url: string}');
+
         if (!settings.retries) settings.retries = 5;
         if (!settings.options) settings.options = {method: 'GET'};
-        if (!settings.options.method) settings.options.method = 'GET';
+        if (settings.options && !settings.options.method) settings.options.method = 'GET';
     
         //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
         for(let i = 1; i <= settings.retries; i++){
@@ -381,7 +383,7 @@ const _fetch = {
 
     async many (settings = {requests, delayMs, progressCbs}) {
 
-        if(settings.delayMs) settings.delayMs = 125;
+        if(!settings.delayMs) settings.delayMs = 125;
     
         let promises = [];
         settings.requests.forEach( (request, i) => {
@@ -389,7 +391,8 @@ const _fetch = {
                 await this.delay(i*settings.delayMs);
                 const fetchResult = await this.one({
                     url: request.url, 
-                    options: request.options, 
+                    options: request.options,
+                    retries: request.retries, 
                     helperData: {request, delayMs: i*settings.delayMs, i},
                 });
                 progress++
