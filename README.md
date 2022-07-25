@@ -1,6 +1,8 @@
 # KnackAPI
 Methods to help work with the Knack API.
 
+Looking for the [Changelog](CHANGELOG.md)?
+
 ## Use in NodeJS:
 
 Install the package
