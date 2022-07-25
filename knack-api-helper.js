@@ -5,11 +5,11 @@ function KnackAPI(config) {
     checkConfig();
 
     if(config.auth === 'view-based'){
-
+        
         this.headers = {
             "X-Knack-Application-ID": config.applicationId,
             "X-Knack-REST-API-Key": "knack",
-            "Authorization": config.staticUserToken ? config.staticUserToken : Knack.getUserToken(),
+            "Authorization": typeof config.userToken === 'string' ? config.userToken : "",
             "Content-Type": "application/json"
         }
 
@@ -19,6 +19,34 @@ function KnackAPI(config) {
             "X-Knack-Application-ID": config.applicationId,
             "X-Knack-REST-API-Key": config.apiKey,
             "Content-Type": "application/json"
+        }
+
+    }
+
+    this.remoteLogin = async function(settings = {email, password}){
+        return await _fetch.one({
+            url: `https://api.knack.com/v1/applications/${this.headers['X-Knack-Application-ID']}/session`,
+            options: {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: settings.email,
+                    password: settings.password
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        });
+    }
+
+    this.login = async function(settings = {email, password}){
+        if(settings.email && settings.password){
+            const res = await this.remoteLogin(settings);
+            const token = res.json.session.user.token;
+            this.headers.Authorization = token;
+            return token;
+        } else {
+            throw new Error('You did not specify one/both of email and password in settings object. Could not log in');
         }
 
     }
@@ -278,10 +306,6 @@ function KnackAPI(config) {
         if(config.auth === 'object-based' && !config.apiKey) throw new Error('Object-based auth selected but did not find an API key');
 
         try {
-            if(config.auth === 'view-based' && !config.staticUserToken){
-                if(!Knack) throw new Error('Selectd view-based auth without a specified user token, but cannot find Knack object');
-            }
-
             if(config.auth === 'object-based' && Knack) {
                 console.log(`
                     Warning! Object-based auth selected but it looks like you are running code in the Knack Javascript area. 
