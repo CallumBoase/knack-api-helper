@@ -122,11 +122,11 @@ const knackAPI = new KnackAPI({
 *(Partially written)*
 
 ### .login()
-Performs a remote login when using view-based authentication.
+Performs a [remote login](https://docs.knack.com/docs/remote-user-logins) when using view-based authentication.
 
 Automatically adds the obtained user token to the knackAPI object for use in future requests.
 
-Returns the obtained user token (string).
+Returns the obtained [user token](https://docs.knack.com/docs/user-tokens) (string).
 
 Pass .login() a settings object with these parameters:
 
@@ -146,9 +146,9 @@ try {
 }
 ```
 ### .remoteLogin()
-Standalone method for remote login to a Knack app
+Standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
 
-Returns the full request object (session), rather than just the token.
+Returns the full request object (data for the [remote login]Knack user session(https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
 
 Does **NOT** add the user token to your knackAPI object.
 
