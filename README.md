@@ -128,10 +128,12 @@ Automatically adds the obtained user token to the knackAPI object for use in fut
 
 Returns the obtained user token (string).
 
-| Argument parameter | Details  |
-| ---                | ---      |
-| email              | string. An email address for a user in your Knack app |
-| password           | string. The password for the above user |
+Pass .login() a settings object with these parameters:
+
+| Parameters | Type | Required? | Details  |
+| ---                | ---  | ---       | ---      |
+| email              | string | Yes | An email address for a user in your Knack app |
+| password           | string | Yes | The password for the above user |
 
 ```javascript
 try {
@@ -150,10 +152,12 @@ Returns the full request object (session), rather than just the token.
 
 Does **NOT** add the user token to your knackAPI object.
 
-| Argument parameter | Details  |
-| ---                | ---      |
-| email              | string. An email address for a user in your Knack app |
-| password           | string. The password for the above user |
+Pass .remoteLogin() a settings object with these parameters:
+
+| Parameter | Type | Required? | Details  |
+| ---                | ---  | ---       | ---      |
+| email              | string | Yes | An email address for a user in your Knack app |
+| password           | string | Yes | The password for the above user |
 
 ```javascript
 try {
