@@ -8,7 +8,7 @@ Install the package
 $ npm install knack-api-helper --save
 ```
 
-Use it in your js code
+**Use it in your js code with object-based authentication**
 ```javascript
 const KnackAPI = require('knack-api-helper');
 
@@ -21,7 +21,7 @@ const knackAPI = new KnackAPI({
 ```
 You can also use 'view-based' auth in your server-side environment.
 
-Working on views with non-login protected pages (no user token required):
+**Initialising view-based auth without a user token, to work on views on public pages:**
 ```javascript
 const KnackAPI = require('knack-api-helper');
 
@@ -30,7 +30,8 @@ const knackAPI = new KnackAPI({
     applicationId: 'YOUR-APPLICATION-ID'
 });
 ```
-Working on views that are login protected: obtain user token via a remote login to Knack.
+
+**Initialising then remotely logging in to obtain user token, to work on views on login-protected pages:**
 ```javascript
 const KnackAPI = require('knack-api-helper');
 
@@ -50,7 +51,7 @@ try {
 }
 ```
 
-You can also obtain a user token using some other method, and specify it for view-based auth:
+**Initialising view-based auth with a static user token value from some other source:**
 ```javascript
 const KnackAPI = require('knack-api-helper');
 
@@ -94,11 +95,13 @@ function loadJs(url){
     document.head.appendChild(script);
 }
 ```
-Use it in your javascript code after it's loaded
-Warning: do not use object-based auth in browser code because it exposes your api key 
-Warning: do not hard-code email or password into browser code for remote-login (.login() or .remoteLogin() functions), because it exposes your email/password combination
+Using it in your javascript code after it's loaded
 
-Using within the Knack builder javascript area (Knack object available on the window)
+*Warning: do not use object-based auth in browser code because it exposes your api key*
+
+*Warning: do not hard-code email or password into browser code for remote-login (.login() or .remoteLogin() functions), because it exposes your email/password combination*
+
+**Using in the Knack builder javascript area (Knack object available on the window):**
 
 ```javascript
 const knackAPI = new KnackAPI({
@@ -107,7 +110,7 @@ const knackAPI = new KnackAPI({
     userToken: Knack.getUserToken()
 });
 ```
-Somewhere else in the browser (Knack object not available on the window)
+**Using in other browser-based code (Knack object not available on the window):**
 ```javascript
 const knackAPI = new KnackAPI({
     auth: 'view-based',
@@ -115,13 +118,15 @@ const knackAPI = new KnackAPI({
     userToken: 'A-VALID-USER-TOKEN-FOR-YOUR-APP'
 });
 ```
-## METHODS
-(Partially written)
+## KNACK-API-HELPER METHODS
+*(Partially written)*
 
 ### .login()
-Remote login when using view-based authentication.
+Performs a remote login when using view-based authentication.
+
 Automatically adds the obtained user token to the knackAPI object for use in future requests.
-Returns the obtained user token.
+
+Returns the obtained user token (string).
 
 | Argument parameter | Details  |
 | ---                | ---      |
@@ -140,8 +145,10 @@ try {
 ```
 ### .remoteLogin()
 Standalone method for remote login to a Knack app
-Returns the full request object, rather than just the token.
-Does NOT add the user token to your knackAPI object.
+
+Returns the full request object (session), rather than just the token.
+
+Does **NOT** add the user token to your knackAPI object.
 
 | Argument parameter | Details  |
 | ---                | ---      |
