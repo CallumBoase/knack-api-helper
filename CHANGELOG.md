@@ -4,8 +4,8 @@
 
 **Summary:**
 1. Added support for remote login via the Knack API
-    * [login()](https://github.com/CallumBoase/knack-api-helper/#login) method added
-    * [remoteLogin()](https://github.com/CallumBoase/knack-api-helper/#remoteLogin) added
+    * [login()](/#login) method added
+    * [remoteLogin()](/#remoteLogin) added
 2. Enabled initialising KnackAPI with no user token for API calls to public pages
 3. Renamed key in KnackAPI(config) object. Was: *staticUserToken*, new name: *userToken*
 4. We no longer automatically run Knack.getUserToken() when there is no user token passed to KnackAPI initialising for view-based auth. The user must now specify {userToken: Knack.getUserToken()} where applicable.
