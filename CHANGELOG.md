@@ -1,14 +1,14 @@
 # Knack-api-helper CHANGELOG
 
-## 2022/07/25 - MAJOR UPGRADE TO VERSION 3.0.0 (including breaking changes)
+## 2022/07/25 - MAJOR UPGRADE TO VERSION 2.0.0 (including breaking changes)
 
 **Summary:**
 1. Added support for remote login via the Knack API
     * [login()](README.md#login) method added
     * [remoteLogin()](README.md#remoteLogin) added
-2. Enabled initialising KnackAPI with no user token for API calls to public pages
-3. Renamed key in KnackAPI(config) object. Was: *staticUserToken*, new name: *userToken*
-4. We no longer automatically run Knack.getUserToken() when there is no user token passed to KnackAPI initialising for view-based auth. The user must now specify {userToken: Knack.getUserToken()} where applicable.
+2. It is now possible to initialize KnackAPI with no user token (for API calls to public pages)
+3. Renamed key in KnackAPI(config) object. Old key name: *staticUserToken*, new name: *userToken* (due to different functionality)
+4. We no longer automatically run Knack.getUserToken() when initialising KnackAPI for view-based authentication without a user token.The user must now specify the userToken either with a static value, or with Knack.getUserToken() method (if running code in Knack javascript area). See [installation instructions for browser](README.md#use-in-browser-or-knack-javascript-code-area)
 
-Breaking changes: 
+**Breaking changes**: 
 Items 3 & 4 are breaking changes.
