@@ -148,7 +148,7 @@ try {
 ### .remoteLogin()
 Standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
 
-Returns the full request object (data for the [remote login]Knack user session(https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
+Returns the full request object (data for the [Knack user session](https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
 
 Does **NOT** add the user token to your knackAPI object.
 
