@@ -130,7 +130,7 @@ Returns the obtained [user token](https://docs.knack.com/docs/user-tokens) (stri
 
 Pass .login() a settings object with these parameters:
 
-| Parameters | Type | Required? | Details  |
+| Parameter | Type | Required? | Details  |
 | ---                | ---  | ---       | ---      |
 | email              | string | Yes | An email address for a user in your Knack app |
 | password           | string | Yes | The password for the above user |
