@@ -1,12 +1,21 @@
 LATEST BUILD INSTRUCTIONS
+
 Make all changes to code
+
 $ npm run build //To package the browser.js file
+
 update package.json with new version number
+
 $ git add .
+
 $ git commit -a -m "Prep for versoin release x.x.x"
+
 $ git push origin
+
 $ npm publish
+
 $ git tag X.X.X //Tags the current version in github
+
 $ git push origin X.X.X //Pushes the tag to github
 
 This repo is published on NPM under knack-api-helper
