@@ -1,5 +1,15 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/08/05 - Version 2.0.0 -> 2.1.0
+
+Update knack-api-helper package to reference new version of @callum.boase/fetch package, and leverage the new features of @callum.boase/fetch.
+
+Previous behaviour: any unsuccessful API call to Knack retries with a static 1 second (1000ms) delay between attempts.
+
+New behaviour: 
+* Only retry unsuccessful API calls with response code of 429 or >= 500 (because other error codes are permanent failures and retry is pointless)
+* If error code of unsuccessful API call is 429, retry will happen with exponential backoff (first attempt wait 1000ms, second attempt wait 2000ms, third attempt wait 4000ms etc). However unsuccessful API calls returning code >= 500 will still have a static 1 second delay.
+
 ## 2022/07/25 - MAJOR UPGRADE TO VERSION 2.0.0 (including breaking changes)
 
 **Summary:**

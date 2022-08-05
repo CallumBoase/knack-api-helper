@@ -1,6 +1,6 @@
 {
   "name": "knack-api-helper",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Methods for interacting with the Knack API using both view-based and object-based authentication",
   "main": "knack-api-helper.js",
   "scripts": {
@@ -21,6 +21,6 @@
     "browserify": "^17.0.0"
   },
   "dependencies": {
-    "@callum.boase/fetch": "^1.4.2"
+    "@callum.boase/fetch": "^1.5.0"
   }
 }
