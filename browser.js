@@ -347,6 +347,31 @@ const _fetch = {
         return new Promise((resolve) => setTimeout(resolve, ms));
     },
 
+    tools: {
+        exponentialBackoff(attempt){
+            return Math.pow(2, attempt - 1) * 1000; //1000, 2000, 4000 etc
+        }
+    },
+
+    defaults: {
+
+        retryDelay(attempt, mostRecentErr){
+            if(mostRecentErr.details.response.status === 429){
+                return Math.pow(2, attempt - 1) * 1000; //Exponential backoff same as _fetch.tools.exponentialBackoff
+            } else {
+                return 1000;
+            }
+        },
+
+        retryOn(attempt, err){
+            if(err.details && err.details.response && (err.details.response.status >= 500 || err.details.response.status === 429)){
+                return true;
+            } else {
+                return false;
+            }
+        }
+    },
+
     async wrapper(url, options = {}, helperData = {}) {
 
         try {
@@ -355,6 +380,8 @@ const _fetch = {
 
             const text = await response.text();
 
+            //You can only consume response body methods once
+            //So we get text above and then convert text to JSON if applicable
             let json = null;
             if(isJson(text)){
                 json = JSON.parse(text);
@@ -384,22 +411,52 @@ const _fetch = {
 
     },
 
-    async one (settings = {url, options, helperData, retries}) {
+    async one (settings = {url, options, helperData, retries, retryDelay, retryOn}) {
 
         if(typeof settings !== 'object' || !settings.url) throw new Error('Invalid argument when calling _fetch.one. You must call _fetch.one with an object (settings), containing at-minimum: settings = {url: string}');
 
-        if (!settings.retries) settings.retries = 5;
         if (!settings.options) settings.options = {method: 'GET'};
         if (settings.options && !settings.options.method) settings.options.method = 'GET';
+
+        if (!settings.retries && settings.retries !== 0) settings.retries = 5;
+
+        if(typeof settings.retryDelay !== 'function' && typeof settings.retryDelay !== 'number'){
+            settings.retryDelay = this.defaults.retryDelay;
+        }   
+
+        if (typeof settings.retryOn !== 'function'){
+            settings.retryOn = this.defaults.retryOn;
+        }
     
         //thanks to: https://dev.to/ycmjason/javascript-fetch-retry-upon-failure-3p6g
-        for(let i = 1; i <= settings.retries; i++){
+        let mostRecentErr;
+
+        for(let i = 0; i <= settings.retries; i++){
             try {
-                if(i > 1) await this.delay(1000);
+
+                if(i > 0) {
+                    let retryDelay;
+
+                    if(typeof settings.retryDelay === 'function') {
+                        retryDelay = settings.retryDelay(i, mostRecentErr)
+                    } else {
+                        retryDelay = settings.retryDelay;
+                    }
+
+                    await this.delay(retryDelay);
+                }
                 return await this.wrapper(settings.url, settings.options, settings.helperData);
+            
             } catch (err){
+
                 const isLastRetry = i === settings.retries;
                 if(isLastRetry) throw err;
+
+                const shouldRetry = await settings.retryOn(i, err);
+                if(!shouldRetry) throw err;
+
+                mostRecentErr = err;
+
                 console.log(`failed fetch ${settings.options.method} to ${settings.url}. Code: ${err.details && err.details.response ? err.details.response.status : ""}. Attempt ${i}. Retrying...`);
             }
         }
@@ -417,6 +474,8 @@ const _fetch = {
                     url: request.url, 
                     options: request.options,
                     retries: request.retries, 
+                    retryDelay: request.retryDelay,
+                    retryOn: request.retryOn,
                     helperData: {request, delayMs: i*settings.delayMs, i},
                 });
                 progress++
