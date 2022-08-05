@@ -125,6 +125,7 @@ const knackAPI = new KnackAPI({
 
 **Auto-retry and delay between retries**
 knack-api-helper will auto-retry failed API calls when sensible, but will return an error immediately if the error is permanent.
+
 | Http error code | Auto-retry? | Delay between retries | Details |
 | --- | --- | --- |
 4XX (except 429) | No | N/A | These codes are related to invalid authentication so there is no point retrying failed requests. | 
