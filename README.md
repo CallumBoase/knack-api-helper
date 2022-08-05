@@ -124,13 +124,14 @@ const knackAPI = new KnackAPI({
 *(Partially written)*
 
 **Auto-retry and delay between retries**
+
 knack-api-helper will auto-retry failed API calls when sensible, but will return an error immediately if the error is permanent.
 
 | Http error code | Auto-retry? | Delay between retries | Details |
-| --- | --- | --- |
-4XX (except 429) | No | N/A | These codes are related to invalid authentication so there is no point retrying failed requests. | 
-429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
-5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
+| --- | --- | --- | --- |
+| 4XX (except 429) | No | N/A | These codes are related to invalid authentication so there is no point retrying failed requests. | 
+| 429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
+| 5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
 
 ## KNACK-API-HELPER METHODS
 *(Partially written)*
