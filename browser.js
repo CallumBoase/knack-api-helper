@@ -91,7 +91,7 @@ function KnackAPI(config) {
 
         if(settings.body) options.body = JSON.stringify(settings.body);
 
-        const retries = settings.retries ? settings.retries: 5;
+        const retries = typeof settings.retries === 'number' ? settings.retries : 5;
         return {url, options, retries, helperData: settings.helperData};
 
     }
@@ -250,9 +250,14 @@ function KnackAPI(config) {
                     if(curr.status === 'rejected') acc++;
                     return acc;
                 },0);
-                console.log(fulfilled)
-                console.log(rejected)
-                return {fulfilled, rejected};
+                const errors = results.filter(result => {
+                    if(result.status !== 'fulfilled'){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+                return {fulfilled, rejected, errors};
             },
 
             html(id, results){
