@@ -186,3 +186,53 @@ try {
     console.log(err);
 }
 ```
+
+### post/put/delete.many() example
+(Partially written)
+
+Example many request with error handling individual errors
+
+This will auto-retry as per default settings just like a single request
+
+```javascript
+
+try {
+
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const records = [
+        {field_22: 'some data 1'},
+        {field_22: 'some data 2'},
+        {field_22: 'some data 3'},
+        {field_22: 'some data 4'},
+        {field_22: 'some data 5'},
+        {field_22: 'some data 6'},
+    ]
+
+    const responses = await knackAPI.postMany({
+        scene: 'scene_106',
+        view: 'view_269',
+        records,
+    });
+
+    if(responses.summary.rejected > 0){
+        res.summary.errors.forEach(err => {
+            errorHandler(err.reason);
+        })
+    }
+
+} catch(err){
+    //To catch errors from knackAPI.login()
+    //ERrors from .postMany() will not reach here
+    console.log(err)
+}
+
+```

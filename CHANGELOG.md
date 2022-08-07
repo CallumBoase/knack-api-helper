@@ -1,5 +1,10 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/08/08 - Version 2.1.0 -> 2.1.1
+
+* Small bugfix: customised retries. If you passed ```retries: 0``` as setting to ```knackAPI({})``` method (eg get, post, put etc) the package would view this as falsey and revert to 5 retries. Now ```retries: 0``` will work as expected
+* Minor new feature: many summary errors. when running ```knackAPI.postMany({})``` or ```knackAPI.putMany({})``` or ```knackAPI.deleteMany({})``` , the results.summary object now contains new data ```results.summary.errors```. This is a filtered list of the full array of responses, only giving the rejected responses.
+
 ## 2022/08/05 - Version 2.0.0 -> 2.1.0
 
 Update knack-api-helper package to reference new version of @callum.boase/fetch package, and leverage the new features of @callum.boase/fetch.
