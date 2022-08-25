@@ -1,5 +1,9 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/08/25 - Version 2.1.1 -> 2.1.2
+
+* Small bugfix: glitch in many results report (knackAPI.tools.manyResultsReport.create). Previously the results report would be inserted on the page using "insertAfter", regardless of what options is chosen (one of: insertAfter, insertBefore, appendTo, prependTo). Fixed so it obeys the location (insertAfter, insertBefore, appendTo or prependTo)
+
 ## 2022/08/08 - Version 2.1.0 -> 2.1.1
 
 * Small bugfix: customised retries. If you passed ```retries: 0``` as setting to ```knackAPI({})``` method (eg get, post, put etc) the package would view this as falsey and revert to 5 retries. Now ```retries: 0``` will work as expected

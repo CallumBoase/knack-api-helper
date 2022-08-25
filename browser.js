@@ -280,11 +280,11 @@ function KnackAPI(config) {
                 if(resultsReport.insertAfter){
                     this.html(resultsReport.id, results).insertAfter(resultsReport.insertAfter);
                 } else if(resultsReport.insertBefore){
-                    this.html(resultsReport.id, results).insertAfter(resultsReport.insertBefore);
+                    this.html(resultsReport.id, results).insertBefore(resultsReport.insertBefore);
                 } else if(resultsReport.appendTo){
-                    this.html(resultsReport.id, results).insertAfter(resultsReport.appendTo);
+                    this.html(resultsReport.id, results).appendTo(resultsReport.appendTo);
                 } else if(resultsReport.prependTo){
-                    this.html(resultsReport.id, results).insertAfter(resultsReport.prependTo);
+                    this.html(resultsReport.id, results).prependTo(resultsReport.prependTo);
                 } else {
                     console.log('Invalid summary location');
                 } 

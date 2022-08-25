@@ -4,6 +4,8 @@ Make all changes to code
 
 $ npm run build //To package the browser.js file
 
+Update changelog.md
+
 update package.json with new version number
 
 $ git add .
