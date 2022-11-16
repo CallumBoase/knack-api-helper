@@ -1,5 +1,9 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/11/16 - Verison 2.1.2 -> 2.1.3
+
+* Added optional parameter for ```knackAPI.getMany()```: ```format: 'string'```. This allows you to make use of the Knack API call formatting options of "raw", "both" or "html".
+
 ## 2022/08/25 - Version 2.1.1 -> 2.1.2
 
 * Small bugfix: glitch in many results report (knackAPI.tools.manyResultsReport.create). Previously the results report would be inserted on the page using "insertAfter", regardless of what options is chosen (one of: insertAfter, insertBefore, appendTo, prependTo). Fixed so it obeys the location (insertAfter, insertBefore, appendTo or prependTo)

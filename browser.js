@@ -178,6 +178,8 @@ function KnackAPI(config) {
         const req = this.setup('GET', settings);
 
         req.url += `?page=${page}&rows_per_page=1000`;
+
+        if(settings.format) req.url += `&format=${settings.format}`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
 
         const result = await _fetch.one(req);

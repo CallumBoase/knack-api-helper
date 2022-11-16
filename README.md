@@ -3,7 +3,7 @@ Methods to help work with the Knack API.
 
 Looking for the [Changelog](CHANGELOG.md)?
 
-## Use in NodeJS:
+# Use in NodeJS:
 
 Install the package
 ```
@@ -64,7 +64,7 @@ const knackAPI = new KnackAPI({
 });
 ```
 
-## Use in Browser or Knack javascript code area:
+# Use in Browser or Knack javascript code area:
 
 JS file bundled with all needed dependencies, for browser is available via CDNJS
 (note only available from version 1.0.0 and higher)
@@ -120,7 +120,7 @@ const knackAPI = new KnackAPI({
     userToken: 'A-VALID-USER-TOKEN-FOR-YOUR-APP'
 });
 ```
-## GENERAL BEHAVIOUR
+# GENERAL BEHAVIOUR
 *(Partially written)*
 
 **Auto-retry and delay between retries**
@@ -133,10 +133,10 @@ knack-api-helper will auto-retry failed API calls when sensible, but will return
 | 429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
 | 5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
 
-## KNACK-API-HELPER METHODS
+# KNACK-API-HELPER METHODS
 *(Partially written)*
 
-### .login()
+## .login()
 Performs a [remote login](https://docs.knack.com/docs/remote-user-logins) when using view-based authentication.
 
 Automatically adds the obtained user token to the knackAPI object for use in future requests.
@@ -160,7 +160,7 @@ try {
     console.log(err);
 }
 ```
-### .remoteLogin()
+## .remoteLogin()
 Standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
 
 Returns the full request object (data for the [Knack user session](https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
@@ -187,7 +187,7 @@ try {
 }
 ```
 
-### post/put/delete.many() example
+## post/put/delete.many() example
 (Partially written)
 
 Example many request with error handling individual errors
@@ -234,5 +234,35 @@ try {
     //ERrors from .postMany() will not reach here
     console.log(err)
 }
+
+```
+
+## getMany example (object-based authentication)
+(partially written)
+**Parameters**
+These are available in both ob
+| Parameter | Auth-type | Type | Required? | Details  |
+| ---                | --- | ---  | ---       | ---      |
+| object             | object-based |string | Yes | The object to get all records for |
+| scene             | view-based |string | Yes | Scene key of scene containing view we are getting data from |
+| view             | view-based |string | Yes | View key of the view we are getting data from |
+| filters            | object or view-based |Filters object | No | A javascript object version of <a href="https://docs.knack.com/docs/constructing-filters">Knack filter object</a>|
+| format             | object or view-based | string | No | Knack API call <a href="https://docs.knack.com/docs/formatting">formatting options</a> (```raw```, ```both```, or ```html```) |
+| other parameters   | object or view-based | Various | No | There are some other parameters available including helperData and more, but these are not yet documented.|
+
+```javascript
+
+const knackAPI = new KnackAPI({
+    auth: 'object-based',
+    applicationId: 'your application ID',
+    apiKey: 'your API key'
+});
+
+const response = await knackAPI.getMany({
+    object: 'object_1',
+    format: 'raw',//Optional parameter to make use of Knack API call formatting options
+});
+
+console.log(responses.records);
 
 ```
