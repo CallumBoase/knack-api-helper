@@ -172,11 +172,17 @@ function KnackAPI(config) {
     }
 
 
-    this.getMany = async function(settings = {view, scene, object, filters, helperData}, page = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, object, filters, startAtPage, stopAtPage, rowsPerPage, helperData}, page = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
-        req.url += `?page=${page}&rows_per_page=1000`;
+        if(page === 1){//Only on the first run, not subequent runs
+            if(settings.startAtPage > 1) page = settings.startAtPage;
+        } 
+        
+        const rowsPerPage = settings.rowsPerPage ? settings.rowsPerPage : 1000;
+
+        req.url += `?page=${page}&rows_per_page=${rowsPerPage}`;
 
         if(settings.format) req.url += `&format=${settings.format}`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
@@ -187,7 +193,9 @@ function KnackAPI(config) {
         result.json.records.map(record => final.records.push(record));
         final.helperData = settings.helperData;
 
-        if(result.json.total_pages > result.json.current_page){
+        const stopAtPage = settings.stopAtPage > 1 ? settings.stopAtPage : result.json.total_pages;
+
+        if(stopAtPage > result.json.current_page){
             return await this.getMany(settings, result.json.current_page + 1, final);
         } else {
             return final;
