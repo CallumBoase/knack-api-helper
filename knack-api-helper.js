@@ -172,7 +172,7 @@ function KnackAPI(config) {
     }
 
 
-    this.getMany = async function(settings = {view, scene, object, filters, rowsPerpage, rowsPerPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, object, filters, rowsPerpage, startAtPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
@@ -181,10 +181,8 @@ function KnackAPI(config) {
         }
 
         const maxRecordsToGet = settings.maxRecordsToGet > 0 ? settings.maxRecordsToGet : Infinity;
-        const remainingRecordsToGet = maxRecordsToGet - final.records.length;
         
-        const rowsPerPage = settings.rowsPerPage ? settings.rowsPerPage : 1000;
-        if(remainingRecordsToGet < rowsPerPage) rowsPerPage = remainingRecordsToGet;
+        let rowsPerPage = settings.rowsPerPage ? settings.rowsPerPage : 1000;
 
         req.url += `?page=${currentPage}&rows_per_page=${rowsPerPage}`;
 
@@ -196,6 +194,10 @@ function KnackAPI(config) {
         final.pages.push(result);
         result.json.records.map(record => final.records.push(record));
         final.helperData = settings.helperData;
+
+        if(final.records.length > maxRecordsToGet){
+            final.records = final.records.splice(0,maxRecordsToGet);
+        }
 
         if(final.records.length < maxRecordsToGet && result.json.current_page < result.json.total_pages){
             return await this.getMany(settings, result.json.current_page + 1, final);
