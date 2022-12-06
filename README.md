@@ -237,10 +237,9 @@ try {
 
 ```
 
-## getMany example (object-based authentication)
+## getMany (object-based authentication)
 (partially written)
-**Parameters**
-These are available in both ob
+### Parameters of getMany request
 | Parameter | Auth-type | Type | Required? | Details  |
 | ---                | --- | ---  | ---       | ---      |
 | object             | object-based |string | Yes | The object to get all records for |
@@ -248,7 +247,12 @@ These are available in both ob
 | view             | view-based |string | Yes | View key of the view we are getting data from |
 | filters            | object or view-based |Filters object | No | A javascript object version of <a href="https://docs.knack.com/docs/constructing-filters">Knack filter object</a>|
 | format             | object or view-based | string | No | Knack API call <a href="https://docs.knack.com/docs/formatting">formatting options</a> (```raw```, ```both```, or ```html```) |
+| rowsPerPage |  object or view-based | integar | No. Defaults to 1000 if not provided. | How many records to get per page of data. See <a href="https://docs.knack.com/docs/pagination">pagination Knack docs</a> |
+| startAtPage | object or view-based | integar | No. Defaults to 1 if not provided | The first page of data to get. Knack-api-helper will fetch this page of data, then any subsequent pages in order (page 1,2,3,4 etc) until all records are fetched or until it has fetched the ```maxRecordsToGet``` number of records (see below).<br> E.g., if there are 10000 records available and you set ```startAtPage: 5``` (and leave ```rowsPerPage``` and ```maxRecordsToGet``` at their default values), knack-api-helper will fetch pages 5-10, so you will receive the last 5000 records of the available 10000. |
+| maxRecordsToGet | object or view-based | integar | No. Defaults to all records if not provided. | The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
 | other parameters   | object or view-based | Various | No | There are some other parameters available including helperData and more, but these are not yet documented.|
+
+### Example getMany request (object based authentication)
 
 ```javascript
 
@@ -258,11 +262,17 @@ const knackAPI = new KnackAPI({
     apiKey: 'your API key'
 });
 
+//object_1 has 20,000 records available
+
 const response = await knackAPI.getMany({
     object: 'object_1',
-    format: 'raw',//Optional parameter to make use of Knack API call formatting options
+    format: 'raw',
+    rowsPerPage: 500,
+    startAtPage: 5,//Skip the first 2000 records (ie 500 records per page * 4 pages skipped = 2000)
+    maxRecordsToGet: 3000
 });
 
-console.log(responses.records);
+console.log(response.records);
+//Expected output: an array of 3000 records from object_1, contianing only the raw field data
 
 ```
