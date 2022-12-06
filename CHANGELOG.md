@@ -1,5 +1,13 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/12/07 - Version 2.1.3 -> 2.1.4
+
+* Added additional parameters for ```knackAPI.getMany()``` to support flexible pagination and getting a subset of records from the Knack database. Previously, the lack of options forced you to get ALL records matching your filters each time you called ```getMany()```. It was not possible to make use of Knack's pagination settings.<br>The new parameters available are:
+    * ```rowsPerPage```: allowing you to specify how many records are obtained "per page" of data, ie per ```GET``` request that ```getMany``` makes in the background.
+    * ```startAtPage```: allowing you to customise the first page of data to get with ```getMany()``` (previously always started with page 1)
+    * ```maxRecordsToGet```: allowing you to limit the number of records obtained (previously always obtained ALL records)
+* The combination of the above three lets you do various flexible API calls to get just the records you require.
+
 ## 2022/11/16 - Verison 2.1.2 -> 2.1.3
 
 * Added optional parameter for ```knackAPI.getMany()```: ```format: 'string'```. This allows you to make use of the Knack API call formatting options of "raw", "both" or "html".
