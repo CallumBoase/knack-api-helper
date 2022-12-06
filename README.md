@@ -237,10 +237,9 @@ try {
 
 ```
 
-## getMany example (object-based authentication)
+## getMany (object-based authentication)
 (partially written)
-**Parameters**
-These are available in both ob
+### Parameters of getMany request
 | Parameter | Auth-type | Type | Required? | Details  |
 | ---                | --- | ---  | ---       | ---      |
 | object             | object-based |string | Yes | The object to get all records for |
@@ -253,6 +252,8 @@ These are available in both ob
 | maxRecordsToGet | object or view-based | integar | No. Defaults to all records if not provided. | The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
 | other parameters   | object or view-based | Various | No | There are some other parameters available including helperData and more, but these are not yet documented.|
 
+### Example getMany request (object based authentication)
+
 ```javascript
 
 const knackAPI = new KnackAPI({
@@ -261,11 +262,17 @@ const knackAPI = new KnackAPI({
     apiKey: 'your API key'
 });
 
+//object_1 has 20,000 records available
+
 const response = await knackAPI.getMany({
     object: 'object_1',
-    format: 'raw',//Optional parameter to make use of Knack API call formatting options
+    format: 'raw',
+    rowsPerPage: 500,
+    startAtPage: 5,//Skip the first 2000 records (ie 500 records per page * 4 pages skipped = 2000)
+    maxRecordsToGet: 3000
 });
 
-console.log(responses.records);
+console.log(response.records);
+//Expected output: an array of 3000 records from object_1, contianing only the raw field data
 
 ```
