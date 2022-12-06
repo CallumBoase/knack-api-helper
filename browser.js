@@ -173,11 +173,19 @@ function KnackAPI(config) {
     }
 
 
-    this.getMany = async function(settings = {view, scene, object, filters, helperData}, page = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, object, filters, rowsPerpage, startAtPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
-        req.url += `?page=${page}&rows_per_page=1000`;
+        if(currentPage === 1){//Only on the first run, not subequent runs
+            if(settings.startAtPage > 1) currentPage = settings.startAtPage;
+        }
+
+        const maxRecordsToGet = settings.maxRecordsToGet > 0 ? settings.maxRecordsToGet : Infinity;
+        
+        let rowsPerPage = settings.rowsPerPage ? settings.rowsPerPage : 1000;
+
+        req.url += `?page=${currentPage}&rows_per_page=${rowsPerPage}`;
 
         if(settings.format) req.url += `&format=${settings.format}`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
@@ -188,7 +196,11 @@ function KnackAPI(config) {
         result.json.records.map(record => final.records.push(record));
         final.helperData = settings.helperData;
 
-        if(result.json.total_pages > result.json.current_page){
+        if(final.records.length > maxRecordsToGet){
+            final.records = final.records.splice(0,maxRecordsToGet);
+        }
+
+        if(final.records.length < maxRecordsToGet && result.json.current_page < result.json.total_pages){
             return await this.getMany(settings, result.json.current_page + 1, final);
         } else {
             return final;
