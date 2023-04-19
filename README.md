@@ -3,40 +3,174 @@ Methods to help work with the Knack API.
 
 Looking for the [Changelog](CHANGELOG.md)?
 
-# Use in NodeJS:
+## Installation
 
-Install the package
-```
-$ npm install knack-api-helper --save
-```
+### NodeJS
 
-**Use it in your js code with object-based authentication**
-```javascript
+1. Install the package from npm. In a terminal run `npm install knack-api-helper --save`
+2. Import the package into your code. 
+```js
+//example nodejs file
 const KnackAPI = require('knack-api-helper');
 
+//Initialise the library from KnackAPI variable
+const knackAPI = new KnackAPI....
+
+```
+
+### Browser (including Knack Javascript area)
+
+A javascript file bundled with all needed dependencies for use in the browser is available via CDNJS
+(note only available from version 1.0.0 and higher)
+```
+https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js
+```
+
+Build the URL you want to use, replacing `X.X.X` with the version number. An example of a finished URL is:
+```
+https://cdn.jsdelivr.net/npm/knack-api-helper@2.1.5/browser.js
+```
+
+#### Loading into a HTML page
+
+1. Add the `browser.js` file as a script tag in the `head` of your HTML page
+```html
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js"></script>
+</head>
+```
+2. The `KnackAPI` object is now stored in the window object. So, you can add another script tag somewhere in the `body` of your HTML page, to do what you need to do.
+```html
+<body>
+    <script>
+        //Initialize then do stuff with KnackAPI
+        const knackAPI = new KnackAPI....
+    </script>
+```
+#### Loading into Knack javascript area
+1. Import `browser.js` into the Knack javascript area using Javascript. Using [KnackInitAsync](https://docs.knack.com/docs/load-external-javascript-files#loading-js-files-with-event-handlers-from-outside-of-the-builder) prevents the app loading until the external `browser.js` script has loaded
+```js
+//KnackInitAsync blocks the app loading until callback() is run 
+KnackInitAsync = function($, callback) {
+
+    // REQUIRED: Explicitly include jQuery
+    window.$ = $;
+
+    const scripts = [
+        {src: 'https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js'}
+    ]
+    loadScripts(
+        scripts, 
+        (callback) => {
+            //Initialize Knack API
+            window.knackAPI = new KnackAPI....//Continue initialization code as per below
+            //Continue loading the app
+            callback()
+        }, 
+        () => {console.log('error loading scripts')}
+    );
+}
+
+//Helper function to load scripts into a Knack app
+const loadScripts = (scripts, onSuccess, onFailure) => {
+    let loadedScripts = 0;
+    let failedScripts = 0;
+
+    if(typeof onSuccess !== 'function'){
+        onSuccess = function(){
+            console.log('Scripts loaded');
+        }
+    }
+
+    if(typeof onFailure !== 'function'){
+        onFailure = function(){
+            console.error('Failed to load scripts');
+        }
+    }
+
+    scripts.forEach(({ src, type }) => {
+        const script = document.createElement('script');
+        script.src = src;
+        if (type) {
+            script.type = type;
+        }
+
+        script.addEventListener('load', () => {
+            loadedScripts++;
+            if (loadedScripts === scripts.length) {
+                onSuccess();
+            }
+        });
+
+        script.addEventListener('error', () => {
+            failedScripts++;
+            onFailure();
+        });
+
+        document.body.appendChild(script);
+    });
+};
+
+```
+
+    * OR, adding loading the script via javascript (eg for the Knack javascript area)
+    ```js
+    loadJs('https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js');
+
+    function loadJs(url){
+        var script = document.createElement('script');
+        script.src = url;
+        script.onload = function(){
+            console.log(`loaded ${url}`);
+        }
+        script.onerror = function(){
+            $('.kn-scenes').remove();
+            alert(`error loading the app, refresh your page. Error details: unable to load external script ${url}`);
+        }
+        document.head.appendChild(script);
+    }
+    ```
+3. Write the rest of your code as needed in the same javascript, or a new javascript file.
+
+## Initialization
+Once you have imported `knack-api-helper as KnackAPI` via one of the above messages, you're ready to use it.
+
+The first step is to initialize a new instance from the KnackAPI class. This can be done in one of two ways, depending what sort of authentication you want to use.
+
+### Object-based authentication
+```javascript
 const knackAPI = new KnackAPI({
     auth: 'object-based',
     applicationId: 'YOUR-APPLICATION-ID',
     apiKey: 'YOUR-API-KEY'
 });
-
 ```
-You can also use 'view-based' auth in your server-side environment.
+> Warning! Do not use object-based authentication in client-side code (including the Knack javascript area), because it exposes your api key.
 
-**Initialising view-based auth without a user token, to work on views on public pages:**
+### View-based authentication
+
+The basic way to initialize with view-based authentication is as follows. This will operate with the permissions of public users, rather than logged in users, so only API calls to views on public scenes will work.
+
 ```javascript
-const KnackAPI = require('knack-api-helper');
-
 const knackAPI = new KnackAPI({
     auth: 'view-based',
     applicationId: 'YOUR-APPLICATION-ID'
 });
 ```
-
-**Initialising then remotely logging in to obtain user token, to work on views on login-protected pages:**
+#### Providing a user token directly to the knackAPI instance
+If you're running your code in the Knack javascript area, you use the built-in Knack method `window.Knack.getUserToken` to obtain a user token for the currently logged in user. Therefore, you could initialize knackAPI like so:
 ```javascript
-const KnackAPI = require('knack-api-helper');
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: 'YOUR-APPLICATION-ID',
+    userToken: Knack.getUserToken()
+});
+```
 
+#### Remote login
+If you are not running your code in the Knack javascript area, you won't have access to `window.Knack.getUserToken()`. Thereore, we'll need to do a remote login to obtain a user token. This can be done as follows:
+
+```javascript
 const knackAPI = new KnackAPI({
     auth: 'view-based',
     applicationId: 'YOUR-APPLICATION-ID',
@@ -52,74 +186,8 @@ try {
     console.log(err);
 }
 ```
+> Warning! Do not use remote login in client-side code (including the Knack javascript area), because it exposes your email and password.
 
-**Initialising view-based auth with a static user token value from some other source:**
-```javascript
-const KnackAPI = require('knack-api-helper');
-
-const knackAPI = new KnackAPI({
-    auth: 'view-based',
-    applicationId: 'YOUR-APPLICATION-ID',
-    userToken: 'A-VALID-USER-TOKEN-FOR-YOUR-APP'
-});
-```
-
-# Use in Browser or Knack javascript code area:
-
-JS file bundled with all needed dependencies, for browser is available via CDNJS
-(note only available from version 1.0.0 and higher)
-```
-https://cdn.jsdelivr.net/npm/knack-api-helper@version/browser.js
-```
-
-Load browser.js from a script file (replace X.X.X with a version number)
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js"></script>
-```
-
-Or load it via javascript (eg into the Knack builder Javascript code area)
-
-```javascript
-
-loadJs('https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js');
-
-function loadJs(url){
-    var script = document.createElement('script');
-    script.src = url;
-    script.onload = function(){
-        console.log(`loaded ${url}`);
-    }
-    script.onerror = function(){
-        $('.kn-scenes').remove();
-        alert(`error loading the app, refresh your page. Error details: unable to load external script ${url}`);
-    }
-    document.head.appendChild(script);
-}
-```
-Using it in your javascript code after it's loaded
-
-*Warning: do not use object-based auth in browser code because it exposes your api key*
-
-*Warning: do not hard-code email or password into browser code for remote-login (.login() or .remoteLogin() functions), because it exposes your email/password combination*
-
-**Using in the Knack builder javascript area (Knack object available on the window):**
-
-```javascript
-const knackAPI = new KnackAPI({
-    auth: 'view-based',
-    applicationId: Knack.application_id,
-    userToken: Knack.getUserToken()
-});
-```
-**Using in other browser-based code (Knack object not available on the window):**
-```javascript
-const knackAPI = new KnackAPI({
-    auth: 'view-based',
-    applicationId: 'YOUR-APPLICATION-ID',
-    userToken: 'A-VALID-USER-TOKEN-FOR-YOUR-APP'
-});
-```
 # GENERAL BEHAVIOUR
 *(Partially written)*
 
@@ -186,6 +254,22 @@ try {
     console.log(err);
 }
 ```
+
+##
+
+### .get()
+This gets a single record from the Knack api, based on the specified record ID.
+```js
+const KnackAPI = require('knack-api-helper');
+
+async function run(){
+    const knackAPI = new KnackAPI({
+
+    })
+}
+
+```
+
 
 ## post/put/delete.many() example
 (Partially written)
