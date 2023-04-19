@@ -113,25 +113,6 @@ const loadScripts = (scripts, onSuccess, onFailure) => {
 
 ```
 
-    * OR, adding loading the script via javascript (eg for the Knack javascript area)
-    ```js
-    loadJs('https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js');
-
-    function loadJs(url){
-        var script = document.createElement('script');
-        script.src = url;
-        script.onload = function(){
-            console.log(`loaded ${url}`);
-        }
-        script.onerror = function(){
-            $('.kn-scenes').remove();
-            alert(`error loading the app, refresh your page. Error details: unable to load external script ${url}`);
-        }
-        document.head.appendChild(script);
-    }
-    ```
-3. Write the rest of your code as needed in the same javascript, or a new javascript file.
-
 ## Initialization
 Once you have imported `knack-api-helper as KnackAPI` via one of the above messages, you're ready to use it.
 
