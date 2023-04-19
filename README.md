@@ -14,7 +14,12 @@ Looking for the [Changelog](CHANGELOG.md)?
 const KnackAPI = require('knack-api-helper');
 
 //Initialise the library from KnackAPI variable
-const knackAPI = new KnackAPI....
+const knackAPI = new KnackAPI({
+    applicationId: 'YOUR-APPLICATION-ID',
+    auth: 'view-based'
+});
+
+//Use knackAPI as needed from here.
 
 ```
 
@@ -43,8 +48,13 @@ https://cdn.jsdelivr.net/npm/knack-api-helper@2.1.5/browser.js
 ```html
 <body>
     <script>
-        //Initialize then do stuff with KnackAPI
-        const knackAPI = new KnackAPI....
+        //Initialise the library from KnackAPI variable, and store it in the window object
+        window.knackAPI = new KnackAPI({
+            applicationId: 'YOUR-APPLICATION-ID',
+            auth: 'view-based'
+        });
+
+        //Use knackAPI as needed from here.
     </script>
 ```
 #### Loading into Knack javascript area
@@ -62,8 +72,12 @@ KnackInitAsync = function($, callback) {
     loadScripts(
         scripts, 
         (callback) => {
-            //Initialize Knack API
-            window.knackAPI = new KnackAPI....//Continue initialization code as per below
+            //Initialise the library from KnackAPI variable, and store it in the window object
+            window.knackAPI = new KnackAPI({
+                applicationId: 'YOUR-APPLICATION-ID',
+                auth: 'view-based'
+            });
+
             //Continue loading the app
             callback()
         }, 
@@ -140,7 +154,7 @@ const knackAPI = new KnackAPI({
 });
 ```
 #### Providing a user token directly to the knackAPI instance
-If you're running your code in the Knack javascript area, you use the built-in Knack method `window.Knack.getUserToken` to obtain a user token for the currently logged in user. Therefore, you could initialize knackAPI like so:
+If you're running your code in the Knack javascript area, you use the built-in Knack method `window.Knack.getUserToken()` to obtain a user token for the currently logged in user. Therefore, you could initialize knackAPI like so:
 ```javascript
 const knackAPI = new KnackAPI({
     auth: 'view-based',
@@ -183,7 +197,7 @@ knack-api-helper will auto-retry failed API calls when sensible, but will return
 | 429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
 | 5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
 
-# KNACK-API-HELPER METHODS
+# API REFERENCE
 *(Partially written)*
 
 ## .login()
