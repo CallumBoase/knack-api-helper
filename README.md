@@ -114,7 +114,7 @@ const loadScripts = (scripts, onSuccess, onFailure) => {
 ```
 
 ## Initialization
-Once you have imported `knack-api-helper as KnackAPI` via one of the above messages, you're ready to use it.
+Once you have imported `knack-api-helper as KnackAPI` via one of the above methods, you're ready to use it.
 
 The first step is to initialize a new instance from the KnackAPI class. This can be done in one of two ways, depending what sort of authentication you want to use.
 
@@ -130,6 +130,7 @@ const knackAPI = new KnackAPI({
 
 ### View-based authentication
 
+#### Public (non-authenticated) user
 The basic way to initialize with view-based authentication is as follows. This will operate with the permissions of public users, rather than logged in users, so only API calls to views on public scenes will work.
 
 ```javascript
