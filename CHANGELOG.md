@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/05/08 - Version 2.1.4 -> 2.1.5
+* Updated readme.md with more documentation and examples
+
 ## 2022/12/07 - Version 2.1.3 -> 2.1.4
 
 * Added additional parameters for ```knackAPI.getMany()``` to support flexible pagination and getting a subset of records from the Knack database. Previously, the lack of options forced you to get ALL records matching your filters each time you called ```getMany()```. It was not possible to make use of Knack's pagination settings.<br>The new parameters available are:

@@ -251,33 +251,13 @@ try {
 }
 ```
 
-##
-
-### .get()
+## get (single)
 This gets a single record from the Knack api, based on the specified record ID.
-```js
-const KnackAPI = require('knack-api-helper');
 
-async function run(){
-    const knackAPI = new KnackAPI({
-
-    })
-}
-
-```
-
-
-## post/put/delete.many() example
-(Partially written)
-
-Example many request with error handling individual errors
-
-This will auto-retry as per default settings just like a single request
-
+### get example
 ```javascript
-
 try {
-
+    
     const knackAPI = new KnackAPI({
         auth: 'view-based',
         applicationId: 'YOUR-APPLICATION-ID'
@@ -288,37 +268,116 @@ try {
         password: 'password'
     });
 
-    const records = [
-        {field_22: 'some data 1'},
-        {field_22: 'some data 2'},
-        {field_22: 'some data 3'},
-        {field_22: 'some data 4'},
-        {field_22: 'some data 5'},
-        {field_22: 'some data 6'},
-    ]
-
-    const responses = await knackAPI.postMany({
-        scene: 'scene_106',
-        view: 'view_269',
-        records,
+    const response = await knackAPI.get({
+        scene: 'scene_9',
+        view: 'view_20',//View_20 is a details, grid, search or other view showing a record
+        recordId: '62e1e6b8754ba000219b0d83'
     });
 
-    if(responses.summary.rejected > 0){
-        res.summary.errors.forEach(err => {
-            errorHandler(err.reason);
-        })
-    }
+    const record = response.json;
+    console.log(record)//Expected output: a javascript object representing the Knack record
 
-} catch(err){
-    //To catch errors from knackAPI.login()
-    //ERrors from .postMany() will not reach here
-    console.log(err)
+} catch(err) {
+    console.log(err);
 }
-
 ```
 
-## getMany (object-based authentication)
+## post (single)
+Create a single record.
+
+### post example
+```javascript
+try {
+    
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const response = await knackAPI.post({
+        scene: 'scene_9',
+        view: 'view_21',//view_21 is a "new record" form that includes field_27
+        body: {field_27: 'something'},
+    });
+
+    const recordCreated = response.json;
+    console.log(recordCreated)//Expected output: a javascript object representing the Knack record created
+
+} catch(err) {
+    console.log(err);
+}
+```
+
+## put (single)
+Update a single record, based on the specified record ID.
+
+### put example
+```javascript
+try {
+    
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const response = await knackAPI.put({
+        scene: 'scene_9',
+        view: 'view_22',//view_22 is an "update record" form containing field_27
+        recordId: '62e1e6b8754ba000219b0d83',
+        body: {field_27: 'something'},
+    });
+
+    const recordUpdated = response.json;
+    console.log(recordUpdated)//Expected output: a javascript object representing the Knack record updated
+
+} catch(err) {
+    console.log(err);
+}
+```
+
+## delete (single)
+Delete a single record, based on the specified record ID.
+
+### delete example
+```javascript
+try {
+    
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const deleteResponse = await knackAPI.delete({
+        recordId: '62e1e6b8754ba000219b0d83', 
+        scene: 'scene_9',
+        view: 'view_21',//view_21 is a view with a delete link like a grid or details view
+    });
+
+    console.log(deleteResponse)//Expected output: {"delete": true}
+
+} catch(err) {
+    console.log(err);
+}
+```
+
+## getMany
 (partially written)
+
 ### Parameters of getMany request
 | Parameter | Auth-type | Type | Required? | Details  |
 | ---                | --- | ---  | ---       | ---      |
@@ -331,6 +390,11 @@ try {
 | startAtPage | object or view-based | integar | No. Defaults to 1 if not provided | The first page of data to get. Knack-api-helper will fetch this page of data, then any subsequent pages in order (page 1,2,3,4 etc) until all records are fetched or until it has fetched the ```maxRecordsToGet``` number of records (see below).<br> E.g., if there are 10000 records available and you set ```startAtPage: 5``` (and leave ```rowsPerPage``` and ```maxRecordsToGet``` at their default values), knack-api-helper will fetch pages 5-10, so you will receive the last 5000 records of the available 10000. |
 | maxRecordsToGet | object or view-based | integar | No. Defaults to all records if not provided. | The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
 | other parameters   | object or view-based | Various | No | There are some other parameters available including helperData and more, but these are not yet documented.|
+
+### Advantages of using view-based authentication for getMany
+There are several advantages of using a view-based `getMany` request, even when you run it with server-side code:
+1. You can get fields from connected objects (if you include them in the underlying view you are making the API call to) alongside the main records. This can avoid the need for extra API calls to join data.
+2. You can build your filtering logic in the data-source settings of view, avoiding the need to use javascript to build filters.
 
 ### Example getMany request (object based authentication)
 
@@ -355,4 +419,172 @@ const response = await knackAPI.getMany({
 console.log(response.records);
 //Expected output: an array of 3000 records from object_1, contianing only the raw field data
 
+```
+
+### Example getMany request (view-based authentication)
+
+```javascript
+try {
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'your application ID',
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: process.env.password
+    });
+
+    const response = await knackAPI.getMany({
+        scene: 'scene_10',
+        view: 'view_26',//view_26 is a table/grid view or a search view
+        format: 'raw',
+        //Other settings are available as per previous example, if needed
+    });
+
+    console.log(response.records);
+    //Expected output: an array of records from view_26, contianing only the raw field data
+} catch (err) {
+    console.log(err);
+}
+```
+
+## postMany
+Create many records using a single API call. Uses promise.allSettled under the hood, to allow for some requests to succeed and some to fail.
+
+### postMany example (view-based authentication)
+(Partially written)
+
+Example many request with error handling individual errors
+
+This will auto-retry as per default settings just like a single request
+
+```javascript
+
+try {
+
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const recordsToCreate = [
+        {field_22: 'some data 1'},
+        {field_22: 'some data 2'},
+        {field_22: 'some data 3'},
+        {field_22: 'some data 4'},
+        {field_22: 'some data 5'},
+        {field_22: 'some data 6'},
+    ]
+
+    const responses = await knackAPI.postMany({
+        scene: 'scene_106',
+        view: 'view_269',
+        records: recordsToCreate,
+    });
+
+    if(responses.summary.rejected > 0){
+        res.summary.errors.forEach(err => {
+            errorHandler(err.reason);
+        })
+    }
+
+} catch(err){
+    //To catch errors from knackAPI.login()
+    //ERrors from .postMany() will not reach here
+    console.log(err)
+}
+
+```
+## putMany
+Update many records using a single API call. Uses promise.allSettled under the hood, to allow for some requests to succeed and some to fail.
+
+### putMany example (view-based authentication)
+
+```javascript
+try {
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const recordsToUpdate = [
+        {id: '62e1e6b8754ba000219b0d83', field_22: 'some data 1'},
+        {id: '62e1e6b8754ba00021XXsd83', field_22: 'some data 2'},
+        {id: '622341b8754ba000212f0d83', field_22: 'some data 3'},
+        {id: '62e1e6123dfaw345b0223d83', field_22: 'some data 4'},
+    ]
+
+    const responses = await knackAPI.postMany({
+        scene: 'scene_106',
+        view: 'view_269',//view_269 is a form view with the appropriate fields editable
+        records: recordsToUpdate,
+    });
+
+    if(responses.summary.rejected > 0){
+        res.summary.errors.forEach(err => {
+            errorHandler(err.reason);
+        })
+    }
+} catch(err){
+    //To catch errors from knackAPI.login()
+    //ERrors from .postMany() will not reach here
+    console.log(err)
+}
+```
+
+## deleteMany
+
+### deleteMany example
+```javascript
+try {
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'YOUR-APPLICATION-ID'
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: 'password'
+    });
+
+    const recordsToDelete = [
+        {id: '62e1e6b8754ba000219b0d83'},
+        {id: '62e1e6b8754ba00021XXsd83'},
+        {id: '622341b8754ba000212f0d83'},
+        {id: '62e1e6123dfaw345b0223d83'},
+    ]
+
+    const responses = await knackAPI.postMany({
+        scene: 'scene_106',
+        view: 'view_269',//view_269 is a form view with the appropriate fields editable
+        recordsToUpdate,
+    });
+
+    return await knackAPI.deleteMany({
+        records: recordsToDelete,
+        scene: 'scene_9',
+        view: 'view_21',
+    });
+
+    if(responses.summary.rejected > 0){
+        res.summary.errors.forEach(err => {
+            errorHandler(err.reason);
+        })
+    }
+} catch(err){
+    //To catch errors from knackAPI.login()
+    //ERrors from .postMany() will not reach here
+    console.log(err)
+}
 ```
