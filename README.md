@@ -187,7 +187,7 @@ try {
 # GENERAL BEHAVIOUR
 *(Partially written)*
 
-**Auto-retry and delay between retries**
+## Auto-retry and delay between retries
 
 knack-api-helper will auto-retry failed API calls when sensible, but will return an error immediately if the error is permanent.
 
@@ -196,6 +196,21 @@ knack-api-helper will auto-retry failed API calls when sensible, but will return
 | 4XX (except 429) | No | N/A | These codes are related to invalid authentication so there is no point retrying failed requests. | 
 | 429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
 | 5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
+
+## Parameters in HTTP requests from Knack-api-helper
+All requests (`get`, `getMany`, `post`, `postMany`, `put`, `putMany`, `delete` and `deleteMany`) in `knack-api-helper` share some common parameters. 
+
+Some are mandatory, and some are optional.
+
+| Parameter | Type | Required? | Authentication types | Details  |
+| --- | --- | --- | --- | --- |
+| view | string | When using view-based | View-based only | The view to use for making the view-based API call eg `view_10` |
+| scene     | string | When using view-based | View-based only | The scene containing the view used to make the view-based API call eg `scene_25` |
+| object | string | When using object-based | Object-based only | The object (database table) we are making the API call to eg `object_1` |
+| helperData | object | No | Both | Any arbritrary object you want to include with the API call. This will get returned to you when you receive the response to the API call.<br><br> Useful for tracking data about the request that wouldn't ordinarily be easy to understand from the data received back from the API call. |
+| retries | 
+
+
 
 # API REFERENCE
 *(Partially written)*
@@ -538,7 +553,7 @@ try {
     }
 } catch(err){
     //To catch errors from knackAPI.login()
-    //ERrors from .postMany() will not reach here
+    //Errors from .postMany() will not reach here
     console.log(err)
 }
 ```
