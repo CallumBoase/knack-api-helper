@@ -2,7 +2,7 @@
 const knackAPI_objectBased = new KnackAPI({
     auth: 'object-based',
     applicationId: '6178696a94053c001efaad0b',
-    apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
+    apiKey: 'XXXX'
 });
 
 async function runKnackApiCode(parentRecord, parentRecordView){
