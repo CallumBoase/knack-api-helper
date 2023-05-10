@@ -197,25 +197,36 @@ knack-api-helper will auto-retry failed API calls when sensible, but will return
 | 429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
 | 5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
 
-## Parameters in HTTP requests from Knack-api-helper
-All requests (`get`, `getMany`, `post`, `postMany`, `put`, `putMany`, `delete` and `deleteMany`) in `knack-api-helper` share some common parameters. 
+## Record-related API calls
+There are 8 types of API calls that relate to records in your Knack database. These are:
+* `get` 
+* `getMany`
+* `post`
+* `postMany`
+* `put`
+* `putMany`
+* `delete`
+* `deleteMany`
 
-Some are mandatory, and some are optional.
+### Standard parameters for record-related API calls
+All the record-related API calls share these same parameters:
 
-| Parameter | Type | Required? | Authentication types | Details  |
+| Parameter | Type | Required? | Applicable to | Details  |
 | --- | --- | --- | --- | --- |
 | view | string | When using view-based | View-based only | The view to use for making the view-based API call eg `view_10` |
 | scene     | string | When using view-based | View-based only | The scene containing the view used to make the view-based API call eg `scene_25` |
 | object | string | When using object-based | Object-based only | The object (database table) we are making the API call to eg `object_1` |
 | helperData | object | No | Both | Any arbritrary object you want to include with the API call. This will get returned to you when you receive the response to the API call.<br><br> Useful for tracking data about the request that wouldn't ordinarily be easy to understand from the data received back from the API call. |
-| retries | 
+| retries | integar > 0 | No | Both | The number of times to retry the API call/s on failure, if the error code indicates that a retry might fix the error ([see above](#auto-retry-and-delay-between-retries)). Defaults to 5 if no value is provided. <br><br> Note there is a current issue: customizing the amount of retries doesn't work for `getMany`. `getMany` will always retry 5 times. |
 
-
+Additional parameters are also available for specific API calls. These are documented in the relevant sections below (see [API Reference](#api-reference)).
 
 # API REFERENCE
 *(Partially written)*
 
-## .login()
+## Logging in
+
+### .login()
 Performs a [remote login](https://docs.knack.com/docs/remote-user-logins) when using view-based authentication.
 
 Automatically adds the obtained user token to the knackAPI object for use in future requests.
@@ -239,7 +250,7 @@ try {
     console.log(err);
 }
 ```
-## .remoteLogin()
+### .remoteLogin()
 Standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
 
 Returns the full request object (data for the [Knack user session](https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
@@ -265,11 +276,12 @@ try {
     console.log(err);
 }
 ```
+## Record-related API calls
 
-## get (single)
+### get (single)
 This gets a single record from the Knack api, based on the specified record ID.
 
-### get example
+#### get example
 ```javascript
 try {
     
@@ -297,10 +309,10 @@ try {
 }
 ```
 
-## post (single)
+### post (single)
 Create a single record.
 
-### post example
+#### post example
 ```javascript
 try {
     
@@ -328,10 +340,10 @@ try {
 }
 ```
 
-## put (single)
+### put (single)
 Update a single record, based on the specified record ID.
 
-### put example
+#### put example
 ```javascript
 try {
     
@@ -360,10 +372,10 @@ try {
 }
 ```
 
-## delete (single)
+### delete (single)
 Delete a single record, based on the specified record ID.
 
-### delete example
+#### delete example
 ```javascript
 try {
     
@@ -390,28 +402,31 @@ try {
 }
 ```
 
-## getMany
+### getMany
 (partially written)
 
-### Parameters of getMany request
-| Parameter | Auth-type | Type | Required? | Details  |
-| ---                | --- | ---  | ---       | ---      |
-| object             | object-based |string | Yes | The object to get all records for |
-| scene             | view-based |string | Yes | Scene key of scene containing view we are getting data from |
-| view             | view-based |string | Yes | View key of the view we are getting data from |
-| filters            | object or view-based |Filters object | No | A javascript object version of <a href="https://docs.knack.com/docs/constructing-filters">Knack filter object</a>|
-| format             | object or view-based | string | No | Knack API call <a href="https://docs.knack.com/docs/formatting">formatting options</a> (```raw```, ```both```, or ```html```) |
-| rowsPerPage |  object or view-based | integar | No. Defaults to 1000 if not provided. | How many records to get per page of data. See <a href="https://docs.knack.com/docs/pagination">pagination Knack docs</a> |
-| startAtPage | object or view-based | integar | No. Defaults to 1 if not provided | The first page of data to get. Knack-api-helper will fetch this page of data, then any subsequent pages in order (page 1,2,3,4 etc) until all records are fetched or until it has fetched the ```maxRecordsToGet``` number of records (see below).<br> E.g., if there are 10000 records available and you set ```startAtPage: 5``` (and leave ```rowsPerPage``` and ```maxRecordsToGet``` at their default values), knack-api-helper will fetch pages 5-10, so you will receive the last 5000 records of the available 10000. |
-| maxRecordsToGet | object or view-based | integar | No. Defaults to all records if not provided. | The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
-| other parameters   | object or view-based | Various | No | There are some other parameters available including helperData and more, but these are not yet documented.|
+#### Parameters of getMany request
 
-### Advantages of using view-based authentication for getMany
+`getMany` accepts the [Standard parameters for record-related API calls](#standard-parameters-for-record-related-api-calls).
+
+* Note: in the context of `getMany` (if using view-based authentication) the `view` parameter should point to a Knack app `view` that lists many records such as a grid, search or list view.
+
+Additional parameters, on top of the standard ones, for `getMany` are as follows:
+
+| Parameter | Type | Required? | Details  |
+| ---                |  ---  | ---       | ---      |
+| filters            | Filters object | No | A javascript object version of <a href="https://docs.knack.com/docs/constructing-filters">Knack filter object</a>|
+| format             |  string | No | Knack API call <a href="https://docs.knack.com/docs/formatting">formatting options</a> (```raw```, ```both```, or ```html```) |
+| rowsPerPage | integar | No. Defaults to 1000 if not provided. | How many records to get per page of data. See <a href="https://docs.knack.com/docs/pagination">pagination Knack docs</a> |
+| startAtPage | integar | No. Defaults to 1 if not provided | The first page of data to get. Knack-api-helper will fetch this page of data, then any subsequent pages in order (page 1,2,3,4 etc) until all records are fetched or until it has fetched the ```maxRecordsToGet``` number of records (see below).<br> E.g., if there are 10000 records available and you set ```startAtPage: 5``` (and leave ```rowsPerPage``` and ```maxRecordsToGet``` at their default values), knack-api-helper will fetch pages 5-10, so you will receive the last 5000 records of the available 10000. |
+| maxRecordsToGet | integar | No. Defaults to all records if not provided. | The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
+
+#### Advantages of using view-based authentication for getMany
 There are several advantages of using a view-based `getMany` request, even when you run it with server-side code:
 1. You can get fields from connected objects (if you include them in the underlying view you are making the API call to) alongside the main records. This can avoid the need for extra API calls to join data.
 2. You can build your filtering logic in the data-source settings of view, avoiding the need to use javascript to build filters.
 
-### Example getMany request (object based authentication)
+#### Example getMany request (object based authentication)
 
 ```javascript
 
@@ -436,7 +451,7 @@ console.log(response.records);
 
 ```
 
-### Example getMany request (view-based authentication)
+#### Example getMany request (view-based authentication)
 
 ```javascript
 try {
@@ -464,10 +479,10 @@ try {
 }
 ```
 
-## postMany
+### postMany
 Create many records using a single API call. Uses promise.allSettled under the hood, to allow for some requests to succeed and some to fail.
 
-### postMany example (view-based authentication)
+#### postMany example (view-based authentication)
 (Partially written)
 
 Example many request with error handling individual errors
@@ -516,10 +531,10 @@ try {
 }
 
 ```
-## putMany
+### putMany
 Update many records using a single API call. Uses promise.allSettled under the hood, to allow for some requests to succeed and some to fail.
 
-### putMany example (view-based authentication)
+#### putMany example (view-based authentication)
 
 ```javascript
 try {
@@ -558,9 +573,9 @@ try {
 }
 ```
 
-## deleteMany
+### deleteMany
 
-### deleteMany example
+#### deleteMany example
 ```javascript
 try {
     const knackAPI = new KnackAPI({
