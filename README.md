@@ -134,6 +134,7 @@ The first step is to initialize a new instance from the KnackAPI class. This can
 
 ### Object-based authentication
 ```javascript
+//Server-side javascript code (eg Node.js)
 const knackAPI = new KnackAPI({
     auth: 'object-based',
     applicationId: 'YOUR-APPLICATION-ID',
@@ -147,15 +148,22 @@ const knackAPI = new KnackAPI({
 #### Public (non-authenticated) user
 The basic way to initialize with view-based authentication is as follows. This will operate with the permissions of public users, rather than logged in users, so only API calls to views on public scenes will work.
 
+This can be safely used in any client-side or server-side code, including the Knack javascript area.
+
 ```javascript
+//Client or server-side javascript code
 const knackAPI = new KnackAPI({
     auth: 'view-based',
     applicationId: 'YOUR-APPLICATION-ID'
 });
 ```
-#### Providing a user token directly to the knackAPI instance
-If you're running your code in the Knack javascript area, you use the built-in Knack method `window.Knack.getUserToken()` to obtain a user token for the currently logged in user. Therefore, you could initialize knackAPI like so:
+#### Authenticated users
+If you want to make view-based API calls to login-protected pages, you'll need to provide a user token to Knack-Api-Helper. How you do this depends where you're running your code.
+
+##### In the Knack javascript area
+If you're running your code in the Knack builder javascript area, you can use the built-in Knack method `window.Knack.getUserToken()` to obtain a user token for the currently logged in user. Therefore, you could initialize knackAPI like so:
 ```javascript
+//Javascript running in Knack javascript area
 const knackAPI = new KnackAPI({
     auth: 'view-based',
     applicationId: 'YOUR-APPLICATION-ID',
@@ -163,29 +171,15 @@ const knackAPI = new KnackAPI({
 });
 ```
 
-#### Remote login
-If you are not running your code in the Knack javascript area, you won't have access to `window.Knack.getUserToken()`. Thereore, we'll need to do a remote login to obtain a user token. This can be done as follows:
+##### Outside of the Knack javascript area
+If you want to use view-based authentication outside of the Knack javascript area (but still need to access login-protected pages) you won't have access to `window.Knack.getUserToken()`. 
 
-```javascript
-const knackAPI = new KnackAPI({
-    auth: 'view-based',
-    applicationId: 'YOUR-APPLICATION-ID',
-});
+Therefore, you'll need to do a remote login to obtain a user token and append it to the `knackAPI` instance. See the [API reference -> remote login](#remote-login) section below for more information.
 
-//Now we remotely login to Knack to obtain a user token & append it to knackAPI
-try {
-    await knackAPI.login({
-        email: 'a_valid_login@email.com',
-        password: 'A-VALID-PASSWORD'
-    });
-} catch(err){
-    console.log(err);
-}
-```
-> Warning! Do not use remote login in client-side code (including the Knack javascript area), because it exposes your email and password.
+> Warning, do not include a username and password in code that is running client-side, including the Knack javascript area, because it exposes your username and password to the public!
 
 # GENERAL BEHAVIOUR
-*(Partially written)*
+This sections outlines the general behaviour of Knack-Api-Helper and how it handles errors.
 
 ## Auto-retry and delay between retries
 
@@ -197,41 +191,21 @@ knack-api-helper will auto-retry failed API calls when sensible, but will return
 | 429 | Yes | Exponential backoff | This code occurs when you make more than 10 requests per second to the Knack API. Retry is sensible, and exponential backoff is recommended by Knack API documentation, so we do that. |
 | 5XX | Yes | 1 second (static) | These codes are related to temporary server outages or similar. Retrying is sensible, but there's no need to use exponential backoff, so we keep things faster by just waiting 1 second and retrying. |
 
-## Record-related API calls
-There are 8 types of API calls that relate to records in your Knack database. These are:
-* `get` 
-* `getMany`
-* `post`
-* `postMany`
-* `put`
-* `putMany`
-* `delete`
-* `deleteMany`
-
-### Standard parameters for record-related API calls
-All the record-related API calls share these same parameters:
-
-| Parameter | Type | Required? | Applicable to | Details  |
-| --- | --- | --- | --- | --- |
-| view | string | When using view-based | View-based only | The view to use for making the view-based API call eg `view_10` |
-| scene     | string | When using view-based | View-based only | The scene containing the view used to make the view-based API call eg `scene_25` |
-| object | string | When using object-based | Object-based only | The object (database table) we are making the API call to eg `object_1` |
-| helperData | object | No | Both | Any arbritrary object you want to include with the API call. This will get returned to you when you receive the response to the API call.<br><br> Useful for tracking data about the request that wouldn't ordinarily be easy to understand from the data received back from the API call. |
-| retries | integar > 0 | No | Both | The number of times to retry the API call/s on failure, if the error code indicates that a retry might fix the error ([see above](#auto-retry-and-delay-between-retries)). Defaults to 5 if no value is provided. <br><br> Note there is a current issue: customizing the amount of retries doesn't work for `getMany`. `getMany` will always retry 5 times. |
-
-Additional parameters are also available for specific API calls. These are documented in the relevant sections below (see [API Reference](#api-reference)).
-
 # API REFERENCE
-*(Partially written)*
 
-## Logging in
+## Remote login
+`login()` is useful when:
+* You want to use view-based authentication to make API calls to login-protected pages (see [initializing](#Initialization) above)
+* `window.Knack.getUserToken()` is not available to you because you're running code somewhere outside of the Knack javascript area
+
+Knack provides a [remote login](https://docs.knack.com/docs/remote-user-logins) method to perform a remote login to obtain a user token to authenticate view-based API calls. Knack-api-helper provides the following methods that make use of this.
+
+> Warning! Do not use remote login in any client-side code (including the Knack javascript area), because it xposes your email and password to the public!
 
 ### .login()
-Performs a [remote login](https://docs.knack.com/docs/remote-user-logins) when using view-based authentication.
+Performs a [remote login](https://docs.knack.com/docs/remote-user-logins) and appends the returned user token to the `knackAPI` instance to authenticate future view-based API calls.
 
-Automatically adds the obtained user token to the knackAPI object for use in future requests.
-
-Returns the obtained [user token](https://docs.knack.com/docs/user-tokens) (string).
+The function also returns the obtained [user token](https://docs.knack.com/docs/user-tokens) (JWT string generated by Knack) in case you want to use it elsewhere in your code.
 
 Pass .login() a settings object with these parameters:
 
@@ -240,18 +214,37 @@ Pass .login() a settings object with these parameters:
 | email              | string | Yes | An email address for a user in your Knack app |
 | password           | string | Yes | The password for the above user |
 
+Example:
+
 ```javascript
+//Server-side javascript (eg Node.js code)
+
+//Initialize without a user token
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: 'YOUR-APPLICATION-ID',
+});
+
+//Now we remotely login to Knack to obtain a user token & append it to knackAPI
 try {
     await knackAPI.login({
         email: 'a_valid_login@email.com',
         password: 'A-VALID-PASSWORD'
     });
+
+    //Now you can run knackAPI methods authenticated as the user you logged in as!
+
 } catch(err){
     console.log(err);
 }
 ```
 ### .remoteLogin()
-Standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
+`remoteLogin()` is useful when:
+* You want to use view-based authentication to make API calls to login-protected pages (see [initializing](#Initialization) above)
+* `window.Knack.getUserToken()` is not available to you because you're running code somewhere outside of the Knack javascript area
+* You need access to the full Knack user session object (rather than just the user token)
+
+This is a standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
 
 Returns the full request object (data for the [Knack user session](https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
 
@@ -265,6 +258,15 @@ Pass .remoteLogin() a settings object with these parameters:
 | password           | string | Yes | The password for the above user |
 
 ```javascript
+//Server-side javascript (eg Node.js code)
+
+//Initialize without a user token
+const knackAPI = new KnackAPI({
+    auth: 'view-based',
+    applicationId: 'YOUR-APPLICATION-ID',
+});
+
+//Remote login to obtain full session object
 try {
     const login = await knackAPI.remoteLogin({
         email: 'a_valid_login@email.com',
@@ -272,11 +274,37 @@ try {
     });
     const session = login.json.session;
     console.log(session);
+
+    //Note that your knackAPI instance will NOT have the user token appended to it
+
 } catch(err){
     console.log(err);
 }
 ```
+
 ## Record-related API calls
+There are 8 types of record-related API calls (ie API calls that deal with records in your Knack database) supported by Knack-api-helper. These are:
+* `get` 
+* `getMany`
+* `post`
+* `postMany`
+* `put`
+* `putMany`
+* `delete`
+* `deleteMany`
+
+### Standard parameters for record-related API calls
+All the record-related API calls share these common parameters.
+
+| Parameter | Type | Required? | Auth type applies to | Details  |
+| --- | --- | --- | --- | --- |
+| view | string | When using view-based | View-based only | The view to use for making the view-based API call eg `view_10` |
+| scene     | string | When using view-based | View-based only | The scene containing the view used to make the view-based API call eg `scene_25` |
+| object | string | When using object-based | Object-based only | The object (database table) we are making the API call to eg `object_1` |
+| helperData | object | No | Both | Any arbritrary object you want to include with the API call. This will get returned to you when you receive the response to the API call.<br><br> Useful for tracking data about the request that wouldn't ordinarily be easy to understand from the data received back from the API call. |
+| retries | integar >= 0 | No | Both | The number of times to retry the API call/s on failure, if the error code indicates that a retry might fix the error ([see above](#auto-retry-and-delay-between-retries)). Defaults to 5 if no value is provided. <br><br> Note there is a current issue: customizing the amount of retries doesn't work for `getMany`. `getMany` will always retry 5 times. |
+
+Additional parameters are also available for specific API calls. These are documented in the relevant sections below (see [API Reference](#api-reference)).
 
 ### get (single)
 This gets a single record from the Knack api, based on the specified record ID.
