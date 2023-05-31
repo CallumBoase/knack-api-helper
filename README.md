@@ -194,7 +194,7 @@ knack-api-helper will auto-retry failed API calls when sensible, but will return
 # API REFERENCE
 
 ## Remote login
-`login()` is useful when:
+Remote login is useful when:
 * You want to use view-based authentication to make API calls to login-protected pages (see [initializing](#Initialization) above)
 * `window.Knack.getUserToken()` is not available to you because you're running code somewhere outside of the Knack javascript area
 
@@ -239,11 +239,6 @@ try {
 }
 ```
 ### .remoteLogin()
-`remoteLogin()` is useful when:
-* You want to use view-based authentication to make API calls to login-protected pages (see [initializing](#Initialization) above)
-* `window.Knack.getUserToken()` is not available to you because you're running code somewhere outside of the Knack javascript area
-* You need access to the full Knack user session object (rather than just the user token)
-
 This is a standalone method for [remote login](https://docs.knack.com/docs/remote-user-logins) to a Knack app.
 
 Returns the full request object (data for the [Knack user session](https://docs.knack.com/docs/remote-user-logins)), rather than just the token.
