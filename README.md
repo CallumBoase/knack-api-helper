@@ -277,6 +277,55 @@ try {
 }
 ```
 
+## Validating a User Token - validateSession()
+This method lets you validate that a Knack user token is valid and current for the specified app. 
+
+This is useful in a few scenarios:
+* You want to check if a user token expressly provided to knack-api-helper is valid before using it to make view-based API calls (avoiding potential failure of API calls later on)
+* You are using Knack-api-helper in server-side code that is triggered via a http request from a Knack app. You want to ensure that a logged in Knack user initiated the http request before running other logic (eg before running server-side object-based API calls).
+
+Behaviour
+* Checks that there is a valid session for the applicationId that you initialised Knack-api-helper with
+* Session is considered valid if all of these are true:
+    * The http request to `https://api.knack.com/v1/session/token` succeeds
+    * A session object is returned
+    * The `session.status` is 'active'
+    * The `session.user.account_status` is 'active' (ie the user is listed as 'active' in the Knack user table, rather than 'inactive' or 'pending approval')
+    * The `session.user.approval_status` is 'approved'
+    * If a `userRoleCheck` parameter is provided, the user is a member of the specified user role (`session.user.profileKeys` includes the specified `profile_key`)
+* Return: `true` (session is valid) or `false` (session is not valid)
+
+Pass `validateSession()` a settings object with these parameters:
+
+| Parameter | Type | Required? | Details  |
+| ---                | ---  | ---       | ---      |
+| userToken          | string | Yes | A Knack user token string |
+| userRoleCheck      | string | No | An optional (single) user role that you want to check membership of eg `profile_10`. This corresponds to the object_key (eg object_10) of the user role object you want to check membership of |\
+
+Example usage
+```javascript
+//Initialise knack-api-helper
+const knackAPI = new KnackAPI({
+    auth: "view-based",//Could also initialise as object-based
+    applicationId: "YOUR-APPLICATION-ID",
+    //Could also initialise with a user token if desired
+});
+
+//Check that a user token is valid for the Knack app
+const isAuthorized = await knackAPI.validateSession({
+    userRoleCheck: 'profile_17',//The role you want to check for membership of (optional)
+    userToken: 'SOME_KNACK_USER_TOKEN'
+});
+
+console.log(isAuthorized);//expected value: true or false
+
+if(!isAuthorized){
+    return;//Stop executing your code
+} else {
+    //Continue running your code
+}
+```
+
 ## Record-related API calls
 There are 8 types of record-related API calls (ie API calls that deal with records in your Knack database) supported by Knack-api-helper. These are:
 * `get` 
