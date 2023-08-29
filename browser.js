@@ -50,7 +50,52 @@ function KnackAPI(config) {
             throw new Error('You did not specify one/both of email and password in settings object. Could not log in');
         }
 
-    }
+    },
+
+    this.validateSession = async function (settings = {userToken, userRoleCheck}) {
+
+        if(typeof settings.userToken !== 'string'){
+            throw new Error('You must provide a settings object with at least a userToken (string) to validateSession()');
+        }
+
+        try {
+      
+            const response = await _fetch.one({
+                url: 'https://api.knack.com/v1/session/token',
+                options: {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': settings.userToken,
+                        'x-knack-application-id': this.headers['X-Knack-Application-ID']
+                    }
+                }
+            });
+      
+            //Will automatically error if session not valid.
+      
+            //If we get to here, it's is a real user token. Now we perform more checks.
+      
+            const session = response.json?.session;
+
+            if(!session) throw new Error('No session found');
+            if (session.user.status !== 'current') throw new Error('Valid user but session not current.')
+            if (session.user.account_status !== 'active') throw new Error('Valid user but status not active.');
+            if (session.user.approval_status !== 'approved') throw new Error('Valid user but approval status is not approved.');
+      
+            if (settings.userRoleCheck) {
+                if (!session.user.profile_keys.includes(settings.userRoleCheck)) {
+                    throw new Error('Valid user but does not include the specified user role.')
+                }
+            }
+
+            //All checks passed. The session is valid
+            return true;
+        
+        } catch (err) {
+            //The session is not valid
+            return false;
+        }
+    }, 
 
     this.url = function(settings = {scene, view, object, recordId}){
         let url = "";

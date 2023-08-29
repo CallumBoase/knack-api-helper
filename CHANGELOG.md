@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/08/29 - Version 2.1.5 -> 2.2.0
+* Added `validateSession()` method (see readme for details)
+
 ## 2022/05/08 - Version 2.1.4 -> 2.1.5
 * Updated readme.md with more documentation and examples
 
