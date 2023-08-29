@@ -1,20 +1,27 @@
+//import knack-api-helper.js 
 const KnackAPI = require('../knack-api-helper.js');
 
-const knackAPI = new KnackAPI({
-    auth: 'object-based',
-    applicationId: '6178696a94053c001efaad0b',
-    apiKey: 'd72b5c15-0aca-4b49-b49c-9ced3d230b54'
-});
+async function run() {
 
-async function getConnectedChildren(record){
-    return await knackAPI.getMany({
-        object: 'object_6',
-        helperData: {a: 1, b: 2}
+    const knackAPI = new KnackAPI({
+        auth: "view-based",//Could also be object-based
+        applicationId: "YOUR-APPLICATION-ID",
+        //Could also initialise with a user token if you wanted to
     });
-};
 
-async function run(){
-    const children = await getConnectedChildren();
-    console.log(children);
+    const isAuthorized = await knackAPI.validateSession({
+        userRoleCheck: 'profile_17',//The role you want to check for membership of (optional)
+        userToken: 'YOUR_USER_TOKEN'
+    });
+
+    console.log(isAuthorized);//expected value: true or false
+
+    if(!isAuthorized){
+        return;
+    }
+
+    //Do whatever you need to do
+
 }
+
 run();
