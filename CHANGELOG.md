@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/09/11 - Version 2.2.0 -> 2.2.1
+* Updated the readme to fix error in instructions for loading knack-api-helper into Knack javascript area.
+
 ## 2022/08/29 - Version 2.1.5 -> 2.2.0
 * Added `validateSession()` method (see readme for details)
 
