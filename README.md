@@ -67,22 +67,15 @@ KnackInitAsync = function($, callback) {
     window.$ = $;
 
     const scripts = [
-        {src: 'https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js'}
+        {src: 'https://cdn.jsdelivr.net/npm/knack-api-helper@2.2.0/browser.js'}
     ]
+
     loadScripts(
         scripts, 
-        (callback) => {
-            //Initialise the library from KnackAPI variable, and store it in the window object
-            window.knackAPI = new KnackAPI({
-                applicationId: 'YOUR-APPLICATION-ID',
-                auth: 'view-based'
-            });
-
-            //Continue loading the app
-            callback()
-        }, 
+        callback,
         () => {console.log('error loading scripts')}
     );
+    
 }
 
 //Helper function to load scripts into a Knack app
