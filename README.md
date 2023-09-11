@@ -67,7 +67,7 @@ KnackInitAsync = function($, callback) {
     window.$ = $;
 
     const scripts = [
-        {src: 'https://cdn.jsdelivr.net/npm/knack-api-helper@2.2.0/browser.js'}
+        {src: 'https://cdn.jsdelivr.net/npm/knack-api-helper@X.X.X/browser.js'}
     ]
 
     loadScripts(
