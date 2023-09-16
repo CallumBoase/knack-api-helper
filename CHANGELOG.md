@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/09/16 Version 2.2.2 -> 2.2.3
+* Fixed browser build (browser loadable file). Otherwise unchanged
+
 ## 2022/09/11 Version 2.2.1 -> 2.2.2
 * Added MIT license file.
 
