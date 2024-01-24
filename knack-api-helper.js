@@ -23,9 +23,11 @@ function KnackAPI(config) {
 
     }
 
+    this.urlBase = `https://api.knack.com/v1`;
+
     this.remoteLogin = async function(settings = {email, password}){
         return await _fetch.one({
-            url: `https://api.knack.com/v1/applications/${this.headers['X-Knack-Application-ID']}/session`,
+            url: `${this.urlBase}/applications/${this.headers['X-Knack-Application-ID']}/session`,
             options: {
                 method: 'POST',
                 body: JSON.stringify({
@@ -60,7 +62,7 @@ function KnackAPI(config) {
         try {
       
             const response = await _fetch.one({
-                url: 'https://api.knack.com/v1/session/token',
+                url: `${this.urlBase}/session/token`,
                 options: {
                     method: 'GET',
                     headers: {
@@ -97,15 +99,25 @@ function KnackAPI(config) {
     }, 
 
     this.url = function(settings = {scene, view, object, recordId}){
-        let url = "";
-        if(config.auth === 'view-based'){
-            url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/`;
-        } else if (config.auth === 'object-based'){
-            url = `https://api.knack.com/v1/objects/${settings.object}/records/`;
-        }
         
+        let url = this.urlBase;
+
+        if(config.auth === 'view-based'){
+            url += `/pages/${settings.scene}/views/${settings.view}/records/`;
+        } else if (config.auth === 'object-based'){
+            url = `/objects/${settings.object}/records/`;
+        }
+
         if(settings.recordId) url += settings.recordId;
         return url;
+    }
+
+    this.getRetries = function(retries) {
+        if(typeof retries === 'number'){
+            return retries;
+        } else {
+            return 5;
+        }
     }
 
     this.setup = function(method, settings){
@@ -135,7 +147,7 @@ function KnackAPI(config) {
 
         if(settings.body) options.body = JSON.stringify(settings.body);
 
-        const retries = typeof settings.retries === 'number' ? settings.retries : 5;
+        const retries = this.getRetries(settings.retries);
         return {url, options, retries, helperData: settings.helperData};
 
     }
@@ -261,6 +273,40 @@ function KnackAPI(config) {
 
     this.deleteMany = async function(settings = {records, view, scene, object, helperData, retries, progressBar, progressCbs, resultsReport}){
         return await this.many('DELETE', settings);
+    }
+
+    //API call to get data from a report view like pivot table, bar chart or similar. Only works with view-based auth
+    this.getFromReport = async function(settings = {view, scene, pageSlug, pageSlugRecordId, helperData, retries}){
+
+        //Check for errors in config, since it's a bit different to other API calls
+        if (config.auth !== 'view-based') throw new Error('getFromReport() only works when using view-based auth');
+        if (settings.object) throw new Error('getFromReport() does not support object-based auth. Specify a view and scene instead.');
+        if (!settings.view || !settings.scene) throw new Error('getFromReport() requires a view and scene');
+        if (settings.recordId) throw new Error('getFromReport() does not support recordId. Specify settings.pageSlugRecordId if you are trying to load a report on a child page that has the data source of "this page\'s record" or similar.');
+        if (settings.pageSlug && !settings.pageSlugRecordId) throw new Error('If you specify a pageSlug, you must also specify a pageSlugRecordId');
+        if (settings.pageSlugRecordId && !settings.pageSlug) throw new Error('If you specify a pageSlugRecordId, you must also specify a pageSlug');
+
+        //Build the URL, which has a different format to other API calls
+        //All reports API calls take format of /pages/{scene}/views/{view}/report
+        //If the report is on a child page with data source of "this page's record", then we need to add query string of ?{pageSlug}_id={pageSlugRecordId} so Knack knows what record to filter records by
+        //Eg /pages/scene_1/views/view_1/report?dashboard_id=63e1bfe1a978400745e3a736
+        let url = `${this.baseUrl}/pages/${settings.scene}/views/${settings.view}/report`;
+        if(settings.pageSlug) url += `?${settings.pageSlug}_id=${settings.pageSlugRecordId}`;
+
+        //Build the _fetch request object
+        const req = {
+            url,
+            options: {
+                method: 'GET',
+                headers: this.headers
+            },
+            retries: this.getRetries(settings.retries),
+            helperData: settings.helperData
+        }
+
+        //Run the API call.
+        return await _fetch.one(req);
+
     }
 
     this.tools = {
