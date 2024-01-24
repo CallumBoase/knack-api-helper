@@ -105,7 +105,7 @@ function KnackAPI(config) {
         if(config.auth === 'view-based'){
             url += `/pages/${settings.scene}/views/${settings.view}/records/`;
         } else if (config.auth === 'object-based'){
-            url = `/objects/${settings.object}/records/`;
+            url += `/objects/${settings.object}/records/`;
         }
 
         if(settings.recordId) url += settings.recordId;
@@ -276,22 +276,22 @@ function KnackAPI(config) {
     }
 
     //API call to get data from a report view like pivot table, bar chart or similar. Only works with view-based auth
-    this.getFromReport = async function(settings = {view, scene, pageSlug, pageSlugRecordId, helperData, retries}){
+    this.getFromReportView = async function(settings = {view, scene, sceneRecordId, helperData, retries}){
 
         //Check for errors in config, since it's a bit different to other API calls
-        if (config.auth !== 'view-based') throw new Error('getFromReport() only works when using view-based auth');
-        if (settings.object) throw new Error('getFromReport() does not support object-based auth. Specify a view and scene instead.');
-        if (!settings.view || !settings.scene) throw new Error('getFromReport() requires a view and scene');
-        if (settings.recordId) throw new Error('getFromReport() does not support recordId. Specify settings.pageSlugRecordId if you are trying to load a report on a child page that has the data source of "this page\'s record" or similar.');
-        if (settings.pageSlug && !settings.pageSlugRecordId) throw new Error('If you specify a pageSlug, you must also specify a pageSlugRecordId');
-        if (settings.pageSlugRecordId && !settings.pageSlug) throw new Error('If you specify a pageSlugRecordId, you must also specify a pageSlug');
+        if (config.auth !== 'view-based') throw new Error('getFromReportView() only works when using view-based auth');
+        if (!settings.view || !settings.scene) throw new Error('getFromReportView() requires a view and scene. You did not specify one or both.');
+        if (settings.recordId) throw new Error('getFromReportView() does not support recordId. Specify settings.sceneRecordId if you are trying to load a report on a child page that has the data source of "this page\'s record" or similar.');
 
         //Build the URL, which has a different format to other API calls
         //All reports API calls take format of /pages/{scene}/views/{view}/report
-        //If the report is on a child page with data source of "this page's record", then we need to add query string of ?{pageSlug}_id={pageSlugRecordId} so Knack knows what record to filter records by
+        //If the report is on a child page with data source of "this page's record", then we need to add query string of ?{sceneSlug}_id={sceneRecordId} so Knack knows what record to filter records by
         //Eg /pages/scene_1/views/view_1/report?dashboard_id=63e1bfe1a978400745e3a736
-        let url = `${this.baseUrl}/pages/${settings.scene}/views/${settings.view}/report`;
-        if(settings.pageSlug) url += `?${settings.pageSlug}_id=${settings.pageSlugRecordId}`;
+        let url = `${this.urlBase}/scenes/${settings.scene}/views/${settings.view}/report`;
+        if(settings.sceneRecordId) {
+            const sceneSlug = await this.getSceneSlug(settings.scene);
+            url += `?${sceneSlug}_id=${settings.sceneRecordId}`
+        }
 
         //Build the _fetch request object
         const req = {
@@ -400,6 +400,32 @@ function KnackAPI(config) {
 
         }
     }
+
+
+    //Utility function to get the current slug of a scene (eg dashboard) based on it's key (eg scene_21) using the Knack API
+    this.getSceneSlug = async function(sceneKey) {
+        const appDataUrl = `${this.urlBase}/applications/${this.headers['X-Knack-Application-ID']}`;
+
+        const appData = await _fetch.one({
+            url: appDataUrl,
+            options: {
+                method: 'GET',
+            }
+        });
+
+        const scenes = appData.json.application.scenes;
+
+        const scene = scenes.find(scene => scene.key === sceneKey);
+
+        if(!scene) throw new Error(`Scene with key ${sceneKey} not found, when trying to find corresponding slug (url). Could not continue.`);
+
+        const slug = scene.slug;
+        if(!slug) throw new Error(`Scene with key ${sceneKey} found, but no slug (url) found. Could not continue.`);
+
+        return slug;
+
+    }
+
 
     function checkConfig(){
 
