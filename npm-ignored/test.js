@@ -4,7 +4,6 @@ const KnackAPI = require('../knack-api-helper.js');
 async function run() {
 
     const knackAPI = new KnackAPI({
-        // auth: "view-based",//Could also be object-based
         auth: 'view-based',
         applicationId: "5f50bca256b365195f1be866",
     });
@@ -15,9 +14,9 @@ async function run() {
     })
 
     const res = await knackAPI.getFromReportView({
-        view: 'view_791',
-        scene: 'scene_278',
-        sceneRecordId: '63e1bfe1a978400745e3a736' 
+        view: 'view_885',
+        scene: 'scene_397',
+        sceneRecordId: '63e1bfe1a978400745e3a736'
     })
 
     console.log(res.json.reports[0]);
