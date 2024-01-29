@@ -319,8 +319,9 @@ if(!isAuthorized){
 }
 ```
 
-## Record-related API calls
-There are 8 types of record-related API calls (ie API calls that deal with records in your Knack database) supported by Knack-api-helper. These are:
+## Standard CRUD API calls
+
+There are 8 types of API calls supported by knack-api-helper, for standard CRUD (Create, read, update, delete) of records in your Knack database. These are:
 * `get` 
 * `getMany`
 * `post`
@@ -330,8 +331,8 @@ There are 8 types of record-related API calls (ie API calls that deal with recor
 * `delete`
 * `deleteMany`
 
-### Standard parameters for record-related API calls
-All the record-related API calls share these common parameters.
+### Common parameters for Standard CRUD API calls
+All the standard CRUD API calls share these common parameters.
 
 | Parameter | Type | Required? | Auth type applies to | Details  |
 | --- | --- | --- | --- | --- |
@@ -472,7 +473,7 @@ try {
 
 #### Parameters of getMany request
 
-`getMany` accepts the [Standard parameters for record-related API calls](#standard-parameters-for-record-related-api-calls).
+`getMany` accepts the [Common parameters for Standard CRUD API calls](#common-parameters-for-standard-crud-api-calls).
 
 * Note: in the context of `getMany` (if using view-based authentication) the `view` parameter should point to a Knack app `view` that lists many records such as a grid, search or list view.
 
@@ -683,3 +684,108 @@ try {
     console.log(err)
 }
 ```
+
+## Special CRUD API calls
+
+These methods deal with non-standard API calls to your Knack database. Non-standard means operations that are outside of normal create, read, update or delete of one/many records in your database.
+
+These methods are less commonly used, but can be very useful.
+
+They also may have less standard parameters or may have special requirements for usage (eg some only work with view-based authentication).
+
+### getDataFromReportView()
+
+This method lets you query a Knack "report" view (pivot table, bar chart, pie chart, line chart or similar) to obtain consolidated / summarized data.
+
+Important note: this method relies on view-based authentication, so knackAPI must be initialised with view-based authentication (it cannot be used with object-based).
+
+`getDataFromReportView()` accepts SOME of the [Common parameters for Standard CRUD API calls](#common-parameters-for-standard-crud-api-calls) as listed below:
+1. `scene` (scene containing the report view)
+2. `view` (the report view to use for making the view-based API call. This may contain one or more charts.
+3. `helperData` (optional)
+4. `retries` (optional, defaults to 5)
+
+It also supports one additional parameter:
+
+
+| Parameter | Type | Required? | Details  |
+| ---  | ---  | --- | --- |
+| sceneRecordId | string | No | The record ID to filter records by, if your report is situated on a child page that deals with one particular record (ie it has the data source of "records connected to this page's XXX record"). (example below) |
+
+#### Example getDataFromReportView() request (without sceneRecordId)
+
+This example references a report view on a top-level scene. Eg a report view summarising all "Project records". (The URL of the page in the live app does NOT contain a record ID eg `your-org.knack.com#your-app/projects/`). 
+
+This is the simplest usage of `getDataFromReportView()`.
+
+The example has two charts within the report view. So `getDataFromReportView()` will return an array of two objects, one for each chart.
+
+```javascript
+
+    //Initialise knack-api-helper. You MUST use view-based auth to use getDataFromReportView()
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: "YOUR APPLICATION ID",
+        userToken: Knack.getUserToken()
+    });
+
+    const reportDataResponse = await knackAPI.getFromReportView({
+        view: 'view_6',
+        scene: 'scene_2'
+    })
+
+    console.log(reportDataResponse.json);
+    //Expected output: 
+    //An array of report objects, 1 per chart in your report view
+    reports: [
+        //Example of 1 report view. 
+        { 
+            records: [
+                //Structure of records depends on your report setup. Example:
+                { group_0: 'Some grouping', calc_0: '$123,000', raw_0: 123000},
+                { group_0: 'Some other group', calc_0: '$456,000', raw_0: 456000},
+            ], 
+            filters: [
+                //Structure of filters depends on your report setup.
+                { header: 'Some grouping' },
+                { header: 'Some other group' },
+            ], 
+            summaries: [
+                //Structure of summaries depends on your report setup.
+                {}
+            ]
+        },
+    ]
+
+```
+
+#### Example getDataFromReportView() request (with sceneRecordId)
+
+This example references a report view on a child page that deals with one particular record.
+
+For example, in an app where Invoices are connected to Projects, and the report view is situated a child page dealing with project records. The report's data source appears as "Invoices connected to this page's Project". 
+
+(When viewing the live app, the URL of the page containing the report will include a record ID eg `your-org.knack.com#your-app/projects/63e1bfe1a978400745e3a735`, where `63e1bfe1a978400745e3a735` is the record ID of a Project record).
+
+In this case,  you need to specify the record ID of the Project record via `sceneRecordId` when calling the Knack API. This tells Knack which Invoice records to summarize.
+
+```javascript
+
+    //Initialise knack-api-helper. You MUST use view-based auth to use getDataFromReportView()
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: "YOUR APPLICATION ID",
+        userToken: Knack.getUserToken()
+    });
+
+    const reportDataResponse = await knackAPI.getFromReportView({
+        view: 'view_8',
+        scene: 'scene_3',
+        sceneRecordid: '63e1bfe1a978400745e3a735'//The record ID of the parent record (eg one Project record)
+    })
+
+    console.log(reportDataResponse.json);
+    //Expected output: as for previous example.
+
+```
+
