@@ -4,21 +4,28 @@ const KnackAPI = require('../knack-api-helper.js');
 async function run() {
 
     const knackAPI = new KnackAPI({
-        auth: "view-based",//Could also be object-based
-        applicationId: "YOUR-APPLICATION-ID",
-        //Could also initialise with a user token if you wanted to
+        auth: 'view-based',
+        applicationId: "XXX",
+        userToken: 'XXX'
     });
 
-    const isAuthorized = await knackAPI.validateSession({
-        userRoleCheck: 'profile_17',//The role you want to check for membership of (optional)
-        userToken: 'YOUR_USER_TOKEN'
-    });
+    // await knackAPI.login({
+    //     email: 'XXX',
+    //     password: 'XXX'
+    // })
 
-    console.log(isAuthorized);//expected value: true or false
+    const res = await knackAPI.getFromReportView({
+        view: 'view_3',
+        scene: 'scene_2',
+        //sceneRecordId: '63e1bfe1a978400745e3a736'
+    })
 
-    if(!isAuthorized){
-        return;
-    }
+    console.log(res.json);
+    console.log(res.json.reports[0]);
+    console.log(res.json.reports[0].filters)
+
+
+    console.log('done');
 
     //Do whatever you need to do
 
