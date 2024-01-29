@@ -5,8 +5,8 @@ async function run() {
 
     const knackAPI = new KnackAPI({
         auth: 'view-based',
-        applicationId: "5f50bca256b365195f1be866",
-        userToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjE3NzhhY2JiZTc1MmUwMDFmMDRkOGVlIiwiYXBwbGljYXRpb25faWQiOiI1ZjUwYmNhMjU2YjM2NTE5NWYxYmU4NjYiLCJpYXQiOjE3MDY0OTY1NTZ9.pno1-cxz_ecgO5spmOQBvbrkVGzNKw9zh8a5N1f0ktA'
+        applicationId: "XXX",
+        userToken: 'XXX'
     });
 
     // await knackAPI.login({
@@ -15,8 +15,8 @@ async function run() {
     // })
 
     const res = await knackAPI.getFromReportView({
-        view: 'view_884',
-        scene: 'scene_397',
+        view: 'view_3',
+        scene: 'scene_2',
         //sceneRecordId: '63e1bfe1a978400745e3a736'
     })
 
