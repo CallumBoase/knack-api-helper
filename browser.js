@@ -24,9 +24,11 @@ function KnackAPI(config) {
 
     }
 
+    this.urlBase = `https://api.knack.com/v1`;
+
     this.remoteLogin = async function(settings = {email, password}){
         return await _fetch.one({
-            url: `https://api.knack.com/v1/applications/${this.headers['X-Knack-Application-ID']}/session`,
+            url: `${this.urlBase}/applications/${this.headers['X-Knack-Application-ID']}/session`,
             options: {
                 method: 'POST',
                 body: JSON.stringify({
@@ -61,7 +63,7 @@ function KnackAPI(config) {
         try {
       
             const response = await _fetch.one({
-                url: 'https://api.knack.com/v1/session/token',
+                url: `${this.urlBase}/session/token`,
                 options: {
                     method: 'GET',
                     headers: {
@@ -98,15 +100,25 @@ function KnackAPI(config) {
     }, 
 
     this.url = function(settings = {scene, view, object, recordId}){
-        let url = "";
-        if(config.auth === 'view-based'){
-            url = `https://api.knack.com/v1/pages/${settings.scene}/views/${settings.view}/records/`;
-        } else if (config.auth === 'object-based'){
-            url = `https://api.knack.com/v1/objects/${settings.object}/records/`;
-        }
         
+        let url = this.urlBase;
+
+        if(config.auth === 'view-based'){
+            url += `/pages/${settings.scene}/views/${settings.view}/records/`;
+        } else if (config.auth === 'object-based'){
+            url += `/objects/${settings.object}/records/`;
+        }
+
         if(settings.recordId) url += settings.recordId;
         return url;
+    }
+
+    this.getRetries = function(retries) {
+        if(typeof retries === 'number'){
+            return retries;
+        } else {
+            return 5;
+        }
     }
 
     this.setup = function(method, settings){
@@ -136,7 +148,7 @@ function KnackAPI(config) {
 
         if(settings.body) options.body = JSON.stringify(settings.body);
 
-        const retries = typeof settings.retries === 'number' ? settings.retries : 5;
+        const retries = this.getRetries(settings.retries);
         return {url, options, retries, helperData: settings.helperData};
 
     }
@@ -264,6 +276,40 @@ function KnackAPI(config) {
         return await this.many('DELETE', settings);
     }
 
+    //API call to get data from a report view like pivot table, bar chart or similar. Only works with view-based auth
+    this.getFromReportView = async function(settings = {view, scene, sceneRecordId, helperData, retries}){
+
+        //Check for errors in config, since it's a bit different to other API calls
+        if (config.auth !== 'view-based') throw new Error('getFromReportView() only works when using view-based auth');
+        if (!settings.view || !settings.scene) throw new Error('getFromReportView() requires a view and scene. You did not specify one or both.');
+        if (settings.recordId) throw new Error('getFromReportView() does not support recordId. Specify settings.sceneRecordId if you are trying to load a report on a child page that has the data source of "this page\'s record" or similar.');
+
+        //Build the URL, which has a different format to other API calls
+        //All reports API calls take format of /pages/{scene}/views/{view}/report
+        //If the report is on a child page with data source of "this page's record", then we need to add query string of ?{sceneSlug}_id={sceneRecordId} so Knack knows what record to filter records by
+        //Eg /pages/scene_1/views/view_1/report?dashboard_id=63e1bfe1a978400745e3a736
+        let url = `${this.urlBase}/scenes/${settings.scene}/views/${settings.view}/report`;
+        if(settings.sceneRecordId) {
+            const sceneSlug = await this.getSceneSlug(settings.scene);
+            url += `?${sceneSlug}_id=${settings.sceneRecordId}`
+        }
+
+        //Build the _fetch request object
+        const req = {
+            url,
+            options: {
+                method: 'GET',
+                headers: this.headers
+            },
+            retries: this.getRetries(settings.retries),
+            helperData: settings.helperData
+        }
+
+        //Run the API call.
+        return await _fetch.one(req);
+
+    }
+
     this.tools = {
         progressBar: {
 
@@ -355,6 +401,32 @@ function KnackAPI(config) {
 
         }
     }
+
+
+    //Utility function to get the current slug of a scene (eg dashboard) based on it's key (eg scene_21) using the Knack API
+    this.getSceneSlug = async function(sceneKey) {
+        const appDataUrl = `${this.urlBase}/applications/${this.headers['X-Knack-Application-ID']}`;
+
+        const appData = await _fetch.one({
+            url: appDataUrl,
+            options: {
+                method: 'GET',
+            }
+        });
+
+        const scenes = appData.json.application.scenes;
+
+        const scene = scenes.find(scene => scene.key === sceneKey);
+
+        if(!scene) throw new Error(`Scene with key ${sceneKey} not found, when trying to find corresponding slug (url). Could not continue.`);
+
+        const slug = scene.slug;
+        if(!slug) throw new Error(`Scene with key ${sceneKey} found, but no slug (url) found. Could not continue.`);
+
+        return slug;
+
+    }
+
 
     function checkConfig(){
 
