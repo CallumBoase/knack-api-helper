@@ -329,8 +329,7 @@ function KnackAPI(config) {
 
     }
 
-    //Method to upload a file to Knack (step 1 of attaching a file to a record in Knack)
-    this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
+    this.uploadFilePrep = function(settings = {fileStream, fileName, helperData, retries}) {
         // Validate the presence of fileStream and fileName
         if (!settings.fileStream) {
             throw new Error('uploadFile requires a fileStream to be provided');
@@ -379,9 +378,47 @@ function KnackAPI(config) {
             retries: this.getRetries(settings.retries),
             helperData: settings.helperData
         };
-    
-        // Execute the file upload request
-        return await _fetch.one(req);
+
+        return req;
+    };
+
+
+    this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
+        return await _fetch.one(this.uploadFilePrep(settings));
+    };
+
+    this.uploadFiles = async function(settings = {filesToUpload: [{fileStream, fileName}], helperData, retries, progressCbs}) {
+        const filesToUpload = settings.filesToUpload;
+        
+        //Validate data
+        if (!filesToUpload) {
+            throw new Error('uploadFiles requires a value for filesToUpload (an array of objects {fileStream, fileName})');
+        }
+        if (!Array.isArray(filesToUpload)) {
+            throw new Error('uploadFiles requires filesToUpload to be an array');
+        }
+        if (filesToUpload.length === 0) {
+            throw new Error('uploadFiles requires filesToUpload to contain at least one item {fileStream, fileName}');
+        }
+
+        //Build the requests to upload files
+        const requests = filesToUpload.map(fileStream => {
+            return this.uploadFilePrep({
+                fileStream: fileStream.fileStream,
+                fileName: fileStream.fileName,
+                helperData: settings.helperData,
+                retries: settings.retries
+            });
+        });
+
+        const progressCbs = this.progressCbsSetup(settings); 
+
+        const results = await _fetch.many({requests, delayMs: 125, progressCbs});
+        results.settings = settings;
+        results.summary = this.tools.manyResultsReport.calc(results);
+
+        return results;
+
     };
 
     this.uploadFileFromInput = async function(settings = {fileInput, helperData, retries}) {
@@ -424,7 +461,7 @@ function KnackAPI(config) {
             helperData: settings.helperData,
             retries: settings.retries
         });
-        
+
     }
 
     this.tools = {
