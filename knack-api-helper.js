@@ -329,6 +329,7 @@ function KnackAPI(config) {
 
     }
 
+    //Method to upload a file to Knack (step 1 of attaching a file to a record in Knack)
     this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
         // Validate the presence of fileStream and fileName
         if (!settings.fileStream) {
@@ -382,6 +383,49 @@ function KnackAPI(config) {
         // Execute the file upload request
         return await _fetch.one(req);
     };
+
+    this.uploadFileFromInput = async function(settings = {fileInput, helperData, retries}) {
+
+        const fileInput = settings.fileInput;
+
+        //This method is only valid in the browser
+        if(inBrowser() === false) {
+            throw new Error('uploadFileFromInput() is only valid if running knack-api-helper in the browser. Use uploadFile() instead.');
+        }
+
+        // Validate the presence of fileInput
+        if (!fileInput) {
+            throw new Error('uploadFileFromInput requires a fileInput to be provided');
+        }
+        // Check fileInput is an object with a files property
+        if (!fileInput.files) {
+            throw new Error('uploadFileFromInput requires fileInput to have a files property');
+        }
+
+        // Validate there's at least one file and it has a size
+        if (settings.fileInput.files.length === 0 || !settings.fileInput.files[0].size) {
+            throw new Error('uploadFileFromInput: no file found in fileInput or file has no size. Could not continue');
+        }
+        
+        const file = fileInput.files[0];
+
+        if (!file) {
+            throw new Error('Error in uploadFileFromFileInput(): did not find a file in the specified fileInput. Could not continue');
+        }
+    
+        // Create a FormData object and append the file
+        const formData = new FormData();
+        formData.append('fileStream', file, file.name);
+
+        //Upload the file to Knack servers
+        return await this.uploadFile({
+            fileStream: formData.get('fileStream'),
+            fileName: file.name,
+            helperData: settings.helperData,
+            retries: settings.retries
+        });
+        
+    }
 
     this.tools = {
         progressBar: {
