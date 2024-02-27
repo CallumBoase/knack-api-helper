@@ -1,5 +1,25 @@
+//Import custom fetch library
 const _fetch = require('@callum.boase/fetch');
 
+//Use native browser FormData if in browser, or require('form-data') if in Nodejs
+if(inBrowser()) {
+    FormData = window.FormData;
+} else {
+    var FormData = require('form-data');
+}
+
+//Helper function to check if we are in the browser
+function inBrowser(){
+    try {
+        window.fetch;
+        return true
+    } catch (err){
+        return false;
+    }
+}
+
+
+//The main knack-api-helper
 function KnackAPI(config) {
 
     checkConfig();
@@ -308,6 +328,60 @@ function KnackAPI(config) {
         return await _fetch.one(req);
 
     }
+
+    this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
+        // Validate the presence of fileStream and fileName
+        if (!settings.fileStream) {
+            throw new Error('uploadFile requires a fileStream to be provided');
+        }
+        // Assuming fileStream should be an object with a readable or blob-like structure
+        if (typeof settings.fileStream !== 'object' || (!settings.fileStream.readable && !settings.fileStream.size)) {
+            throw new Error('uploadFile requires fileStream to be a readable stream or a Blob/File-like object');
+        }
+    
+        // Check if fileName is provided and is a string
+        if (!settings.fileName) {
+            throw new Error('uploadFile requires a fileName to be provided');
+        }
+        if (typeof settings.fileName !== 'string') {
+            throw new Error('uploadFile requires fileName to be a string');
+        }
+
+        // Check for the presence of a file extension
+        if (!settings.fileName.includes('.') || settings.fileName.split('.').pop() === settings.fileName) {
+            throw new Error('uploadFile requires fileName to include a file extension');
+        }
+    
+        // Prepare the form data for file upload
+        let formData = new FormData();
+        formData.append("files", settings.fileStream, settings.fileName);
+
+        //Contruct headers
+        const headers = {
+            'X-Knack-REST-API-Key': 'knack',
+            'X-Knack-Application-ID': config.applicationId,
+        }
+
+        //Manually add formData info to the headers if in nodejs
+        if(!inBrowser()) {
+            Object.assign(headers, formData.getHeaders());
+        }
+    
+        // Construct the request object for _fetch
+        const req = {
+            url: `${this.urlBase}/applications/${config.applicationId}/assets/file/upload`,
+            options: {
+                method: 'POST',
+                body: formData,
+                headers: headers,
+            },
+            retries: this.getRetries(settings.retries),
+            helperData: settings.helperData
+        };
+    
+        // Execute the file upload request
+        return await _fetch.one(req);
+    };
 
     this.tools = {
         progressBar: {
