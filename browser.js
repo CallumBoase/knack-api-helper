@@ -1,6 +1,26 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.KnackAPI = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+//Import custom fetch library
 const _fetch = require('@callum.boase/fetch');
 
+//Use native browser FormData if in browser, or require('form-data') if in Nodejs
+if(inBrowser()) {
+    FormData = window.FormData;
+} else {
+    var FormData = require('form-data');
+}
+
+//Helper function to check if we are in the browser
+function inBrowser(){
+    try {
+        window.fetch;
+        return true
+    } catch (err){
+        return false;
+    }
+}
+
+
+//The main knack-api-helper
 function KnackAPI(config) {
 
     checkConfig();
@@ -310,6 +330,60 @@ function KnackAPI(config) {
 
     }
 
+    this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
+        // Validate the presence of fileStream and fileName
+        if (!settings.fileStream) {
+            throw new Error('uploadFile requires a fileStream to be provided');
+        }
+        // Assuming fileStream should be an object with a readable or blob-like structure
+        if (typeof settings.fileStream !== 'object' || (!settings.fileStream.readable && !settings.fileStream.size)) {
+            throw new Error('uploadFile requires fileStream to be a readable stream or a Blob/File-like object');
+        }
+    
+        // Check if fileName is provided and is a string
+        if (!settings.fileName) {
+            throw new Error('uploadFile requires a fileName to be provided');
+        }
+        if (typeof settings.fileName !== 'string') {
+            throw new Error('uploadFile requires fileName to be a string');
+        }
+
+        // Check for the presence of a file extension
+        if (!settings.fileName.includes('.') || settings.fileName.split('.').pop() === settings.fileName) {
+            throw new Error('uploadFile requires fileName to include a file extension');
+        }
+    
+        // Prepare the form data for file upload
+        let formData = new FormData();
+        formData.append("files", settings.fileStream, settings.fileName);
+
+        //Contruct headers
+        const headers = {
+            'X-Knack-REST-API-Key': 'knack',
+            'X-Knack-Application-ID': config.applicationId,
+        }
+
+        //Manually add formData info to the headers if in nodejs
+        if(!inBrowser()) {
+            Object.assign(headers, formData.getHeaders());
+        }
+    
+        // Construct the request object for _fetch
+        const req = {
+            url: `${this.urlBase}/applications/${config.applicationId}/assets/file/upload`,
+            options: {
+                method: 'POST',
+                body: formData,
+                headers: headers,
+            },
+            retries: this.getRetries(settings.retries),
+            helperData: settings.helperData
+        };
+    
+        // Execute the file upload request
+        return await _fetch.one(req);
+    };
+
     this.tools = {
         progressBar: {
 
@@ -455,7 +529,7 @@ function KnackAPI(config) {
 }
 
 module.exports = KnackAPI;
-},{"@callum.boase/fetch":2}],2:[function(require,module,exports){
+},{"@callum.boase/fetch":2,"form-data":3}],2:[function(require,module,exports){
 //Only load node-fetch in nodeJs environment
 //If we're running this file in browser, we'll use the browser's fetch API which is built-in
 //If bundling this module for browser usage, skip bundling node-fetch
