@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2022/04/26 Version 2.2.4 -> 2.2.5
+* Updated mistake in readme for `putMany()`
+
 ## 2022/01/29 Version 2.2.3 -> 2.2.4
 * Added new method getFromReportView() the enables getting data from report view (when using view-based auth)
 * Refactored knack-api-helper.js to support this, but there are no functionality changes to existing methods (get, post, put, delete, getMany, postMany, putMany, deleteMany, login, remoteLogin, validateSession)

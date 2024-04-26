@@ -580,7 +580,7 @@ try {
 
     const responses = await knackAPI.postMany({
         scene: 'scene_106',
-        view: 'view_269',
+        view: 'view_269',//View_269 is a "create record" form with the appropriate field in it
         records: recordsToCreate,
     });
 
@@ -621,9 +621,9 @@ try {
         {id: '62e1e6123dfaw345b0223d83', field_22: 'some data 4'},
     ]
 
-    const responses = await knackAPI.postMany({
+    const responses = await knackAPI.putMany({
         scene: 'scene_106',
-        view: 'view_269',//view_269 is a form view with the appropriate fields editable
+        view: 'view_269',//view_269 is an "update record" form view with the appropriate fields editable
         records: recordsToUpdate,
     });
 
