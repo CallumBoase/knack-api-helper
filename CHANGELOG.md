@@ -1,26 +1,35 @@
 # Knack-api-helper CHANGELOG
 
-## 2022/04/26 Version 2.2.4 -> 2.2.5 -> 2.2.6
+## 2024/12/17 Version 2.2.6 -> 2.3.0
+* Added new methods for file uploads
+    * `uploadFile()`
+    * `uploadFiles()`
+    * `uploadFileFromInput()`
+    * `uploadFilesFromInput()`
+* All other methods are unchanged. No breaking changes.
+* Fix incorrect dates in the changelog (all dates were listed as 2022 despite some changes beeing from 2023 and 2024)
+
+## 2024/04/26 Version 2.2.4 -> 2.2.5 -> 2.2.6
 * Updated mistake in readme for `putMany()`
 * Skipped 2.2.5 due to unpublishing version 2.2.5 from NPM due to publishing mistake.
 
-## 2022/01/29 Version 2.2.3 -> 2.2.4
+## 2024/01/29 Version 2.2.3 -> 2.2.4
 * Added new method getFromReportView() the enables getting data from report view (when using view-based auth)
 * Refactored knack-api-helper.js to support this, but there are no functionality changes to existing methods (get, post, put, delete, getMany, postMany, putMany, deleteMany, login, remoteLogin, validateSession)
 
-## 2022/09/16 Version 2.2.2 -> 2.2.3
+## 2023/09/16 Version 2.2.2 -> 2.2.3
 * Fixed browser build (browser loadable file). Otherwise unchanged
 
-## 2022/09/11 Version 2.2.1 -> 2.2.2
+## 2023/09/11 Version 2.2.1 -> 2.2.2
 * Added MIT license file.
 
-## 2022/09/11 - Version 2.2.0 -> 2.2.1
+## 2023/09/11 - Version 2.2.0 -> 2.2.1
 * Updated the readme to fix error in instructions for loading knack-api-helper into Knack javascript area.
 
-## 2022/08/29 - Version 2.1.5 -> 2.2.0
+## 2023/08/29 - Version 2.1.5 -> 2.2.0
 * Added `validateSession()` method (see readme for details)
 
-## 2022/05/08 - Version 2.1.4 -> 2.1.5
+## 2023/05/08 - Version 2.1.4 -> 2.1.5
 * Updated readme.md with more documentation and examples
 
 ## 2022/12/07 - Version 2.1.3 -> 2.1.4
