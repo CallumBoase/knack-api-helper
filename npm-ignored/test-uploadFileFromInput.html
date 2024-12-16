@@ -16,22 +16,23 @@
         document.getElementById('fileUploadForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            // Initialize the KnackAPI with your configuration
-            const knackAPI = new KnackAPI({
-                auth: 'view-based',
-                applicationId: "5c6c953b6a0ddb28d77b4f98",
-                //No need for userToken or login when uploading files.
-            });
+            try {
 
-            //Select the fileInput in the form
-            const myFileInput = document.getElementById('fileInput');
+                // Initialize the KnackAPI with your configuration
+                const knackAPI = new KnackAPI({
+                    auth: 'view-based',
+                    applicationId: "5c6c953b6a0ddb28d77b4f98",
+                    //No need for userToken or login when uploading files.
+                });
+
+                //Select the fileInput in the form
+                const myFileInput = document.getElementById('fileInput');
 
             //Run the API call to upload file to Knack server
-            try {
-                const response = await knackAPI.uploadFileFromInput({
+                const {response, uploadedFileId} = await knackAPI.uploadFileFromInput({
                     fileInput: myFileInput
                 });
-                console.log('File uploaded successfully:', response);
+                console.log('File uploaded successfully. Here is the ID to save to your Knack record:', uploadedFileId);
 
                 //You can Use response.json.id as the value for a Knack "file upload" record field now
 

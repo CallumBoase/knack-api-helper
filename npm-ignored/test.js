@@ -2,42 +2,49 @@ const KnackAPI = require('../knack-api-helper.js');
 const fs = require('fs');
 const path = require('path');
 
-//SINGLE
-// async function run() {
+//SINGLE FILE UPLOAD
+async function uploadFileTest() {
 
-//     //Assuming there's a file stored in the same directory this is running called test.html
-//     //Extract the necessary information from the file and create a file stream
-//     const filePath = path.join(__dirname, 'test.html');
-//     const fileStream = fs.createReadStream(filePath);
-//     const fileName = path.basename(filePath);
+    //Assuming there's a file stored in the same directory this is running called test.html
+    //Extract the necessary information from the file and create a file stream
+    const filePath = path.join(__dirname, 'test-uploadFileFromInput.html');
+    const fileStream = fs.createReadStream(filePath);
+    const fileName = path.basename(filePath);
 
-//     //Initialise knack-api-helper
-//     const knackAPI = new KnackAPI({
-//         auth: 'view-based',
-//         applicationId: "5c6c953b6a0ddb28d77b4f98",
-//     });
+    try {
 
-//     //Upload the file to Knack servers
-//     const response = await knackAPI.uploadFile({
-//         fileStream,
-//         fileName
-//     });
+        //Initialise knack-api-helper
+        const knackAPI = new KnackAPI({
+            auth: 'view-based',
+            applicationId: "5c6c953b6a0ddb28d77b4f98",
+        });
 
-//     console.log(response);
+        //Upload the file to Knack servers
+        const { uploadedFileId, response } = await knackAPI.uploadFile({
+            fileStream,
+            fileName
+        });
 
-//     //You can use response.json.id as the value for a file upload field in a Knack record.
+        console.log('Upload successful. Here is the file ID to save to your Knack record: ', uploadedFileId);
+        console.log(response)
 
-// }
+    } catch (error) {
+        console.error(error);
+    }
 
-//MULTI
-async function run() {
+}
+
+// uploadFileTest();
+
+//MULTI FILE UPLOAD
+async function uploadFilesTest() {
 
     //Assuming there's a file stored in the same directory this is running called test.html
     //Extract the necessary information from the file and create a file stream
     const filePaths = [
-        path.join(__dirname, 'test.html'),
-        path.join(__dirname, 'test.html'),
-        path.join(__dirname, 'test.html'),
+        path.join(__dirname, 'test-uploadFilesFromInput.html'),
+        path.join(__dirname, 'test-uploadFilesFromInput.html'),
+        path.join(__dirname, 'test-uploadFilesFromInput.html'),
     ]
 
     const filesToUpload = filePaths.map(filePath => {
@@ -47,25 +54,33 @@ async function run() {
         }
     });
 
-    //Initialise knack-api-helper
-    const knackAPI = new KnackAPI({
-        auth: 'view-based',
-        applicationId: "5c6c953b6a0ddb28d77b4f98",
-    });
+    try {
 
-    //Upload the file to Knack servers
-    const responses = await knackAPI.uploadFiles({
-        filesToUpload
-    });
+        // Initialise knack-api-helper
+        const knackAPI = new KnackAPI({
+            auth: 'view-based',
+            applicationId: "672bdafceb51560285a611a2",
+        });
 
-    if(responses.summary.rejected > 0) {
-        throw new Error('At least one response failed')
-    } else {
-        console.log('All files uploaded successfully');
-        //You can now extract the IDs of the uploaded files and use them to create new Knack records
-        const fileIdsForKnack = responses.map(response => response.value.json.id);
+        //Upload the file to Knack servers
+        const { results, uploadedFileIds, allSucceeded, summary } = await knackAPI.uploadFiles({
+            filesToUpload
+        });
+
+        if (!allSucceeded) {
+            console.error('At least one file failed to upload. Here is a summary of the results:', summary);
+            console.log(results);
+        } else {
+            console.log('All files uploaded successfully. Here are the IDs of uploaded files to append to Knack records');
+            console.log(uploadedFileIds);
+        }
+
+    } catch(err) {
+        // Handle any other errors
+        // Errors from uploadFiles will not reach here
+        console.error(err);
     }
 
 }
 
-run();
+uploadFilesTest();

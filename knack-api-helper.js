@@ -329,16 +329,69 @@ function KnackAPI(config) {
 
     }
 
-    this.uploadFilePrep = function(settings = {fileStream, fileName, helperData, retries}) {
-        // Validate the presence of fileStream and fileName
+    // Helper function to check that a Filestream (for file uploads) is readable
+    // This is a way to check if the file exists & has a size among other things
+    this.checkStreamReadable = async function(stream) {
+        if (!stream) {
+            throw new Error('No stream provided to check');
+        }
+    
+        // For browser File/Blob objects, just check size exists
+        if (inBrowser()) {
+            if (stream.size === undefined) {
+                throw new Error('Invalid or inaccessible stream: no size property found');
+            }
+            return true;
+        }
+    
+        // For Node.js ReadStream or other readable streams
+        if (stream.readable) {
+            try {
+                await new Promise((resolve, reject) => {
+                    const cleanup = () => {
+                        stream.removeListener('readable', onReadable);
+                        stream.removeListener('error', onError);
+                    };
+                    
+                    const onReadable = () => {
+                        cleanup();
+                        // Reset stream position
+                        stream.unshift(stream.read(1));
+                        resolve(true);
+                    };
+                    
+                    const onError = (error) => {
+                        cleanup();
+                        reject(new Error(`Invalid or inaccessible stream: ${error.message}`));
+                    };
+    
+                    stream.once('readable', onReadable);
+                    stream.once('error', onError);
+                });
+                return true;
+            } catch (err) {
+                throw new Error(`Error accessing stream: ${err.message}`);
+            }
+        }
+    
+        throw new Error('Provided stream is not readable');
+    };
+
+    // Helper function to check filestreams and prepare for upload to Knack
+    this.uploadFilePrep = async function(settings = {fileStream, fileName, helperData, retries}) {
+        // Validate the presence of fileStream
         if (!settings.fileStream) {
             throw new Error('uploadFile requires a fileStream to be provided');
         }
-        // Assuming fileStream should be an object with a readable or blob-like structure
+        
+        // Make sure the filestream is an object with a readable or blob-like structure
         if (typeof settings.fileStream !== 'object' || (!settings.fileStream.readable && !settings.fileStream.size)) {
             throw new Error('uploadFile requires fileStream to be a readable stream or a Blob/File-like object');
         }
-    
+
+        // Verify stream is readable
+        await this.checkStreamReadable(settings.fileStream);
+
         // Check if fileName is provided and is a string
         if (!settings.fileName) {
             throw new Error('uploadFile requires a fileName to be provided');
@@ -346,7 +399,7 @@ function KnackAPI(config) {
         if (typeof settings.fileName !== 'string') {
             throw new Error('uploadFile requires fileName to be a string');
         }
-
+    
         // Check for the presence of a file extension
         if (!settings.fileName.includes('.') || settings.fileName.split('.').pop() === settings.fileName) {
             throw new Error('uploadFile requires fileName to include a file extension');
@@ -355,18 +408,18 @@ function KnackAPI(config) {
         // Prepare the form data for file upload
         let formData = new FormData();
         formData.append("files", settings.fileStream, settings.fileName);
-
-        //Contruct headers
+    
+        //Construct headers
         const headers = {
             'X-Knack-REST-API-Key': 'knack',
             'X-Knack-Application-ID': config.applicationId,
         }
-
+    
         //Manually add formData info to the headers if in nodejs
         if(!inBrowser()) {
             Object.assign(headers, formData.getHeaders());
         }
-    
+        
         // Construct the request object for _fetch
         const req = {
             url: `${this.urlBase}/applications/${config.applicationId}/assets/file/upload`,
@@ -378,13 +431,17 @@ function KnackAPI(config) {
             retries: this.getRetries(settings.retries),
             helperData: settings.helperData
         };
-
         return req;
     };
 
 
     this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
-        return await _fetch.one(this.uploadFilePrep(settings));
+        const req = await this.uploadFilePrep(settings);
+        const response = await _fetch.one(req);
+        return {
+            response,
+            uploadedFileId: response.json?.id,
+        }
     };
 
     this.uploadFiles = async function(settings = {filesToUpload: [{fileStream, fileName}], helperData, retries, progressCbs}) {
@@ -402,32 +459,43 @@ function KnackAPI(config) {
         }
 
         //Build the requests to upload files
-        const requests = filesToUpload.map(fileStream => {
-            return this.uploadFilePrep({
+        const requests = [];
+        for (const fileStream of filesToUpload) {
+            const request = await this.uploadFilePrep({
                 fileStream: fileStream.fileStream,
                 fileName: fileStream.fileName,
                 helperData: settings.helperData,
                 retries: settings.retries
             });
-        });
+            requests.push(request);
+        }
 
         const progressCbs = this.progressCbsSetup(settings); 
 
+        // Run the requests
         const results = await _fetch.many({requests, delayMs: 125, progressCbs});
-        results.settings = settings;
-        results.summary = this.tools.manyResultsReport.calc(results);
 
-        return results;
+        // Extract helpful information from the results
+        // We break from the standard many results format here to improve usability
+        // In a future release, other many methods will be updated to use this format
+        const summary = this.tools.manyResultsReport.calc(results);
+        const allSucceeded = summary.rejected === 0;
+        const uploadedFileIds = results.map(result => result.value?.json?.id);
+
+        return {
+            results,
+            summary,
+            allSucceeded,
+            uploadedFileIds
+        }
 
     };
 
-    this.uploadFileFromInput = async function(settings = {fileInput, helperData, retries}) {
-
-        const fileInput = settings.fileInput;
-
+    // Helper to prep for uploadFileFromInput and uploadFilesFromInput
+    this.uploadFileFromInputPrep = function (fileInput) {
         //This method is only valid in the browser
-        if(inBrowser() === false) {
-            throw new Error('uploadFileFromInput() is only valid if running knack-api-helper in the browser. Use uploadFile() instead.');
+        if (inBrowser() === false) {
+            throw new Error('uploadFileFromInput and uploadFilesFromInput methods are only valid if running knack-api-helper in the browser. Use uploadFile() instead.');
         }
 
         // Validate the presence of fileInput
@@ -440,16 +508,29 @@ function KnackAPI(config) {
         }
 
         // Validate there's at least one file and it has a size
-        if (settings.fileInput.files.length === 0 || !settings.fileInput.files[0].size) {
-            throw new Error('uploadFileFromInput: no file found in fileInput or file has no size. Could not continue');
+        if (fileInput.files.length === 0) {
+            throw new Error('uploadFileFromInput: no files found in fileInput. Could not continue');
         }
-        
-        const file = fileInput.files[0];
 
-        if (!file) {
-            throw new Error('Error in uploadFileFromFileInput(): did not find a file in the specified fileInput. Could not continue');
+        const files = fileInput.files;
+
+        // Check if each file has a size
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            // Check for file size
+            if (!file.size) {
+                throw new Error(`uploadFileFromInput: file (index ${i}) has no size. Could not continue`);
+            }
         }
-    
+
+        return files;
+    };
+
+    // Modify existing uploadFileFromInput to use the new prep function
+    this.uploadFileFromInput = async function (settings = { fileInput, helperData, retries }) {
+        const files = this.uploadFileFromInputPrep(settings.fileInput);
+        const file = files[0];
+
         // Create a FormData object and append the file
         const formData = new FormData();
         formData.append('fileStream', file, file.name);
@@ -461,8 +542,24 @@ function KnackAPI(config) {
             helperData: settings.helperData,
             retries: settings.retries
         });
+    };
 
-    }
+    // Add new uploadFilesFromInput function
+    this.uploadFilesFromInput = async function (settings = { fileInput, helperData, retries, progressCbs }) {
+        const files = this.uploadFileFromInputPrep(settings.fileInput);
+
+        const filesToUpload = Array.from(files).map(file => ({
+            fileStream: file,
+            fileName: file.name
+        }));
+
+        return await this.uploadFiles({
+            filesToUpload,
+            helperData: settings.helperData,
+            retries: settings.retries,
+            progressCbs: settings.progressCbs
+        });
+    };
 
     this.tools = {
         progressBar: {

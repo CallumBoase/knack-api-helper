@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="../browser.js"></script> <!-- Path to your bundled script -->
+</head>
+
+<body>
+
+    <form id="fileUploadForm">
+        <input type="file" id="fileInput" name="file" multiple>
+        <button type="submit">Upload Multiple Files</button>
+    </form>
+
+    <script>
+        document.getElementById('fileUploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            try {
+
+                // Initialize the KnackAPI with your configuration
+                const knackAPI = new KnackAPI({
+                    auth: 'view-based',
+                    applicationId: "5c6c953b6a0ddb28d77b4f98",
+                    //No need for userToken or login when uploading files.
+                });
+
+                //Select the fileInput in the form
+                const myFileInput = document.getElementById('fileInput');
+
+                //Run the API call to upload file to Knack server
+                const { response, uploadedFileIds, allSucceeded, summary } = await knackAPI.uploadFilesFromInput({
+                    fileInput: myFileInput
+                });
+                if (allSucceeded) {
+                    console.log('All files uploaded successfully. Here are the IDs to save to your Knack record:', uploadedFileIds);
+                } else {
+                    console.error('Some files failed to upload. Here is a summary of the results:', summary);
+                }
+
+            } catch(err) {
+                //Handle any other errors
+                //Errors from uploadFilesFromInput will not reach here
+                console.error('Something went wrong', err);
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>
