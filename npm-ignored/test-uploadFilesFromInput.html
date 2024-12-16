@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="../browser.js"></script> <!-- Path to your bundled script -->
+</head>
+
+<body>
+    <!-- A basic form with a file input that allows multiple selection, and a submit button -->
+    <form id="fileUploadForm">
+        <input type="file" id="fileInput" name="file" multiple>
+        <button type="submit">Upload Multiple Files</button>
+    </form>
+
+    <!-- Javascript to process form submit: upload files and create a new Knack record per file, with each file attached -->
+    <script>
+        document.getElementById('fileUploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            try {
+
+                // Initialize the KnackAPI with your configuration
+                const knackAPI = new KnackAPI({
+                    auth: 'view-based',
+                    applicationId: "672bdafceb51560285a611a2",
+                    //No need for userToken or login when uploading files.
+                });
+
+                //Select the fileInput in the form
+                const myFileInput = document.getElementById('fileInput');
+
+                // Run the API call to upload file to Knack servers
+                const { response, uploadedFileIds, allSucceeded, summary } = await knackAPI.uploadFilesFromInput({
+                    uploadType: 'file', //or 'image'
+                    fileInput: myFileInput
+                });
+
+                // Check if all files were uploaded successfully
+                if (allSucceeded) {
+                    console.log('All files uploaded successfully. Here are the IDs to save to your Knack record:', uploadedFileIds);
+                } else {
+                    console.error('Some files failed to upload. Here is a summary of the results:', summary);
+                }
+
+                // Create one record in Knack per uploaded file
+                // With the uploaded file attached to the record
+                // This example uses a publicly accessible scene and view, but you can also use a login-protected one if you run the login method first
+                const records = uploadedFileIds.map(uploadedFileId => {
+                    return {
+                        field_23: uploadedFileId, //Assuming field_23 is a file or image field in your Knack database
+                        field_25: 'Hello', //Any other value(s) you wan to fill
+                    }
+                });
+
+                const newRecordResponses = await knackAPI.postMany({
+                    scene: 'scene_7',
+                    view: 'view_6',
+                    records
+                })
+
+                // Check if all records were added successfully
+                if (newRecordResponses.summary.rejected > 0) {
+                    console.error('Some records failed to post. Here is a summary of the results:', newRecordResponses.summary);
+                } else {
+                    console.log('All records added successfully', newRecordResponses);
+                }
+
+            } catch (err) {
+                //Handle any other errors
+                //Errors from uploadFilesFromInput and postMany will not reach here
+                console.error('Something went wrong', err);
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>
