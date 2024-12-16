@@ -34,7 +34,7 @@ async function uploadFileTest() {
 
 }
 
-// uploadFileTest();
+uploadFileTest();
 
 //MULTI FILE UPLOAD
 async function uploadFilesTest() {
@@ -83,4 +83,4 @@ async function uploadFilesTest() {
 
 }
 
-uploadFilesTest();
+// uploadFilesTest();
