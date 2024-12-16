@@ -21,6 +21,8 @@ $ git tag X.X.X //Tags the current version in github
 
 $ git push origin X.X.X //Pushes the tag to github
 
+Go to github web interface and create a new release from the tag
+
 This repo is published on NPM under knack-api-helper
 
 # WHAT DOES THE BROWSERIFY BUILD COMMAND MEAN?
