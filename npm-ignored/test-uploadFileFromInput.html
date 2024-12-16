@@ -5,13 +5,15 @@
     <script src="../browser.js"></script> <!-- Path to your bundled script -->
 </head>
 
-<body>
-
+<body> 
+    
+    <!-- A basic form with a file input (single select) and a submit button -->
     <form id="fileUploadForm">
         <input type="file" id="fileInput" name="file">
         <button type="submit">Upload File</button>
     </form>
 
+    <!-- Javascript to process form submit: upload file and create a new Knack record with it attached file -->
     <script>
         document.getElementById('fileUploadForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -21,20 +23,32 @@
                 // Initialize the KnackAPI with your configuration
                 const knackAPI = new KnackAPI({
                     auth: 'view-based',
-                    applicationId: "5c6c953b6a0ddb28d77b4f98",
+                    applicationId: "672bdafceb51560285a611a2",
                     //No need for userToken or login when uploading files.
                 });
 
                 //Select the fileInput in the form
                 const myFileInput = document.getElementById('fileInput');
 
-            //Run the API call to upload file to Knack server
+                //Run the API call to upload file to Knack server
                 const {response, uploadedFileId} = await knackAPI.uploadFileFromInput({
+                    uploadType: 'file', //or 'image'
                     fileInput: myFileInput
                 });
                 console.log('File uploaded successfully. Here is the ID to save to your Knack record:', uploadedFileId);
 
-                //You can Use response.json.id as the value for a Knack "file upload" record field now
+                //Now you can use the uploadedFileId in your Knack record eg to create a new record with the file attached
+                //This example uses a publicly accessible scene and view, but you can also use a login-protected one if you run the login method first
+                const newRecordResponse = await knackAPI.post({
+                    scene: 'scene_7',
+                    view: 'view_6',
+                    body: {
+                        field_23: uploadedFileId, //Assuming field_23 is a file or image field in your Knack database
+                        field_25: 'Hello', //Any other value(s) you wan to fill
+                    }
+                })
+
+                console.log('Added new record', newRecordResponse);
 
             } catch (error) {
                 console.error('File upload failed:', error);

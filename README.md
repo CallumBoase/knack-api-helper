@@ -789,3 +789,335 @@ In this case,  you need to specify the record ID of the Project record via `scen
 
 ```
 
+## File uploads
+
+Uploading a file or image to Knack involves two steps:
+
+1. **Upload the file/image to Knack servers.** After uploading, the response will contain a file ID such as `675fafbf3cfc88031b154795`.
+2. **Create or update a Knack record**, using the ID of the file/image field as the value for a file or image field.
+
+For more information, refer to the [Knack File/Image Uploads Documentation](https://docs.knack.com/docs/fileimage-uploads).
+
+Knack-api-helper requires this 2-step process but adds methods to make it easier.
+
+The API calls to upload files to Knack servers have similar behaviour to the standard CRUD API calls listed above, including auto-retry when sensible.
+
+There are 4 methods available for file uploads. These are:
+* `uploadFile()` (usually for Node.js code, upload single file to Knack servers)
+* `uploadFiles()` (usually for Node.js code, upload multiple files to Knack servers)
+* `uploadFileFromInput()` (for client-side code only, upload single file from an HTML file input)
+* `uploadFilesFromInput()` (for client-side code only, upload multiple files from an HTML file input)
+
+All 4 methods share common parameters, as listed below:
+
+### Common parameters for file upload API calls
+| Parameter | Type | Required? | Auth type applies to | Details  |
+| --- | --- | --- | --- | --- |
+| helperData | object | No | Both | Any arbritrary object you want to include with the API call. This will get returned to you when you receive the response to the API call.<br><br> Useful for tracking data about the request that wouldn't ordinarily be easy to understand from the data received back from the API call. |
+| retries | integar >= 0 | No | Both | The number of times to retry the API call/s on failure, if the error code indicates that a retry might fix the error ([see above](#auto-retry-and-delay-between-retries)). Defaults to 5 if no value is provided. <br><br> Note there is a current issue: customizing the amount of retries doesn't work for `getMany`. `getMany` will always retry 5 times. |
+
+### uploadFile()
+
+Upload a single file to Knack servers. This method is most helpful for usage in Node.js code or similar, where you have a file stored locally that you want to upload. However, it could be adapted for use in the browser environment too.
+
+**Parameters:**
+* The common parameters for file upload API calls plus:
+
+| Parameter | Type | Required? | Auth type applies to | Details |
+|----|----|----|----|----|
+| uploadType | String | Yes | Both | Type of field you're uploading to, either `'file'` or `'image'`. |
+| fileStream | Stream | Yes | Both | A readable stream of the file to upload.  |
+| fileName   | String | Yes | Both | The name of the file to upload.           |
+
+#### uploadFile example (Node.js environment)
+
+```javascript
+
+const KnackAPI = require('../knack-api-helper.js');
+const fs = require('fs');
+const path = require('path');
+
+async function uploadFileTest() {
+
+    //Assuming there's a file stored in the same directory this is running called example.png
+    //Extract the necessary information from the file and create a file stream
+    const filePath = path.join(__dirname, 'example.png');
+    const fileStream = fs.createReadStream(filePath);
+    const fileName = path.basename(filePath);
+
+    try {
+
+        //Initialise knack-api-helper
+        const knackAPI = new KnackAPI({
+            auth: 'view-based', // You could also use object-based auth
+            applicationId: "672bdafceb51560285a611a2",
+            //No need for userToken or login when uploading files.
+        });
+
+        //Upload the file to Knack servers
+        const { uploadedFileId, response } = await knackAPI.uploadFile({
+            uploadType: 'file',//Or 'image'
+            fileStream,
+            fileName
+        });
+
+        console.log('Upload successful. Here is the file ID to save to your Knack record: ', uploadedFileId);
+
+        // Create a new record in Knack with the file attached
+        // This example uses a publicly accessible form, but you could also use a login protected one if you pass a userToken or run login first
+        // You could also use object-based auth if knackAPI was initialised with auth: 'object-based'
+        const newRecordResponse = await knackAPI.post({
+            scene: 'scene_7',
+            view: 'view_6',
+            body: {
+                field_23: uploadedFileId, //Assuming field_23 is a file or image field in your Knack database
+                field_25: 'Hello', //Any other value(s) you wan to fill
+            }
+        })
+
+        console.log('Added new record', newRecordResponse);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//Run the function defined above
+uploadFileTest();
+```
+
+### uploadFiles()
+
+Upload multiple files to Knack servers. As for `uploadFile`, this method is most helpful for usage in Node.js code or similar, where you have files stored locally that you want to upload. However, it could be adapted for use in the browser environment.
+
+**Parameters:**
+
+* The common parameters for file upload API calls plus:
+
+| Parameter | Type | Required? | Auth type applies to | Details |
+|----|----|----|----|----|
+| filesToUpload | Array of objects | Yes | Both | An array of objects containing `uploadType` ('file' or 'image'), `fileStream` of each file, and `fileName` of each file. |
+
+#### uploadFiles() example (Node.js Environment)
+
+```javascript
+
+const KnackAPI = require('../knack-api-helper.js');
+const fs = require('fs');
+const path = require('path');
+
+async function uploadFilesTest() {
+
+    //Assuming there's a file stored in the same directory this is running called test.html
+    //Extract the necessary information from the file and create a file stream
+    const filePaths = [
+        path.join(__dirname, 'example.png'),
+        path.join(__dirname, 'example2.png'),
+        path.join(__dirname, 'example3.png'),
+    ]
+
+    const filesToUpload = filePaths.map(filePath => {
+        return {
+            uploadType: 'file',//Or 'image'
+            fileStream: fs.createReadStream(filePath),
+            fileName: path.basename(filePath)
+        }
+    });
+
+    try {
+
+        // Initialise knack-api-helper
+        const knackAPI = new KnackAPI({
+            auth: 'view-based',
+            applicationId: "672bdafceb51560285a611a2",
+        });
+
+        //Upload the file to Knack servers
+        const { results, uploadedFileIds, allSucceeded, summary } = await knackAPI.uploadFiles({
+            filesToUpload
+        });
+
+        if (!allSucceeded) {
+            console.error('At least one file failed to upload. Here is a summary of the results:', summary);
+            console.log(results);
+        } else {
+            console.log('All files uploaded successfully. Here are the IDs of uploaded files to append to Knack records');
+            console.log(uploadedFileIds);
+        }
+
+        // Create one record in Knack per uploaded file
+        // With the uploaded file attached to the record
+        // This example uses a publicly accessible scene and view, but you can also use a login-protected one if you run the login method first
+        // You could also use object-based auth if knackAPI was initialised with auth: 'object-based'
+        const records = uploadedFileIds.map(uploadedFileId => {
+            return {
+                field_23: uploadedFileId, //Assuming field_23 is a file or image field in your Knack database
+                field_25: 'Hello', //Any other value(s) you wan to fill
+            }
+        });
+
+        const newRecordResponses = await knackAPI.postMany({
+            scene: 'scene_7',
+            view: 'view_6',
+            records
+        })
+
+        // Check if all records were added successfully
+        if (newRecordResponses.summary.rejected > 0) {
+            console.error('Some records failed to post. Here is a summary of the results:', newRecordResponses.summary);
+        } else {
+            console.log('All records added successfully', newRecordResponses);
+        }
+
+    } catch (err) {
+        // Handle any other errors
+        // Errors from uploadFiles will not reach here
+        console.error(err);
+    }
+
+}
+
+uploadFilesTest();
+```
+
+### `uploadFileFromInput`
+
+Upload a single file from an HTML file input to Knack servers.
+
+**Parameters:**
+
+| Name       | Type         | Description                                     |
+|------------|--------------|-------------------------------------------------|
+| uploadType | String       | Type of upload, either `'file'` or `'image'`.    |
+| fileInput  | HTMLElement  | The HTML file input element containing the file. |
+
+**Usage Example:** *(Browser Environment)*
+
+```html
+
+<!-- A basic form with a file input (single select) and a submit button -->
+<form id="fileUploadForm">
+    <input type="file" id="fileInput" name="file">
+    <button type="submit">Upload File</button>
+</form>
+
+<!-- Javascript to process form submit: upload file and create a new Knack record with it attached file -->
+<script>
+    document.getElementById('fileUploadForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        try {
+            // Initialize the KnackAPI with your configuration
+            const knackAPI = new KnackAPI({
+                auth: 'view-based',
+                applicationId: "672bdafceb51560285a611a2",
+                // No need for userToken or login when uploading files.
+            });
+
+            // Select the fileInput in the form
+            const myFileInput = document.getElementById('fileInput');
+
+            // Run the API call to upload file to Knack server
+            const {response, uploadedFileId} = await knackAPI.uploadFileFromInput({
+                uploadType: 'file', // Or 'image'
+                fileInput: myFileInput
+            });
+            console.log('File uploaded successfully. Here is the ID to save to your Knack record:', uploadedFileId);
+
+            // Create a new record in Knack with the file attached
+            const newRecordResponse = await knackAPI.post({
+                scene: 'scene_7',
+                view: 'view_6',
+                body: {
+                    field_23: uploadedFileId, // Assuming field_23 is a file or image field in your Knack database
+                    field_25: 'Hello', // Any other value(s) you want to fill
+                }
+            });
+
+            console.log('Added new record', newRecordResponse);
+
+        } catch (error) {
+            console.error('File upload failed:', error);
+        }
+    });
+</script>
+```
+
+### `uploadFilesFromInput`
+
+Upload multiple files from an HTML file input to Knack servers.
+
+**Parameters:**
+
+| Name         | Type         | Description                                     |
+|--------------|--------------|-------------------------------------------------|
+| uploadType   | String       | Type of upload, either `'file'` or `'image'`.    |
+| fileInput    | HTMLElement  | The HTML file input element containing the files. |
+
+**Usage Example:** *(Browser Environment)*
+
+```html
+
+<!-- A basic form with a file input that allows multiple selection, and a submit button -->
+<form id="fileUploadForm">
+    <input type="file" id="fileInput" name="file" multiple>
+    <button type="submit">Upload Multiple Files</button>
+</form>
+
+<!-- Javascript to process form submit: upload files and create new Knack records for each file -->
+<script>
+    document.getElementById('fileUploadForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        try {
+            // Initialize the KnackAPI with your configuration
+            const knackAPI = new KnackAPI({
+                auth: 'view-based',
+                applicationId: "672bdafceb51560285a611a2",
+                // No need for userToken or login when uploading files.
+            });
+
+            // Select the fileInput in the form
+            const myFileInput = document.getElementById('fileInput');
+
+            // Run the API call to upload files to Knack servers
+            const { response, uploadedFileIds, allSucceeded, summary } = await knackAPI.uploadFilesFromInput({
+                uploadType: 'file', // Or 'image'
+                fileInput: myFileInput
+            });
+
+            // Check if all files were uploaded successfully
+            if (allSucceeded) {
+                console.log('All files uploaded successfully. Here are the IDs to save to your Knack records:', uploadedFileIds);
+            } else {
+                console.error('Some files failed to upload. Here is a summary of the results:', summary);
+            }
+
+            // Create one record in Knack per uploaded file
+            const records = uploadedFileIds.map(uploadedFileId => {
+                return {
+                    field_23: uploadedFileId, // Assuming field_23 is a file or image field in your Knack database
+                    field_25: 'Hello', // Any other value(s) you want to fill
+                };
+            });
+
+            const newRecordResponses = await knackAPI.postMany({
+                scene: 'scene_7',
+                view: 'view_6',
+                records
+            });
+
+            // Check if all records were added successfully
+            if (newRecordResponses.summary.rejected > 0) {
+                console.error('Some records failed to post. Here is a summary of the results:', newRecordResponses.summary);
+            } else {
+                console.log('All records added successfully', newRecordResponses);
+            }
+
+        } catch (err) {
+            console.error('Something went wrong', err);
+        }
+
+    });
+</script>
+```

@@ -378,7 +378,13 @@ function KnackAPI(config) {
     };
 
     // Helper function to check filestreams and prepare for upload to Knack
-    this.uploadFilePrep = async function(settings = {fileStream, fileName, helperData, retries}) {
+    this.uploadFilePrep = async function(settings = {uploadType, fileStream, fileName, helperData, retries}) {
+
+        // Check that uplaodType is either 'file' or 'image'
+        if (!settings.uploadType || (settings.uploadType !== 'file' && settings.uploadType !== 'image')) {
+            throw new Error('you must specify the uploadType ("file" or "image") when running uploadFile or uploadFiles');
+        }
+
         // Validate the presence of fileStream
         if (!settings.fileStream) {
             throw new Error('uploadFile requires a fileStream to be provided');
@@ -419,10 +425,18 @@ function KnackAPI(config) {
         if(!inBrowser()) {
             Object.assign(headers, formData.getHeaders());
         }
+
+        //Determine the url, based on whether we are uploading a file or image
+        let url;
+        if(settings.uploadType === 'image') {
+            url = `${this.urlBase}/applications/${config.applicationId}/assets/image/upload`;
+        } else {
+            url = `${this.urlBase}/applications/${config.applicationId}/assets/file/upload`;
+        }
         
         // Construct the request object for _fetch
         const req = {
-            url: `${this.urlBase}/applications/${config.applicationId}/assets/file/upload`,
+            url,
             options: {
                 method: 'POST',
                 body: formData,
@@ -435,7 +449,7 @@ function KnackAPI(config) {
     };
 
 
-    this.uploadFile = async function(settings = {fileStream, fileName, helperData, retries}) {
+    this.uploadFile = async function(settings = {uploadType, fileStream, fileName, helperData, retries}) {
         const req = await this.uploadFilePrep(settings);
         const response = await _fetch.one(req);
         return {
@@ -444,7 +458,7 @@ function KnackAPI(config) {
         }
     };
 
-    this.uploadFiles = async function(settings = {filesToUpload: [{fileStream, fileName}], helperData, retries, progressCbs}) {
+    this.uploadFiles = async function(settings = {filesToUpload: [{uploadType, fileStream, fileName}], helperData, retries, progressCbs}) {
         const filesToUpload = settings.filesToUpload;
         
         //Validate data
@@ -460,10 +474,11 @@ function KnackAPI(config) {
 
         //Build the requests to upload files
         const requests = [];
-        for (const fileStream of filesToUpload) {
+        for (const file of filesToUpload) {
             const request = await this.uploadFilePrep({
-                fileStream: fileStream.fileStream,
-                fileName: fileStream.fileName,
+                uploadType: file.uploadType,
+                fileStream: file.fileStream,
+                fileName: file.fileName,
                 helperData: settings.helperData,
                 retries: settings.retries
             });
@@ -527,7 +542,7 @@ function KnackAPI(config) {
     };
 
     // Modify existing uploadFileFromInput to use the new prep function
-    this.uploadFileFromInput = async function (settings = { fileInput, helperData, retries }) {
+    this.uploadFileFromInput = async function (settings = { uploadType, fileInput, helperData, retries }) {
         const files = this.uploadFileFromInputPrep(settings.fileInput);
         const file = files[0];
 
@@ -537,6 +552,7 @@ function KnackAPI(config) {
 
         //Upload the file to Knack servers
         return await this.uploadFile({
+            uploadType: settings.uploadType,
             fileStream: formData.get('fileStream'),
             fileName: file.name,
             helperData: settings.helperData,
@@ -545,12 +561,13 @@ function KnackAPI(config) {
     };
 
     // Add new uploadFilesFromInput function
-    this.uploadFilesFromInput = async function (settings = { fileInput, helperData, retries, progressCbs }) {
+    this.uploadFilesFromInput = async function (settings = { uploadType, fileInput, helperData, retries, progressCbs }) {
         const files = this.uploadFileFromInputPrep(settings.fileInput);
 
         const filesToUpload = Array.from(files).map(file => ({
             fileStream: file,
-            fileName: file.name
+            fileName: file.name,
+            uploadType: settings.uploadType
         }));
 
         return await this.uploadFiles({
