@@ -723,6 +723,44 @@ function KnackAPI(config) {
     }
 }
 
+async function makeRequest(method, options = {}, isPublic = false) {
+
+    if(!inBrowser() || !window.Knack || !window.Knack.application_id) {
+        throw new Error('makeKnackApiRequest is a shortcut method that only works when used in the browser where the window.Knack object is available. See documentation for other ways to use knack-api-helper.');
+    }
+
+    const applicationId = window.Knack.application_id;
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId,
+        userToken: isPublic ? null : Knack.getUserToken()
+    });
+
+    const response = await knackAPI[method](options);
+
+    if (response?.summary?.rejected > 0) {
+        const reasons = response.summary.errors.map(err => err.reason);
+        throw new Error(`${response.summary.rejected} ${method} requests failed: ${reasons.join('; ')}`);
+    }
+
+    switch (method) {
+        case 'get':
+            return response.json;
+        case 'getMany':
+            return response.records;
+        case 'post':
+            return response.json.record;
+        case 'postMany':
+            return response.settings.records;
+        case 'put':
+            return response.json.record;
+        case 'putMany':
+            return response.settings.records;
+    }
+}
+
+KnackAPI.makeRequest = makeRequest;
+
 module.exports = KnackAPI;
 },{"@callum.boase/fetch":2,"form-data":3}],2:[function(require,module,exports){
 //Only load node-fetch in nodeJs environment

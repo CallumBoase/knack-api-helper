@@ -120,6 +120,47 @@ const loadScripts = (scripts, onSuccess, onFailure) => {
 
 ```
 
+## Easiest way to use knack-api-helper within Knack javascript code
+
+### `makeRequest()`
+This is the easiest way to use knack-api-helper but only works if you're writing code in the Knack javascript area (or in a browser environment where the window.Knack object is available eg due to an embedded Knack app).
+
+#### Parameters
+|Parameter|Type|Required?|Details|
+|---|---|---|---|
+|method|string|Yes|The method to run. Currently supported are `get`, `getMany`, `post`, `postMany`, `put`, `putMany`, `delete`, `deleteMany`|
+|options|object|Yes|The options required for the method being run (see detailed documentation below)|
+|isPublic|boolean|No|Whether the request is being run on a publicly accessible view or not. If set to true, `knack-api-helper` will be initialised without a user token and will therefore only work on public views. If you leave this undefined or set it to false, `knack-api-helper` will be initialised with a user token and will work on login-protected views if there is a logged in user with the appropriate permissions.|
+
+#### Example of `makeRequest()`
+
+```javascript
+// Excerpt from code written in the Knack javascript area
+
+// Make sure knack-api-helper has been imported already (see documentation above)
+// Unlike all other methods, you don't need to initialise knack-api-helper to run `makeRequest`
+// You can just use it immediately and knack-api-helper will get the application id and user token from the window.Knack object where relevant
+
+//Use makeRequest to get many records from view_26 in scene_10
+$(document).on('knack-view-render.view_1', asybc function(event, view, records) {
+    try {
+        const records = await KnackAPI.makeRequest('getMany', {
+            scene: 'scene_10',
+            view: 'view_26',
+            format: 'raw'
+        })
+        console.log(records);
+    } catch(err){
+        //If an error occurs (including one or more postMany, putMany or deleteMany requests failing)
+        //makeKnackApiRequest will throw an error which can be caught via a try catch block
+        console.log(err);
+    }
+})
+
+```
+# Full Knack API usage documentation
+The instructions below are an alternative to using `makeRequest()` and are useful for more control over how `knack-api-helper` is used, or if you're not running code in the Knack javascript area.
+
 ## Initialization
 Once you have imported `knack-api-helper as KnackAPI` via one of the above methods, you're ready to use it.
 
