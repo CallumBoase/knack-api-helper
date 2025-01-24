@@ -723,7 +723,7 @@ function KnackAPI(config) {
     }
 }
 
-async function shortcutRequest(method, options = {}, isPublic = false) {
+async function makeRequest(method, options = {}, isPublic = false) {
 
     if(!inBrowser() || !window.Knack || !window.Knack.application_id) {
         throw new Error('makeKnackApiRequest is a shortcut method that only works when used in the browser where the window.Knack object is available. See documentation for other ways to use knack-api-helper.');
@@ -759,7 +759,7 @@ async function shortcutRequest(method, options = {}, isPublic = false) {
     }
 }
 
-KnackAPI.shortcutRequest = shortcutRequest;
+KnackAPI.makeRequest = makeRequest;
 
 module.exports = KnackAPI;
 },{"@callum.boase/fetch":2,"form-data":3}],2:[function(require,module,exports){

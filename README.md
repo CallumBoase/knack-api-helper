@@ -120,29 +120,31 @@ const loadScripts = (scripts, onSuccess, onFailure) => {
 
 ```
 
-## `shortcutRequest()` (Knack javascript area code only)
-This is the easiest way to use knack-api-helper if you're writing code in the Knack javascript area (or in a browser environment where the window.Knack object is available eg an embedded app).
+## Easiest way to use knack-api-helper within Knack javascript code
 
-### Parameters
+### `makeRequest()`
+This is the easiest way to use knack-api-helper but only works if you're writing code in the Knack javascript area (or in a browser environment where the window.Knack object is available eg due to an embedded Knack app).
+
+#### Parameters
 |Parameter|Type|Required?|Details|
 |---|---|---|---|
 |method|string|Yes|The method to run. Currently supported are `get`, `getMany`, `post`, `postMany`, `put`, `putMany`, `delete`, `deleteMany`|
 |options|object|Yes|The options required for the method being run (see detailed documentation below)|
 |isPublic|boolean|No|Whether the request is being run on a publicly accessible view or not. If set to true, `knack-api-helper` will be initialised without a user token and will therefore only work on public views. If you leave this undefined or set it to false, `knack-api-helper` will be initialised with a user token and will work on login-protected views if there is a logged in user with the appropriate permissions.|
 
-### Example of `shortcutRequest()`
+#### Example of `makeRequest()`
 
 ```javascript
-//Excerpt from code written in the Knack javascript area
+// Excerpt from code written in the Knack javascript area
 
-//Make sure knack-api-helper has been imported already (see documentation above)
-//Unlike all other methods, you don't need to initialise knack-api-helper (see below)
-//You can just use it immediately and knack-api-helper will get the application id and user token from the window.Knack object where relevant
+// Make sure knack-api-helper has been imported already (see documentation above)
+// Unlike all other methods, you don't need to initialise knack-api-helper to run `makeRequest`
+// You can just use it immediately and knack-api-helper will get the application id and user token from the window.Knack object where relevant
 
-//Use makeKnackApiRequest to get many records from view_26 in scene_10
+//Use makeRequest to get many records from view_26 in scene_10
 $(document).on('knack-view-render.view_1', asybc function(event, view, records) {
     try {
-        const records = await KnackAPI.shortcutRequest('getMany', {
+        const records = await KnackAPI.makeRequest('getMany', {
             scene: 'scene_10',
             view: 'view_26',
             format: 'raw'
@@ -156,6 +158,8 @@ $(document).on('knack-view-render.view_1', asybc function(event, view, records) 
 })
 
 ```
+# Full Knack API usage documentation
+The instructions below are an alternative to using `makeRequest()` and are useful for more control over how `knack-api-helper` is used, or if you're not running code in the Knack javascript area.
 
 ## Initialization
 Once you have imported `knack-api-helper as KnackAPI` via one of the above methods, you're ready to use it.
