@@ -1,5 +1,9 @@
 # Knack-api-helper CHANGELOG
 
+## 2025/01/24 Version 2.3.0 -> 2.3.1
+* Added separate top-level shortcut method `makeKnackApiRequest()` (see documentation)
+* the main knack-api-helper functionality is unchanged and can be used as before
+
 ## 2024/12/17 Version 2.2.6 -> 2.3.0
 * Added new methods for file uploads
     * `uploadFile()`

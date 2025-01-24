@@ -120,6 +120,40 @@ const loadScripts = (scripts, onSuccess, onFailure) => {
 
 ```
 
+## Shortcut method `makeKnackApiRequest()` (Knack javascript area code only)
+This is the easiest way to use knack-api-helper if you're writing code in the Knack javascript area (or in a browser environment where the window.Knack object is available eg an embedded app).
+
+### Parameters
+|Parameter|Type|Required?|Details|
+|---|---|---|---|
+|method|string|Yes|The method to run. Currently supported are `get`, `getMany`, `post`, `postMany`, `put`, `putMany`, `delete`, `deleteMany`|
+|options|object|Yes|The options required for the method being run (see detailed documentation below)|
+|isPublic|boolean|No|Whether the request is being run on a publicly accessible view or not. If set to true, `knack-api-helper` will be initialised without a user token and will therefore only work on public views. If you leave this undefined or set it to false, `knack-api-helper` will be initialised with a user token and will work on login-protected views if there is a logged in user with the appropriate permissions.|
+
+`makeKnackApiRequest()` will 
+
+```javascript
+//Excerpt from code written in the Knack javascript area
+
+//Make sure knack-api-helper has been imported already (see documentation above)
+
+//Use makeKnackApiRequest to get many records from view_26 in scene_10
+$(document).on('knack-view-render.view_1', function(event, view, records) {
+    try {
+        const records = makeKnackApiRequest('getMany', {
+            scene: 'scene_10',
+            view: 'view_26',
+            format: 'raw'
+        })
+    } catch(err){
+        //If an error occurs (including one or more postMany, putMany or deleteMany requests failing)
+        //makeKnackApiRequest will throw an error which can be caught via a try catch block
+        console.log(err);
+    }
+})
+
+```
+
 ## Initialization
 Once you have imported `knack-api-helper as KnackAPI` via one of the above methods, you're ready to use it.
 
