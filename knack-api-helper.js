@@ -249,7 +249,7 @@ function KnackAPI(config) {
     }
 
 
-    this.getMany = async function(settings = {view, scene, object, filters, rowsPerpage, startAtPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, object, filters, parentSlug, parentId, rowsPerpage, startAtPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
@@ -265,6 +265,7 @@ function KnackAPI(config) {
 
         if(settings.format) req.url += `&format=${settings.format}`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
+        if(settings.parentSlug && settings.parentId) req.url += `&${settings.parentSlug}_id=${settings.parentId};
 
         const result = await _fetch.one(req);
 
