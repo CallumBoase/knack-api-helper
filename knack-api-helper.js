@@ -270,7 +270,7 @@ function KnackAPI(config) {
         //Eg /pages/scene_1/views/view_1/records?dashboard_id=63e1bfe1a978400745e3a736
         if(settings.sceneRecordId) {
             const sceneSlug = await this.getSceneSlug(settings.scene);
-            req.url += `?${sceneSlug}_id=${settings.sceneRecordId}`
+            req.url += `&${sceneSlug}_id=${settings.sceneRecordId}`
         }
 
         const result = await _fetch.one(req);
