@@ -265,7 +265,7 @@ function KnackAPI(config) {
 
         if(settings.format) req.url += `&format=${settings.format}`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
-        if(settings.parentSlug && settings.parentId) req.url += `&${settings.parentSlug}_id=${settings.parentId};
+        if(settings.parentSlug && settings.parentId) req.url += `&${settings.parentSlug}_id=${settings.parentId}`;
 
         const result = await _fetch.one(req);
 
