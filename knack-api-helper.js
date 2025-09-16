@@ -269,6 +269,9 @@ function KnackAPI(config) {
         //If the target view is on a child page with data source of "this page's record", then we need to add query string of ?{sceneSlug}_id={sceneRecordId} so Knack knows what record to filter records by
         //Eg /pages/scene_1/views/view_1/records?dashboard_id=63e1bfe1a978400745e3a736
         if(settings.sceneRecordId) {
+            if(config.auth !== 'view-based'){
+                throw new Error('sceneRecordId is only available when using view-based auth');
+            }
             const sceneSlug = await this.getSceneSlug(settings.scene);
             req.url += `&${sceneSlug}_id=${settings.sceneRecordId}`
         }
