@@ -249,7 +249,7 @@ function KnackAPI(config) {
     }
 
 
-    this.getMany = async function(settings = {view, scene, object, filters, rowsPerpage, startAtPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
+    this.getMany = async function(settings = {view, scene, object, filters, sceneRecordId, rowsPerpage, startAtPage, maxRecordsToGet, helperData}, currentPage = 1, final = {records: [], pages: []}){
 
         const req = this.setup('GET', settings);
 
@@ -265,6 +265,16 @@ function KnackAPI(config) {
 
         if(settings.format) req.url += `&format=${settings.format}`;
         if(settings.filters) req.url += `&filters=${JSON.stringify(settings.filters)}`;
+
+        //If the target view is on a child page with data source of "this page's record", then we need to add query string of ?{sceneSlug}_id={sceneRecordId} so Knack knows what record to filter records by
+        //Eg /pages/scene_1/views/view_1/records?dashboard_id=63e1bfe1a978400745e3a736
+        if(settings.sceneRecordId) {
+            if(config.auth !== 'view-based'){
+                throw new Error('sceneRecordId is only available when using view-based auth');
+            }
+            const sceneSlug = await this.getSceneSlug(settings.scene);
+            req.url += `&${sceneSlug}_id=${settings.sceneRecordId}`
+        }
 
         const result = await _fetch.one(req);
 

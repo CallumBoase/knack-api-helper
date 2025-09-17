@@ -520,13 +520,14 @@ try {
 
 Additional parameters, on top of the standard ones, for `getMany` are as follows:
 
-| Parameter | Type | Required? | Details  |
-| ---                |  ---  | ---       | ---      |
-| filters            | Filters object | No | A javascript object version of <a href="https://docs.knack.com/docs/constructing-filters">Knack filter object</a>|
-| format             |  string | No | Knack API call <a href="https://docs.knack.com/docs/formatting">formatting options</a> (```raw```, ```both```, or ```html```) |
-| rowsPerPage | integar | No. Defaults to 1000 if not provided. | How many records to get per page of data. See <a href="https://docs.knack.com/docs/pagination">pagination Knack docs</a> |
-| startAtPage | integar | No. Defaults to 1 if not provided | The first page of data to get. Knack-api-helper will fetch this page of data, then any subsequent pages in order (page 1,2,3,4 etc) until all records are fetched or until it has fetched the ```maxRecordsToGet``` number of records (see below).<br> E.g., if there are 10000 records available and you set ```startAtPage: 5``` (and leave ```rowsPerPage``` and ```maxRecordsToGet``` at their default values), knack-api-helper will fetch pages 5-10, so you will receive the last 5000 records of the available 10000. |
-| maxRecordsToGet | integar | No. Defaults to all records if not provided. | The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
+| Parameter | Type | Required? | Auth type applies to | Details  |
+| ---                |  ---  | ---       | ---| ---      |
+| filters            | Filters object | No | Both | A javascript object version of <a href="https://docs.knack.com/docs/constructing-filters">Knack filter object</a>|
+| format             |  string | No | Both | Knack API call <a href="https://docs.knack.com/docs/formatting">formatting options</a> (```raw```, ```both```, or ```html```) |
+| rowsPerPage | integar | No. Defaults to 1000 if not provided. | Both | How many records to get per page of data. See <a href="https://docs.knack.com/docs/pagination">pagination Knack docs</a> |
+| startAtPage | integar | No. Defaults to 1 if not provided | Both | The first page of data to get. Knack-api-helper will fetch this page of data, then any subsequent pages in order (page 1,2,3,4 etc) until all records are fetched or until it has fetched the ```maxRecordsToGet``` number of records (see below).<br> E.g., if there are 10000 records available and you set ```startAtPage: 5``` (and leave ```rowsPerPage``` and ```maxRecordsToGet``` at their default values), knack-api-helper will fetch pages 5-10, so you will receive the last 5000 records of the available 10000. |
+| maxRecordsToGet | integar | No. Defaults to all records if not provided. | Both |The maximum number of records to get. E.g., if you set this to 1500, and there are 30,000 records available, only the first 1500 records will be fetched.<br>Knack-api-helper will fetch pages in order, it will not go "backwards" to earlier pages to fetch additional records. E.g., if a Knack object has only 2000 records and you set ```startAtPage: 2``` and ```maxRecordsToGet: 1500```, the first 1000 records will be skipped and you will only get the final 1000 records (not 1500). |
+| sceneRecordId | string | No | View-based only | The record ID to filter records by, if the view you are fetching data from is situated on a child page that deals with one particular record (ie it has the data source of "records connected to this page's XXX record"). (example below) |
 
 #### Advantages of using view-based authentication for getMany
 There are several advantages of using a view-based `getMany` request, even when you run it with server-side code:
@@ -575,6 +576,35 @@ try {
     const response = await knackAPI.getMany({
         scene: 'scene_10',
         view: 'view_26',//view_26 is a table/grid view or a search view
+        format: 'raw',
+        //Other settings are available as per previous example, if needed
+    });
+
+    console.log(response.records);
+    //Expected output: an array of records from view_26, contianing only the raw field data
+} catch (err) {
+    console.log(err);
+}
+```
+
+#### Example getMany request (view-based authentication, with sceneRecordId)
+
+```javascript
+try {
+    const knackAPI = new KnackAPI({
+        auth: 'view-based',
+        applicationId: 'your application ID',
+    });
+
+    await knackAPI.login({
+        email: 'email@email.com',
+        password: process.env.password
+    });
+
+    const response = await knackAPI.getMany({
+        scene: 'scene_10',
+        view: 'view_27',//eg: view_26 is a grid of Task records, on a child page with the data source of "This page's Project". In the live app it shows Tasks connected to this page's Project.
+        sceneRecordId: '63e1bfe1a978400745e3a736', //Here, we tell Knack what the parent Project record is, so we can fetch the Tasks connected to the project
         format: 'raw',
         //Other settings are available as per previous example, if needed
     });
@@ -745,13 +775,7 @@ Important note: this method relies on view-based authentication, so knackAPI mus
 2. `view` (the report view to use for making the view-based API call. This may contain one or more charts.
 3. `helperData` (optional)
 4. `retries` (optional, defaults to 5)
-
-It also supports one additional parameter:
-
-
-| Parameter | Type | Required? | Details  |
-| ---  | ---  | --- | --- |
-| sceneRecordId | string | No | The record ID to filter records by, if your report is situated on a child page that deals with one particular record (ie it has the data source of "records connected to this page's XXX record"). (example below) |
+5. `sceneRecordId` (optional)
 
 #### Example getDataFromReportView() request (without sceneRecordId)
 
