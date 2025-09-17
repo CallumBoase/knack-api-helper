@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2025/09/17 Version 2.4.0 -> 2.4.1
+* Fixed missing new getMany() feature due to publishing bug
+
 ## 2025/09/17 Version 2.3.1 -> 2.4.0
 * Added sceneRecordId option to getMany() to allow fetching records from a view on a child page that has the data source of "records connected to this page's XXX record". See documentation for details.
 
