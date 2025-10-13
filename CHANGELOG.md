@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2025/10/14 Version 2.4.1 -> 3.0.0
+* Updated knackAPI.makeRequest() return value for putMany and postMany to be an array of records returned from Knack instead of response.settings.records (the records initially passed). This is a breaking change because the return value from these functions is different for makeRequest('putMany') and makeRequest('postMany'). The raw knackAPI.putMany() and knackAPI.postMany() are UNCHANGED, this change only impacts knackAPI.makeRequest() shortcut method.
+
 ## 2025/09/17 Version 2.4.0 -> 2.4.1
 * Fixed missing new getMany() feature due to publishing bug
 
