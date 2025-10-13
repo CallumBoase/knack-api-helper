@@ -760,11 +760,11 @@ async function makeRequest(method, options = {}, isPublic = false) {
         case 'post':
             return response.json.record;
         case 'postMany':
-            return response.settings.records;
+            return response.map(r => r.value.json.record);
         case 'put':
             return response.json.record;
         case 'putMany':
-            return response.settings.records;
+            return response.map(r => r.value.json.record);
     }
 }
 
