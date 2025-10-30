@@ -734,15 +734,29 @@ function KnackAPI(config) {
 
 async function makeRequest(method, options = {}, isPublic = false) {
 
-    if(!inBrowser() || !window.Knack || !window.Knack.application_id) {
+    if(!inBrowser() || !window.Knack || (!window.Knack.application_id && !window.Knack.getApplicationDetails)) {
         throw new Error('makeKnackApiRequest is a shortcut method that only works when used in the browser where the window.Knack object is available. See documentation for other ways to use knack-api-helper.');
     }
 
-    const applicationId = window.Knack.application_id;
+    const applicationId = window.Knack.application_id || (await window.Knack.getApplicationDetails())?.id;
+
+    let userToken = null;
+    if(!isPublic) {
+        if(Knack.getUserToken) {
+            // Classic builder
+            userToken = Knack.getUserToken();
+        } else if(Knack.getUser) {
+            // next-gen builder
+            userToken = await Knack.getUser()?.token;
+        } else {
+            throw new Error('Unable to automatically get user token. Knack.getUserToken() and Knack.getUser() both not available. makeRequest only works in the Knack app javascript area. Use the raw methods instead.')
+        }
+    }
+    
     const knackAPI = new KnackAPI({
         auth: 'view-based',
         applicationId,
-        userToken: isPublic ? null : Knack.getUserToken()
+        userToken
     });
 
     const response = await knackAPI[method](options);
