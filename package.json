@@ -5,7 +5,8 @@
   "main": "knack-api-helper.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify --ignore node-fetch --ignore form-data --standalone KnackAPI knack-api-helper.js > browser.js"
+    "build": "browserify --ignore node-fetch --ignore form-data --standalone KnackAPI knack-api-helper.js > browser.js",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
