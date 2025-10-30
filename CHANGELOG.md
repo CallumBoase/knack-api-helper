@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2025/10/30 Version 3.0.0 -> 3.1.0
+* updated `makeRequest()` to work with nextgen builder as well as classic builder. This change was required because automatically determining the applicationId while running code within a Knack app uses different code in nextgen. Classic uses `Knack.application_id`, nextgen uses await `window.Knack.getApplicationDetails().id`. This is not a breaking change for previous users in classic - but does allow `makeRequest()` usage in both classic and nextgen builders now.
+
 ## 2025/10/14 Version 2.4.1 -> 3.0.0
 * Updated knackAPI.makeRequest() return value for putMany and postMany to be an array of records returned from Knack instead of response.settings.records (the records initially passed). This is a breaking change because the return value from these functions is different for makeRequest('putMany') and makeRequest('postMany'). The raw knackAPI.putMany() and knackAPI.postMany() are UNCHANGED, this change only impacts knackAPI.makeRequest() shortcut method.
 
