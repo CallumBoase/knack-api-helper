@@ -748,7 +748,8 @@ async function makeRequest(method, options = {}, isPublic = false) {
             userToken = Knack.getUserToken();
         } else if(Knack.getUser) {
             // next-gen builder
-            userToken = await Knack.getUser()?.token;
+            const user = await Knack.getUser();
+            if(user) userToken = user.token;
         } else {
             throw new Error('Unable to automatically get user token. Knack.getUserToken() and Knack.getUser() both not available. makeRequest only works in the Knack app javascript area. Use the raw methods instead.')
         }
