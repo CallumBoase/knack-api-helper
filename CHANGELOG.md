@@ -1,5 +1,8 @@
 # Knack-api-helper CHANGELOG
 
+## 2026/01/20 Version 3.1.0 -> 3.1.1
+* Fixed bug in `makeRequest()` that stopped the next-gen builder user token being automatically determined. 
+
 ## 2025/10/30 Version 3.0.0 -> 3.1.0
 * updated `makeRequest()` to work with nextgen builder as well as classic builder. This change was required because of different methods for automatically determining the Knack application ID and user token in nextgen vs classic builders. This is not a breaking change because makeRequest() still works as expected in classic builder and did not work previously in next-gen.
 
